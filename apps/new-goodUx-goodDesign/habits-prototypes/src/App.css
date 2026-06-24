@@ -125,7 +125,8 @@ button {
 }
 
 .time-option.selected img {
-  filter: brightness(0) saturate(100%) invert(24%) sepia(98%) saturate(1459%) hue-rotate(175deg) brightness(91%) contrast(101%);
+  filter: brightness(0) saturate(100%) invert(24%) sepia(98%) saturate(1459%)
+    hue-rotate(175deg) brightness(91%) contrast(101%);
 }
 
 .time-option:not(.selected) img {
