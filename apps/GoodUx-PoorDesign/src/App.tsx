@@ -1,32 +1,42 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import './App.css'
 
 const assets = {
-  sort: 'https://www.figma.com/api/mcp/asset/35799534-e068-4093-96ab-bf6b7bd87bad',
-  chevron: 'https://www.figma.com/api/mcp/asset/9ce95dc9-24b0-4cf0-913c-599adbbbd79b',
-  profile: 'https://www.figma.com/api/mcp/asset/79ff06a8-6b78-465e-a595-e122a33e92c4',
-  home: 'https://www.figma.com/api/mcp/asset/53a9bcf5-852a-46c8-9581-40e97e4bea4a',
-  addOutline: 'https://www.figma.com/api/mcp/asset/25a0e9b2-9999-4b58-af2e-205fb03aa6ab',
-  stats: 'https://www.figma.com/api/mcp/asset/6619e595-4045-4f70-917a-11e1a7f55cc3',
-  plus: 'https://www.figma.com/api/mcp/asset/e1e511ce-94f4-4a0f-9ad2-97d30110b524',
-  close: 'https://www.figma.com/api/mcp/asset/e003d2ff-0655-444c-a370-62092a2d352d',
-  pencil: 'https://www.figma.com/api/mcp/asset/85dbab40-caf5-4b06-8143-c2cb6f64c9ce',
-  redo: 'https://www.figma.com/api/mcp/asset/e0dd13a4-564b-4081-b032-e2004bbab403',
-  archive: 'https://www.figma.com/api/mcp/asset/a695d724-a9ce-4387-8388-450c555dead6',
-  trash: 'https://www.figma.com/api/mcp/asset/11eaa9da-9b0d-4a77-9e7b-ca93e506a90f',
-  return: 'https://www.figma.com/api/mcp/asset/fdeb73b5-d028-4abf-a97f-d87ef28e733c',
-  back: 'https://www.figma.com/api/mcp/asset/91bf38f1-00f0-438f-9c68-ace7b74b9928',
-  caret: 'https://www.figma.com/api/mcp/asset/683ae353-1ebb-4567-9146-088f598a17bb',
-  check: 'https://www.figma.com/api/mcp/asset/1aeb004d-c283-4d53-bdf3-3bb39b682e17',
-  bell: 'https://www.figma.com/api/mcp/asset/cb7848fa-61cc-4945-bafc-559f0e013d60',
-  date: 'https://www.figma.com/api/mcp/asset/7af3df8f-fde0-4ebb-b3da-aca24453e52f',
-  createBack: 'https://www.figma.com/api/mcp/asset/a808bc85-b97a-40a2-b26b-6672f10c63d8',
-  createClose: 'https://www.figma.com/api/mcp/asset/f38205f7-78d6-4588-8694-f190a02c3d38',
-  createCaret: 'https://www.figma.com/api/mcp/asset/10819c92-481d-46dd-b59e-bf007c86ee98',
-  createPin: 'https://www.figma.com/api/mcp/asset/9ff4bc4c-786f-4fd1-9c8b-d6232226287d',
-  createHourglass: 'https://www.figma.com/api/mcp/asset/e21d7da3-abf1-4b4e-b3f9-a756a41322fd',
-  createBreak: 'https://www.figma.com/api/mcp/asset/489723c9-6cab-4db8-9521-1307e8962d47',
-  colorPicked: 'https://www.figma.com/api/mcp/asset/b8005534-c275-4556-87a9-dc346a2ac4e7',
+  sort: './figma-assets/sort.svg',
+  chevron: './figma-assets/chevron.svg',
+  profile: './figma-assets/profile.svg',
+  home: './figma-assets/home.svg',
+  addOutline: './figma-assets/addOutline.svg',
+  stats: './figma-assets/stats.svg',
+  plus: './figma-assets/plus.svg',
+  close: './figma-assets/close.svg',
+  pencil: './figma-assets/pencil.svg',
+  redo: './figma-assets/redo.svg',
+  archive: './figma-assets/archive.svg',
+  trash: './figma-assets/trash.svg',
+  return: './figma-assets/return.svg',
+  back: './figma-assets/back.svg',
+  caret: './figma-assets/caret.svg',
+  check: './figma-assets/check.svg',
+  bell: './figma-assets/bell.svg',
+  date: './figma-assets/date.svg',
+  createBack: './figma-assets/createBack.svg',
+  createClose: './figma-assets/createClose.svg',
+  createCaret: './figma-assets/createCaret.svg',
+  createPin: './figma-assets/createPin.svg',
+  createHourglass: './figma-assets/createHourglass.svg',
+  createBreak: './figma-assets/createBreak.svg',
+  colorPicked: './figma-assets/colorPicked.svg',
+  rowEllipseTrack: './figma-assets/rowEllipseTrack.svg',
+  rowEllipseFill: './figma-assets/rowEllipseFill.svg',
+  largeEllipseTrack: './figma-assets/largeEllipseTrack.svg',
+  largeEllipseFill: './figma-assets/largeEllipseFill.svg',
+  dayEmpty: './figma-assets/dayEmpty.svg',
+  dayGreenHalf: './figma-assets/dayGreenHalf.svg',
+  dayGreenBase: './figma-assets/dayGreenBase.svg',
+  dayBlueBase: './figma-assets/dayBlueBase.svg',
+  dayBlueHalf: './figma-assets/dayBlueHalf.svg',
+  streakFlame: './figma-assets/streakFlame.svg',
 }
 
 type HabitDay = 'Th' | 'Fr' | 'Sa' | 'Su' | 'Mo' | 'Tu' | 'We'
@@ -50,7 +60,7 @@ type Habit = {
 type CreateDraft = Habit
 
 const habitDays: HabitDay[] = ['Th', 'Fr', 'Sa', 'Su', 'Mo', 'Tu', 'We']
-const todayHabitDay: HabitDay = 'Mo'
+const todayHabitDay: HabitDay = 'We'
 const runningIcon = '\u{1F3C3}\u200D\u2640\uFE0F'
 const clipboardIcon = '\u{1F4CB}\uFE0F'
 
@@ -98,6 +108,15 @@ const templateSections = [
       ['\u{1F4AA}', 'Push Ups'],
       ['\u{1F4AA}\uFE0F', 'Squats'],
       ['\u{1F4AA}', 'Pull Ups'],
+      ['\u{1F9D8}', 'Plank'],
+      ['\u{1F9B5}', 'Lunges'],
+    ],
+  },
+  {
+    title: 'Mobility',
+    items: [
+      ['\u{1F938}\u200D\u2640\uFE0F', 'Stretch'],
+      ['\u{1F9D8}\u200D\u2640\uFE0F', 'Yoga'],
     ],
   },
 ] as const
@@ -118,17 +137,39 @@ const paletteColors = [
   '#005d8f',
 ]
 
-const monthCells = [
-  null,
-  null,
-  null,
-  null,
-  null,
+type CalendarCell = { label: string; color: string; future?: boolean } | null
+type JuneProgressByDate = Record<string, number>
+
+function progressValueForCalendarColor(color: string, goal: number) {
+  if (color === '#e4e7d2') return 0
+  if (color === '#97da90') return Math.max(1, Math.floor(goal * 0.33))
+  if (color === '#37a398') return Math.max(1, Math.floor(goal * 0.66))
+  if (color === '#005d8f') return goal
+  return 0
+}
+
+function calendarColorForProgressValue(value: number, goal: number) {
+  const progress = goal > 0 ? value / goal : 0
+  if (value <= 0) return '#e4e7d2'
+  if (progress <= 0.33) return '#97da90'
+  if (progress <= 0.66) return '#37a398'
+  return '#005d8f'
+}
+
+function formatJuneDate(date: string) {
+  if (date === 'today') return 'Today'
+
+  const day = Number(date)
+  const suffix = day === 1 ? 'st' : day === 2 ? 'nd' : day === 3 ? 'rd' : 'th'
+  return `June ${date}${suffix}`
+}
+
+const monthCells: CalendarCell[] = [
   { label: '1', color: '#97da90' },
   { label: '2', color: '#e4e7d2' },
-  { label: '3', color: '#e4e7d2' },
-  { label: '4', color: '#005d8f' },
-  { label: '5', color: '#005d8f' },
+  { label: '3', color: '#005d8f' },
+  { label: '4', color: '#37a398' },
+  { label: '5', color: '#97da90' },
   { label: '6', color: '#005d8f' },
   { label: '7', color: '#37a398' },
   { label: '8', color: '#005d8f' },
@@ -155,70 +196,225 @@ const monthCells = [
   { label: '29', color: '#97da90' },
   { label: '30', color: '#37a398' },
   null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
 ]
 
-function polarToCartesian(size: number, angle: number) {
-  const radians = ((angle - 90) * Math.PI) / 180
-  return {
-    x: size / 2 + (size / 2 - 5) * Math.cos(radians),
-    y: size / 2 + (size / 2 - 5) * Math.sin(radians),
+const initialJuneProgressByDate: JuneProgressByDate = monthCells.reduce<JuneProgressByDate>((history, cell) => {
+  if (cell && Number(cell.label) <= 10) {
+    history[cell.label] = progressValueForCalendarColor(cell.color, defaultRunningHabit.goal)
   }
+  return history
+}, { 10: 0 })
+
+const habitDayToJuneDate: Record<HabitDay, string> = {
+  Th: '4',
+  Fr: '5',
+  Sa: '6',
+  Su: '7',
+  Mo: '8',
+  Tu: '9',
+  We: '10',
 }
 
-function arcPath(size: number, startAngle: number, endAngle: number) {
-  const start = polarToCartesian(size, endAngle)
-  const end = polarToCartesian(size, startAngle)
-  const largeArc = endAngle - startAngle <= 180 ? 0 : 1
-  return `M ${start.x} ${start.y} A ${size / 2 - 5} ${size / 2 - 5} 0 ${largeArc} 0 ${end.x} ${end.y}`
-}
+const juneDateToHabitDay: Record<string, HabitDay> = Object.fromEntries(
+  Object.entries(habitDayToJuneDate).map(([day, date]) => [date, day]),
+) as Record<string, HabitDay>
 
-function ProgressArc({
-  value,
-  goal,
-  size,
-  className = '',
-}: {
-  value: number
-  goal: number
-  size: number
-  className?: string
-}) {
-  const start = 126
-  const sweep = 272
-  const progress = Math.max(0, Math.min(value / goal, 1))
-  return (
-    <svg
-      className={`progress-arc ${className}`}
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      aria-hidden="true"
-    >
-      <path d={arcPath(size, start, start + sweep)} className="arc-track" />
-      <path
-        d={arcPath(size, start, start + sweep * progress)}
-        className="arc-fill"
-      />
-    </svg>
-  )
-}
+const pastCalendarMonths: Array<{ title: string; cells: CalendarCell[] }> = [
+  {
+    title: 'May',
+    cells: [
+      null, null, null, null,
+      { label: '1', color: '#005d8f' },
+      { label: '2', color: '#37a398' },
+      { label: '3', color: '#97da90' },
+      { label: '4', color: '#005d8f' },
+      { label: '5', color: '#e4e7d2' },
+      { label: '6', color: '#005d8f' },
+      { label: '7', color: '#37a398' },
+      { label: '8', color: '#97da90' },
+      { label: '9', color: '#005d8f' },
+      { label: '10', color: '#37a398' },
+      { label: '11', color: '#97da90' },
+      { label: '12', color: '#e4e7d2' },
+      { label: '13', color: '#005d8f' },
+      { label: '14', color: '#37a398' },
+      { label: '15', color: '#97da90' },
+      { label: '16', color: '#e4e7d2' },
+      { label: '17', color: '#005d8f' },
+      { label: '18', color: '#37a398' },
+      { label: '19', color: '#97da90' },
+      { label: '20', color: '#005d8f' },
+      { label: '21', color: '#37a398' },
+      { label: '22', color: '#e4e7d2' },
+      { label: '23', color: '#005d8f' },
+      { label: '24', color: '#97da90' },
+      { label: '25', color: '#37a398' },
+      { label: '26', color: '#005d8f' },
+      { label: '27', color: '#e4e7d2' },
+      { label: '28', color: '#97da90' },
+      { label: '29', color: '#37a398' },
+      { label: '30', color: '#005d8f' },
+      { label: '31', color: '#97da90' },
+    ],
+  },
+  {
+    title: 'April',
+    cells: [
+      null, null,
+      { label: '1', color: '#97da90' },
+      { label: '2', color: '#37a398' },
+      { label: '3', color: '#005d8f' },
+      { label: '4', color: '#e4e7d2' },
+      { label: '5', color: '#97da90' },
+      { label: '6', color: '#005d8f' },
+      { label: '7', color: '#37a398' },
+      { label: '8', color: '#e4e7d2' },
+      { label: '9', color: '#97da90' },
+      { label: '10', color: '#005d8f' },
+      { label: '11', color: '#37a398' },
+      { label: '12', color: '#e4e7d2' },
+      { label: '13', color: '#005d8f' },
+      { label: '14', color: '#97da90' },
+      { label: '15', color: '#37a398' },
+      { label: '16', color: '#005d8f' },
+      { label: '17', color: '#e4e7d2' },
+      { label: '18', color: '#97da90' },
+      { label: '19', color: '#37a398' },
+      { label: '20', color: '#005d8f' },
+      { label: '21', color: '#e4e7d2' },
+      { label: '22', color: '#97da90' },
+      { label: '23', color: '#005d8f' },
+      { label: '24', color: '#37a398' },
+      { label: '25', color: '#e4e7d2' },
+      { label: '26', color: '#97da90' },
+      { label: '27', color: '#005d8f' },
+      { label: '28', color: '#37a398' },
+      { label: '29', color: '#97da90' },
+      { label: '30', color: '#005d8f' },
+    ],
+  },
+  {
+    title: 'March',
+    cells: [null, null, null, null, null, null, ...Array.from({ length: 31 }, (_, index) => ({
+      label: String(index + 1),
+      color: ['#005d8f', '#37a398', '#97da90', '#e4e7d2'][index % 4],
+    }))],
+  },
+  {
+    title: 'February',
+    cells: [null, null, null, null, null, null, ...Array.from({ length: 28 }, (_, index) => ({
+      label: String(index + 1),
+      color: ['#97da90', '#005d8f', '#e4e7d2', '#37a398'][index % 4],
+    }))],
+  },
+  {
+    title: 'January',
+    cells: [null, null, null, ...Array.from({ length: 31 }, (_, index) => ({
+      label: String(index + 1),
+      color: ['#e4e7d2', '#005d8f', '#37a398', '#97da90'][index % 4],
+    }))],
+  },
+  {
+    title: 'December',
+    cells: [...Array.from({ length: 31 }, (_, index) => ({
+      label: String(index + 1),
+      color: ['#37a398', '#97da90', '#005d8f', '#e4e7d2'][index % 4],
+    }))],
+  },
+]
+
+const heatmapColors = {
+  empty: '#ebede1',
+  green: '#bee1ba',
+  teal: '#269489',
+  blue: '#006297',
+} as const
+
+const monthCards = [
+  {
+    title: 'May',
+    rows: [
+      { offset: 5, cells: ['blue', 'green'] },
+      { offset: 0, cells: ['teal', 'green', 'empty', 'blue', 'teal', 'green', 'blue'] },
+      { offset: 0, cells: ['blue', 'teal', 'empty', 'blue', 'green', 'teal', 'empty'] },
+      { offset: 0, cells: ['teal', 'blue', 'green', 'empty', 'blue', 'green', 'teal'] },
+      { offset: 0, cells: ['blue', 'teal', 'empty', 'green', 'teal', 'blue', 'green'] },
+      { offset: 0, cells: ['empty'] },
+    ],
+  },
+  {
+    title: 'June',
+    rows: [
+      { offset: 1, cells: ['green', 'teal', 'blue', 'empty', 'teal', 'green'] },
+      { offset: 0, cells: ['teal', 'blue', 'green', 'empty', 'blue', 'teal', 'empty'] },
+      { offset: 0, cells: ['green', 'teal', 'blue', 'empty', 'green', 'blue', 'teal'] },
+      { offset: 0, cells: ['blue', 'green', 'empty', 'teal', 'blue', 'empty', 'green'] },
+      { offset: 0, cells: ['empty', 'teal', 'green'] },
+    ],
+  },
+] as const
 
 function Icon({ src, size = 24 }: { src: string; size?: number }) {
   return <img alt="" src={src} style={{ width: size, height: size }} />
+}
+
+function ProgressDonut({
+  value,
+  goal,
+  className,
+}: {
+  value: number
+  goal: number
+  className: string
+}) {
+  const progress = goal > 0 ? Math.max(0, Math.min(value / goal, 1)) : 0
+  const progressStyle = { '--progress': `${progress * 360}deg` } as CSSProperties
+
+  return (
+    <span
+      className={`progress-donut ${className} ${progress === 0 ? 'is-empty' : ''}`}
+      style={progressStyle}
+      aria-hidden="true"
+    />
+  )
+}
+
+function DayProgressTile({
+  day,
+  value,
+  goal,
+  selected,
+  isToday,
+  onSelect,
+}: {
+  day: HabitDay
+  value: number
+  goal: number
+  selected: boolean
+  isToday: boolean
+  onSelect: () => void
+}) {
+  return (
+    <button
+      className={`${selected ? 'selected' : ''} ${isToday ? 'today' : 'past-day'}`}
+      type="button"
+      onClick={onSelect}
+    >
+      <ProgressDonut value={value} goal={goal} className="day-donut" />
+      <b>{day}</b>
+    </button>
+  )
 }
 
 function StatusBar() {
   return (
     <div className="status-bar" aria-hidden="true">
       <span>9:41</span>
-      <span className="status-island" />
-      <span className="status-icons">▰ ◔</span>
+      <span className="status-icons">
+        <span className="signal-bars"><i /><i /><i /></span>
+        <span className="wifi-mark" />
+        <span className="battery-mark" />
+      </span>
     </div>
   )
 }
@@ -284,19 +480,19 @@ function BottomNav({
         <span className="nav-box">
           <Icon src={assets.home} size={32} />
         </span>
-        {showLabels && <span>Home</span>}
+        <span className="nav-label">Home</span>
       </button>
       <button className={`nav-item ${active === 'new' ? 'active' : ''}`} type="button" onClick={onNew}>
         <span className="nav-box">
           <Icon src={assets.addOutline} size={32} />
         </span>
-        {showLabels && <span>New</span>}
+        <span className="nav-label">New</span>
       </button>
       <button className={`nav-item ${active === 'progress' ? 'active' : ''}`} type="button">
         <span className="nav-box">
           <Icon src={assets.stats} size={32} />
         </span>
-        {showLabels && <span>Progress</span>}
+        <span className="nav-label">Progress</span>
       </button>
     </nav>
   )
@@ -306,12 +502,14 @@ function HabitRow({
   hasHabit,
   habit,
   value,
+  streak,
   onOpen,
   onIncrement,
 }: {
   hasHabit: boolean
   habit: Habit
   value: number
+  streak: number
   onOpen: () => void
   onIncrement: () => void
 }) {
@@ -321,7 +519,7 @@ function HabitRow({
     <div className={`habit-list ${hasHabit ? 'seeded' : 'empty-seed'}`}>
       <button className="habit-row" type="button" onClick={hasHabit ? onOpen : undefined}>
         <div className="small-ring">
-          <ProgressArc value={hasHabit ? value : 0} goal={habit.goal} size={64} />
+          <ProgressDonut value={hasHabit ? value : 0} goal={habit.goal} className="small-donut" />
           <span className="habit-icon">{hasHabit ? habit.icon : clipboardIcon}</span>
           <span>{hasHabit ? '🏃‍♀️' : '📋️'}</span>
         </div>
@@ -329,10 +527,10 @@ function HabitRow({
           <b>{title}</b>
           <strong>{amount}</strong>
         </div>
-        {hasHabit && (
+        {hasHabit && streak > 0 && (
           <div className="streak">
             <div>
-              <b>12</b>
+              <b>{streak}</b>
               <span>day </span>
             </div>
             <span>streak</span>
@@ -373,7 +571,7 @@ function HabitMenu({
   onDelete: () => void
 }) {
   return (
-    <div className="habit-menu">
+    <div className="habit-menu" onClick={(event) => event.stopPropagation()}>
       <button type="button" onClick={onEdit}>
         <Icon src={assets.pencil} />
         <span>Edit Habit</span>
@@ -405,6 +603,7 @@ function HabitSheet({
   onEdit,
   onArchive,
   onDelete,
+  progressByDay,
 }: {
   habit: Habit
   day: HabitDay
@@ -416,10 +615,14 @@ function HabitSheet({
   onEdit: () => void
   onArchive: () => void
   onDelete: () => void
+  progressByDay: Record<HabitDay, number>
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   return (
-    <div className="habit-sheet">
+    <div className={`habit-sheet ${day !== todayHabitDay ? 'has-return' : ''}`} onClick={(event) => {
+      event.stopPropagation()
+      if (menuOpen) setMenuOpen(false)
+    }}>
       <button className="sheet-handle" type="button" onClick={onClose} aria-label="Close habit" />
       <div className="sheet-title">
         <div>
@@ -427,7 +630,14 @@ function HabitSheet({
           <p className="sheet-meta">{habit.frequency} <span>•</span> {habit.timeOfDay}</p>
           <p>Daily <span>•</span> All Day</p>
         </div>
-        <button className="sheet-dots" type="button" onClick={() => setMenuOpen(!menuOpen)}>
+        <button
+          className="sheet-dots"
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            setMenuOpen(!menuOpen)
+          }}
+        >
           <span>⋮</span>
         </button>
         {menuOpen && (
@@ -436,7 +646,7 @@ function HabitSheet({
       </div>
       <div className="sheet-progress">
         <div className="large-ring">
-          <ProgressArc value={value} goal={habit.goal} size={200} />
+          <ProgressDonut value={value} goal={habit.goal} className="large-donut" />
           <span className="habit-icon">{habit.icon}</span>
           <span>🏃‍♀️</span>
         </div>
@@ -460,15 +670,15 @@ function HabitSheet({
       </div>
       <div className="day-strip">
         {habitDays.map((item) => (
-          <button
+          <DayProgressTile
             key={item}
-            className={item === day ? 'selected' : ''}
-            type="button"
-            onClick={() => onDay(item)}
-          >
-            <span className={`day-fill fill-${item.toLowerCase()}`} />
-            <b>{item}</b>
-          </button>
+            day={item}
+            value={progressByDay[item]}
+            goal={habit.goal}
+            selected={item === day}
+            isToday={item === todayHabitDay}
+            onSelect={() => onDay(item)}
+          />
         ))}
       </div>
       {day !== todayHabitDay && (
@@ -477,22 +687,80 @@ function HabitSheet({
           <b>Return to today</b>
         </button>
       )}
+      <section className="sheet-streaks">
+        <div>
+          <b>
+            <img src={assets.streakFlame} alt="" />
+            {value >= habit.goal ? 1 : 0} Day
+          </b>
+          <span>Current Streak</span>
+        </div>
+        <div>
+          <b>13 Days</b>
+          <span>Best Streak</span>
+        </div>
+      </section>
       <section className="sheet-section no-op">
-        <h3>Last 30 days</h3>
-        <div className="github-grid">
-          {Array.from({ length: 84 }, (_, index) => (
-            <span key={index} className={`heat-${index % 4}`} />
+        <div className="month-cards">
+          {monthCards.map((month) => (
+            <div className="month-card" key={month.title}>
+              <h3>{month.title}</h3>
+              <div className="month-weekdays" aria-hidden="true">
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((weekday, index) => (
+                  <span key={`${month.title}-${weekday}-${index}`}>{weekday}</span>
+                ))}
+              </div>
+              <div className="github-grid">
+                {month.rows.map((row, rowIndex) => (
+                  <div key={`${month.title}-row-${rowIndex}`}>
+                    {row.cells.map((level, index) => (
+                      <span
+                        key={`${month.title}-${rowIndex}-${index}`}
+                        style={{ backgroundColor: heatmapColors[level] }}
+                        className={index === 0 ? `offset-${row.offset}` : undefined}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
+        <div className="month-card-foot">
+          <b>See All</b>
+          <span><i /> Less <i className="more" /> More</span>
+        </div>
+        <div className="completion-row">
+          <span>Monthly Completion Rate</span>
+          <b>93%</b>
+        </div>
+        <div className="completion-bar"><span /></div>
       </section>
       <section className="sheet-stats no-op">
         <div>
-          <b>75%</b>
-          <span>Monthly completion rate</span>
+          <span>Completed</span>
+          <b>13 habits</b>
         </div>
         <div>
-          <b>12</b>
-          <span>day streak</span>
+          <span>Missed</span>
+          <b>13 habits</b>
+        </div>
+        <div>
+          <span>Skipped</span>
+          <b>13 habits</b>
+        </div>
+        <div>
+          <span>New</span>
+          <b>13 habits</b>
+        </div>
+      </section>
+      <section className="sheet-reminder">
+        <h3>Reminders</h3>
+        <div>
+          <b>4:00 AM</b>
+          <span>Everyday</span>
+          <small>Don't forget today's goals.</small>
+          <i />
         </div>
       </section>
     </div>
@@ -501,23 +769,32 @@ function HabitSheet({
 
 function CalendarOverlay({
   selectedDate,
+  cells,
   onSelectDate,
   onReturnToday,
   onClose,
 }: {
   selectedDate: string
+  cells: CalendarCell[]
   onSelectDate: (date: string) => void
   onReturnToday: () => void
   onClose: () => void
 }) {
   const isToday = selectedDate === 'today'
+  const bodyRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const body = bodyRef.current
+    if (body) body.scrollTop = body.scrollHeight
+  }, [])
+
   return (
-    <div className="calendar-overlay">
+    <div className="calendar-overlay" onClick={(event) => event.stopPropagation()}>
       <div className="calendar-top">
         <StatusBar />
         <div className="calendar-title-row">
           <button className="title-button" type="button">
-            <span>{isToday ? 'Today' : 'June 8th'}</span>
+            <span>{formatJuneDate(selectedDate)}</span>
             <Icon src={assets.chevron} size={12} />
           </button>
           <button className="calendar-close" type="button" onClick={onClose}>
@@ -526,43 +803,79 @@ function CalendarOverlay({
         </div>
       </div>
       <div className="calendar-fade" />
-      <div className="calendar-body">
-        <h2>May</h2>
-        <div className="calendar-grid header">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-            <b key={day}>{day}</b>
+      <div className="calendar-body" ref={bodyRef}>
+        <div className="calendar-month-stack">
+          {[...pastCalendarMonths].reverse().map((month) => (
+            <CalendarMonth key={month.title} title={month.title} cells={month.cells} />
           ))}
-        </div>
-        <div className="calendar-grid days">
-          {monthCells.map((cell, index) =>
-            cell ? (
-              <button
-                key={`${cell.label}-${index}`}
-                type="button"
-                className={`${selectedDate === cell.label ? 'selected' : ''} ${
-                  Number(cell.label) > 10 ? 'future' : ''
-                }`}
-                onClick={() => Number(cell.label) <= 10 && onSelectDate(cell.label)}
-              >
-                <span>{cell.label}</span>
-                {Number(cell.label) <= 10 && (
-                  <i style={{ backgroundColor: cell.color }} />
-                )}
-              </button>
-            ) : (
-              <span key={`blank-${index}`} className="blank" />
-            ),
+          {!isToday && (
+            <button className="return-today calendar-return" type="button" onClick={onReturnToday}>
+              <Icon src={assets.return} size={14} />
+              <b>Return to today</b>
+            </button>
           )}
+          <CalendarMonth
+            title="June"
+            cells={cells}
+            selectedDate={selectedDate}
+            isToday={isToday}
+            isCurrentMonth
+            onSelectDate={onSelectDate}
+          />
         </div>
-        {!isToday && (
-          <button className="return-today calendar-return" type="button" onClick={onReturnToday}>
-            <Icon src={assets.return} size={14} />
-            <b>Return to today</b>
-          </button>
-        )}
       </div>
       <div className="pull-tab" />
     </div>
+  )
+}
+
+function CalendarMonth({
+  title,
+  cells,
+  selectedDate,
+  isToday = false,
+  isCurrentMonth = false,
+  onSelectDate,
+}: {
+  title: string
+  cells: CalendarCell[]
+  selectedDate?: string
+  isToday?: boolean
+  isCurrentMonth?: boolean
+  onSelectDate?: (date: string) => void
+}) {
+  return (
+    <section className="calendar-month" aria-label={`${title} calendar`}>
+      <h2>{title}</h2>
+      <div className="calendar-grid header">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+          <b key={day}>{day}</b>
+        ))}
+      </div>
+      <div className="calendar-grid days">
+        {cells.map((cell, index) => {
+          if (!cell) return <span key={`blank-${index}`} className="blank outside-month" />
+
+          const dayNumber = Number(cell.label)
+          const isFuture = isCurrentMonth && dayNumber > 10
+          const isSelected = isCurrentMonth && ((isToday && cell.label === '10') || selectedDate === cell.label)
+
+          return (
+            <button
+              key={`${title}-${cell.label}-${index}`}
+              type="button"
+              className={`${isSelected ? 'selected' : ''} ${isFuture ? 'future' : ''}`}
+              onClick={() => {
+                if (isCurrentMonth && dayNumber <= 10) onSelectDate?.(cell.label === '10' ? 'today' : cell.label)
+              }}
+            >
+              <span>{cell.label}</span>
+              {!isFuture && <i style={{ backgroundColor: cell.color }} />}
+            </button>
+          )
+        })}
+      </div>
+    </section>
   )
 }
 
@@ -805,7 +1118,7 @@ function CreateStart({
         </div>
       </section>
       {hasTyped && <KeyboardOverlay />}
-      <BottomNav showLabels={hasTyped} active="new" onHome={onHome} onNew={() => undefined} />
+      <BottomNav showLabels active="new" onHome={onHome} onNew={() => undefined} />
     </CreateShell>
   )
 }
@@ -942,13 +1255,15 @@ function CreateDetails({
         </FormSection>
       </div>
       {overlay === 'emoji' && (
-        <EmojiOverlay
-          onPick={(icon) => {
-            onDraft({ ...draft, icon })
-            setOverlay(null)
-          }}
-          onClose={() => setOverlay(null)}
-        />
+        <div className="popup-dismiss-layer" onClick={() => setOverlay(null)}>
+          <EmojiOverlay
+            onPick={(icon) => {
+              onDraft({ ...draft, icon })
+              setOverlay(null)
+            }}
+            onClose={() => setOverlay(null)}
+          />
+        </div>
       )}
       {overlay === 'color' && (
         <ColorOverlay
@@ -957,6 +1272,7 @@ function CreateDetails({
             onDraft({ ...draft, color })
             setOverlay(null)
           }}
+          onClose={() => setOverlay(null)}
         />
       )}
       <CreateBottomButton onClick={onNext}>Next</CreateBottomButton>
@@ -965,15 +1281,24 @@ function CreateDetails({
 }
 
 function KeyboardOverlay() {
+  const rows = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm']
   return (
     <div className="keyboard-overlay" aria-hidden="true">
       <div className="keyboard-bar">English (US)</div>
       <div className="keyboard-keys">
-        {'qwertyuiopasdfghjklzxcvbnm'.split('').map((letter) => (
-          <span key={letter}>{letter}</span>
+        {rows.map((row) => (
+          <div key={row} className={`keyboard-row row-${row.length}`}>
+            {row.split('').map((letter) => (
+              <span key={letter}>{letter}</span>
+            ))}
+          </div>
         ))}
       </div>
-      <div className="keyboard-space">space</div>
+      <div className="keyboard-actions">
+        <span>123</span>
+        <b>space</b>
+        <strong>return</strong>
+      </div>
     </div>
   )
 }
@@ -986,22 +1311,16 @@ function EmojiOverlay({
   onClose: () => void
 }) {
   const icons = [
-    runningIcon,
-    '\u{1F6B6}',
-    '\u{1F6B2}',
-    '\u{1F3CA}\u200D\u2640\uFE0F',
-    '\u{1F3C0}',
-    '\u{1F4AA}',
-    '\u{1F4DA}',
-    '\u{1F331}',
-    '\u{1F4B5}',
-    '\u{1F6CF}\uFE0F',
-    '\u{1F514}',
-    '\u{1F4A7}',
+    '\u{1F600}', '\u{1F603}', '\u{1F604}', '\u{1F601}', '\u{1F606}', '\u{1F605}', '\u{1F923}', '\u{1F602}',
+    '\u{1F642}', '\u{1F643}', '\u{1F609}', '\u{1F60A}', '\u{1F607}', '\u{1F970}', '\u{1F60D}', '\u{1F929}',
+    '\u{1F618}', '\u{1F617}', '\u{1F61A}', '\u{1F619}', '\u{1F60B}', '\u{1F61B}', '\u{1F61C}', '\u{1F92A}',
+    '\u{1F61D}', '\u{1F911}', '\u{1F917}', '\u{1F92D}', '\u{1F92B}', '\u{1F914}', '\u{1F910}', '\u{1F928}',
+    '\u{1F610}', '\u{1F611}', '\u{1F636}', '\u{1F60F}', '\u{1F612}', '\u{1F644}', '\u{1F62C}', '\u{1F925}',
+    '\u{1F60C}', '\u{1F614}', '\u{1F62A}', '\u{1F924}', '\u{1F634}', '\u{1F637}', '\u{1F912}', runningIcon,
   ]
 
   return (
-    <div className="emoji-panel">
+    <div className="emoji-panel" onClick={(event) => event.stopPropagation()}>
       <button className="emoji-search" type="button" onClick={onClose}>Search Emoji</button>
       <h2>SMILES &amp; PEOPLES</h2>
       <div>
@@ -1018,13 +1337,15 @@ function EmojiOverlay({
 function ColorOverlay({
   selected,
   onPick,
+  onClose,
 }: {
   selected: string
   onPick: (color: string) => void
+  onClose: () => void
 }) {
   return (
-    <div className="color-scrim">
-      <div className="palette-card">
+    <div className="color-scrim" onClick={onClose}>
+      <div className="palette-card" onClick={(event) => event.stopPropagation()}>
         {paletteColors.map((color) => (
           <button key={color} type="button" onClick={() => onPick(color)}>
             {color === '#f6f7fa' ? (
@@ -1127,13 +1448,15 @@ function GoalStep({
         </FormSection>
       </div>
       {unitOpen && (
-        <UnitDrawer
-          onPick={(unit) => {
-            onDraft({ ...draft, unit })
-            setUnitOpen(false)
-          }}
-          onClose={() => setUnitOpen(false)}
-        />
+        <div className="popup-dismiss-layer" onClick={() => setUnitOpen(false)}>
+          <UnitDrawer
+            onPick={(unit) => {
+              onDraft({ ...draft, unit })
+              setUnitOpen(false)
+            }}
+            onClose={() => setUnitOpen(false)}
+          />
+        </div>
       )}
       <CreateBottomButton disabled={!complete} onClick={onNext}>Next</CreateBottomButton>
     </CreateShell>
@@ -1148,7 +1471,7 @@ function UnitDrawer({
   onClose: () => void
 }) {
   return (
-    <div className="unit-drawer">
+    <div className="unit-drawer" onClick={(event) => event.stopPropagation()}>
       <button className="sheet-handle" type="button" onClick={onClose} aria-label="Close unit list" />
       <h2>Unit Type</h2>
       <div>
@@ -1427,20 +1750,44 @@ function App() {
   const [habitOpen, setHabitOpen] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState('today')
-  const [selectedHabitDay, setSelectedHabitDay] = useState<HabitDay>(todayHabitDay)
-  const [progressByDay, setProgressByDay] = useState<Record<HabitDay, number>>({
-    Th: 1,
-    Fr: 1,
-    Sa: 0,
-    Su: 2,
-    Mo: 2,
-    Tu: 2,
-    We: 0,
-  })
+  const [juneProgressByDate, setJuneProgressByDate] = useState<JuneProgressByDate>(initialJuneProgressByDate)
 
+  const selectedJuneDate = selectedDate === 'today' ? habitDayToJuneDate[todayHabitDay] : selectedDate
+  const selectedHabitDay = juneDateToHabitDay[selectedJuneDate] ?? todayHabitDay
+  const progressByDay = useMemo<Record<HabitDay, number>>(() => ({
+    Th: juneProgressByDate[habitDayToJuneDate.Th] ?? 0,
+    Fr: juneProgressByDate[habitDayToJuneDate.Fr] ?? 0,
+    Sa: juneProgressByDate[habitDayToJuneDate.Sa] ?? 0,
+    Su: juneProgressByDate[habitDayToJuneDate.Su] ?? 0,
+    Mo: juneProgressByDate[habitDayToJuneDate.Mo] ?? 0,
+    Tu: juneProgressByDate[habitDayToJuneDate.Tu] ?? 0,
+    We: juneProgressByDate[habitDayToJuneDate.We] ?? 0,
+  }), [juneProgressByDate])
+  const juneCalendarCells = useMemo<CalendarCell[]>(
+    () => monthCells.map((cell) => (
+      cell
+        ? { ...cell, color: calendarColorForProgressValue(juneProgressByDate[cell.label] ?? 0, habit.goal) }
+        : null
+    )),
+    [habit.goal, juneProgressByDate],
+  )
   const currentValue = progressByDay[selectedHabitDay]
-  const headerTitle = selectedDate === 'today' ? 'Today' : 'June 8th'
+  const homeHabitValue = juneProgressByDate[selectedJuneDate] ?? 0
+  const homeStreak = selectedDate === 'today' && homeHabitValue >= habit.goal ? 1 : 0
+  const headerTitle = formatJuneDate(selectedDate)
   const habitVisible = hasHabit && habit.timeOfDay === activeHomeTab
+
+  const setJuneProgress = useCallback((date: string, value: number) => {
+    setJuneProgressByDate((next) => ({
+      ...next,
+      [date]: Math.max(0, Math.min(value, habit.goal)),
+    }))
+  }, [habit.goal])
+
+  const selectHabitDay = useCallback((day: HabitDay) => {
+    const date = habitDayToJuneDate[day]
+    setSelectedDate(day === todayHabitDay ? 'today' : date)
+  }, [])
 
   const removeHabit = () => {
     setHasHabit(false)
@@ -1462,14 +1809,10 @@ function App() {
           <HabitRow
             hasHabit
             habit={habit}
-            value={progressByDay.Mo}
+            value={homeHabitValue}
+            streak={homeStreak}
             onOpen={() => setHabitOpen(true)}
-            onIncrement={() =>
-              setProgressByDay((next) => ({
-                ...next,
-                Mo: Math.min(habit.goal, next.Mo + 1),
-              }))
-            }
+            onIncrement={() => setJuneProgress(selectedJuneDate, homeHabitValue + 1)}
           />
         ) : (
           <>
@@ -1477,6 +1820,7 @@ function App() {
               hasHabit={false}
               habit={defaultRunningHabit}
               value={0}
+              streak={0}
               onOpen={() => undefined}
               onIncrement={() => undefined}
             />
@@ -1484,34 +1828,40 @@ function App() {
           </>
         )}
         <BottomNav
-          showLabels={!habitVisible}
+          showLabels
           active="home"
           onHome={() => setView('home')}
           onNew={() => setView('new')}
         />
         {habitOpen && habitVisible && (
-          <HabitSheet
-            habit={habit}
-            day={selectedHabitDay}
-            value={currentValue}
-            onDay={setSelectedHabitDay}
-            onToday={() => setSelectedHabitDay(todayHabitDay)}
-            onClose={() => setHabitOpen(false)}
-            onValue={(value) =>
-              setProgressByDay((next) => ({ ...next, [selectedHabitDay]: value }))
-            }
-            onEdit={() => setView('edit')}
-            onArchive={removeHabit}
+          <div className="overlay-click-layer habit-layer" onClick={() => setHabitOpen(false)}>
+            <HabitSheet
+              habit={habit}
+              day={selectedHabitDay}
+              value={currentValue}
+              onDay={selectHabitDay}
+              onToday={() => selectHabitDay(todayHabitDay)}
+              onClose={() => setHabitOpen(false)}
+              onValue={(value) =>
+                setJuneProgress(habitDayToJuneDate[selectedHabitDay], value)
+              }
+              onEdit={() => setView('edit')}
+              onArchive={removeHabit}
             onDelete={removeHabit}
-          />
+              progressByDay={progressByDay}
+            />
+          </div>
         )}
         {calendarOpen && (
-          <CalendarOverlay
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-            onReturnToday={() => setSelectedDate('today')}
-            onClose={() => setCalendarOpen(false)}
-          />
+          <div className="overlay-click-layer calendar-layer" onClick={() => setCalendarOpen(false)}>
+            <CalendarOverlay
+              selectedDate={selectedDate}
+              cells={juneCalendarCells}
+              onSelectDate={setSelectedDate}
+              onReturnToday={() => setSelectedDate('today')}
+              onClose={() => setCalendarOpen(false)}
+            />
+          </div>
         )}
       </main>
     ),
@@ -1519,13 +1869,19 @@ function App() {
       calendarOpen,
       currentValue,
       habitOpen,
+      homeHabitValue,
+      homeStreak,
       habit,
       habitVisible,
       headerTitle,
       activeHomeTab,
       progressByDay,
+      juneCalendarCells,
+      selectHabitDay,
+      selectedJuneDate,
       selectedDate,
       selectedHabitDay,
+      setJuneProgress,
     ],
   )
 
@@ -1543,15 +1899,7 @@ function App() {
           setHabitOpen(false)
           setCalendarOpen(false)
           setActiveHomeTab(createdHabit.timeOfDay)
-          setProgressByDay({
-            Th: 0,
-            Fr: 0,
-            Sa: 0,
-            Su: 0,
-            Mo: 0,
-            Tu: 0,
-            We: 0,
-          })
+          setJuneProgressByDate({})
           setView('home')
         }}
       />

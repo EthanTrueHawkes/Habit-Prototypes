@@ -406,11 +406,15 @@ button {
 }
 
 .calendar-grabber {
-  width: 44px;
-  height: 3px;
-  margin: 0 auto 21px;
-  border-radius: 999px;
-  background: #c4c5cb;
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  z-index: 2;
+  width: 72px;
+  height: 4px;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  background: #c6c6c6;
 }
 
 .calendar-scroll {
@@ -421,6 +425,10 @@ button {
   overscroll-behavior: contain;
 }
 
+.calendar-drop.has-return .calendar-scroll {
+  height: 407px;
+}
+
 .weekday-row,
 .month-grid {
   display: grid;
@@ -428,6 +436,7 @@ button {
 }
 
 .weekday-row {
+  width: 361px;
   height: 40px;
   align-items: center;
   margin-top: 8px;
@@ -475,6 +484,7 @@ button {
 .month-grid button {
   width: auto;
   height: 51.333px;
+  box-sizing: border-box;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -497,13 +507,13 @@ button {
 }
 
 .month-grid .picked {
-  width: 40px;
-  height: 40px;
-  align-self: center;
-  justify-self: center;
-  border-radius: 12px;
-  background: #005d8f;
-  color: #fff;
+  width: auto;
+  height: 51.333px;
+  border: 1px solid #005d8f;
+  border-radius: 16px;
+  background: #e4e6ee;
+  color: #005d8f;
+  font-weight: 600;
 }
 
 .month-grid .today:not(.picked) {
@@ -511,22 +521,48 @@ button {
   font-weight: 500;
 }
 
+.month-grid .future {
+  cursor: default;
+  opacity: 0.2;
+}
+
 .month-grid i {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 2px;
 }
 
 .month-grid .picked i {
-  background: #fff;
+  border: 1px solid #fff;
 }
 
-.calendar-return {
+.return-button.calendar-return {
   position: absolute;
   bottom: 24px;
-  left: 50%;
-  min-width: 132px;
-  transform: translateX(-50%);
+  left: 16px;
+  width: 361px;
+  min-width: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  background: #fff;
+  color: #141414;
+  font-family: Rubik, system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  box-shadow: none;
+}
+
+.calendar-return img {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 .overlay-dismiss {

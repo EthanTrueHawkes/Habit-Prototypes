@@ -58,6 +58,7 @@ const assets = {
   laurelLeft: `${FIGMA}a08fd5f5-0a26-47ef-93f1-d19ea5613fce`,
   laurelRight: `${FIGMA}22624705-4df3-4d54-8f96-9e47cba38277`,
   returnToday: `${FIGMA}2f861ebc-4147-4871-90d3-210425d63dab`,
+  calendarReturnToday: `${FIGMA}567f3157-d17d-4504-9427-38aa5370a643`,
   statsFlame: `${FIGMA}8c4d08a6-fbda-4151-b709-3ecfb6d6968d`,
   breakdownChevron: `${FIGMA}0f8545d1-d214-403f-ab41-586de78e1981`,
   breakdownTrend: `${FIGMA}a82f1279-31f7-439f-b57f-89ae74f1bd4d`,
@@ -219,6 +220,20 @@ const calendarPalette: Record<string, string> = {
   pale: calendarColors[3],
 }
 const calendarDotPattern = ['teal', 'teal', 'blue', 'green', 'green', 'teal', 'pale', 'blue', 'green', 'teal', 'teal', 'blue', 'blue', 'green', 'teal', 'teal', 'pale', 'pale', 'green', 'pale', 'teal', 'pale', 'blue', 'blue', 'green', 'green', 'blue', 'pale', 'teal', 'blue', 'green']
+const getCalendarDayKey = (day: number) => (day === calendarToday ? todayWeekKey : `June-${day}`)
+const seededProgressByTone: Record<string, number> = {
+  pale: 0,
+  green: 1,
+  teal: 3,
+  blue: 4,
+}
+const getCalendarToneForProgress = (value: number, max: number) => {
+  const ratio = max > 0 ? value / max : 0
+  if (ratio >= 1) return 'blue'
+  if (ratio >= 0.5) return 'teal'
+  if (ratio > 0) return 'green'
+  return 'pale'
+}
 
 const categories = [
   { label: 'Fitness', icon: assets.fitness },
@@ -311,12 +326,12 @@ function IconButton({
   )
 }
 
-function TopBar({ onCalendar }: { onCalendar: () => void }) {
+function TopBar({ dateLabel, onCalendar }: { dateLabel: string; onCalendar: () => void }) {
   return (
     <header className="top">
       <div className="top-row">
         <button className="today-button" type="button" onClick={onCalendar}>
-          <span>Today</span>
+          <span>{dateLabel}</span>
           <img src={assets.chevron} alt="" />
         </button>
         <IconButton className="top-plus" icon={assets.topPlus} label="New habit" />
@@ -462,11 +477,13 @@ function CalendarOverlay({
   onSelectDay,
   onReturn,
   onClose,
+  getDayTone,
 }: {
   selectedDay: number
   onSelectDay: (day: number) => void
   onReturn: () => void
   onClose: () => void
+  getDayTone: (day: number) => string
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null)
   const selectedLabel = selectedDay === calendarToday ? 'Today' : `June ${formatOrdinal(selectedDay)}`
@@ -477,7 +494,7 @@ function CalendarOverlay({
   }, [])
 
   return (
-    <section className="calendar-drop">
+    <section className={`calendar-drop ${selectedDay !== calendarToday ? 'has-return' : ''}`}>
       <div className="calendar-top">
         <button className="calendar-date-button" type="button" onClick={onClose}>
           <span>{selectedLabel}</span>
@@ -491,12 +508,20 @@ function CalendarOverlay({
           <CalendarMonth name="March" days={31} startOffset={0} />
           <CalendarMonth name="April" days={30} startOffset={3} />
           <CalendarMonth name="May" days={31} startOffset={5} />
-          <CalendarMonth name="June" days={30} startOffset={1} selectedDay={selectedDay} onSelectDay={onSelectDay} />
+          <CalendarMonth
+            name="June"
+            days={30}
+            startOffset={1}
+            selectedDay={selectedDay}
+            onSelectDay={onSelectDay}
+            getDayTone={getDayTone}
+          />
         </div>
       </div>
       {selectedDay !== calendarToday && (
         <button className="return-button calendar-return" type="button" onClick={onReturn}>
-          Return to today
+          <img src={assets.calendarReturnToday} alt="" />
+          <span>Return to today</span>
         </button>
       )}
     </section>
@@ -509,13 +534,16 @@ function CalendarMonth({
   startOffset,
   selectedDay,
   onSelectDay,
+  getDayTone,
 }: {
   name: string
   days: number
   startOffset: number
   selectedDay?: number
   onSelectDay?: (day: number) => void
+  getDayTone?: (day: number) => string
 }) {
+  const isCurrentMonth = name === 'June'
   const cells: { key: string; day?: number }[] = [
     ...Array.from({ length: startOffset }, (_, index) => ({ key: `blank-${index}` })),
     ...Array.from({ length: days }, (_, index) => ({ key: `${name}-${index + 1}`, day: index + 1 })),
@@ -530,23 +558,31 @@ function CalendarMonth({
         ))}
       </div>
       <div className="month-grid">
-        {cells.map((cell) => (
-          cell.day ? (
+        {cells.map((cell) => {
+          const isFutureDay = isCurrentMonth && Boolean(cell.day && cell.day > calendarToday)
+          const tone = cell.day && isCurrentMonth
+            ? getDayTone?.(cell.day) ?? calendarDotPattern[(cell.day - 1) % calendarDotPattern.length]
+            : cell.day
+              ? calendarDotPattern[(cell.day - 1) % calendarDotPattern.length]
+              : 'pale'
+
+          return cell.day ? (
             <button
-              className={`${cell.day === selectedDay ? 'picked' : ''} ${name === 'June' && cell.day === calendarToday ? 'today' : ''}`}
+              className={`${cell.day === selectedDay ? 'picked' : ''} ${isCurrentMonth && cell.day === calendarToday ? 'today' : ''} ${isFutureDay ? 'future' : ''}`}
+              disabled={isFutureDay}
               key={cell.key}
               type="button"
               onClick={() => {
-                if (name === 'June' && cell.day) onSelectDay?.(cell.day)
+                if (isCurrentMonth && cell.day && !isFutureDay) onSelectDay?.(cell.day)
               }}
             >
               <span>{cell.day}</span>
-              <i style={{ background: calendarPalette[calendarDotPattern[(cell.day - 1) % calendarDotPattern.length]] }}></i>
+              {!isFutureDay && <i style={{ background: calendarPalette[tone] }}></i>}
             </button>
           ) : (
             <span className="calendar-empty-cell" key={cell.key}></span>
           )
-        ))}
+        })}
       </div>
     </section>
   )
@@ -1471,7 +1507,13 @@ function DetailsStep({
       <div className="flow-form details-form">
         <section className="field-group">
           <p>Details</p>
-          <DetailRow label={draft.name} />
+          <label className="detail-field text-input">
+            <input
+              type="text"
+              value={draft.name}
+              onChange={(event) => onPatch({ name: event.target.value })}
+            />
+          </label>
           <div className="field-pair">
             <DetailRow label="Icon" icon={draft.icon} iconTone="gradient" onClick={() => onPopup('icons')} />
             <DetailRow label="Color" color={draft.color} onClick={() => onPopup('colors')} />
@@ -1620,7 +1662,7 @@ function GoalStep({
 
   return (
     <section className="new-screen">
-      <FlowNav progress={draft.timeOfDay ? 5 / 6 : 2 / 3} onBack={onBack} onExit={onExit} />
+      <FlowNav progress={fieldsReady ? 5 / 6 : 2 / 3} onBack={onBack} onExit={onExit} />
       <h1 className="flow-heading time-heading">{fieldsReady ? 'What time of day should this be completed?' : 'What is your habit goal?'}</h1>
       <div className="flow-form goal-form">
         <section className="field-group">
@@ -1802,6 +1844,30 @@ function App() {
   const activeHabit = habits.find((habit) => habit.id === activeHabitId) ?? habits[0]
   const progressHabit = habits.find((habit) => habit.id === progressHabitId) ?? null
   const visibleHabits = habits.filter((habit) => habit.timeOfDay === time)
+  const selectedDateLabel = calendarDay === calendarToday ? 'Today' : `June ${formatOrdinal(calendarDay)}`
+  const activeHomeDayKey = getCalendarDayKey(calendarDay)
+
+  const getSeededHistoricalValue = (habit: Habit, day: number) => {
+    if (habit.id !== seededHabit.id || day >= calendarToday) return 0
+    const tone = calendarDotPattern[(day - 1) % calendarDotPattern.length]
+    return Math.min(habit.quantity, seededProgressByTone[tone] ?? 0)
+  }
+
+  const getHabitDayValue = (habit: Habit, dayKey = activeHomeDayKey) => {
+    const storedValue = progressByHabitDay[habit.id]?.[dayKey]
+    if (typeof storedValue === 'number') return storedValue
+    if (dayKey === getCalendarDayKey(calendarDay)) return getSeededHistoricalValue(habit, calendarDay)
+    return 0
+  }
+
+  const getCalendarDayTone = (day: number) => {
+    const dayKey = getCalendarDayKey(day)
+    const storedValue = progressByHabitDay[seededHabit.id]?.[dayKey]
+    if (typeof storedValue === 'number') {
+      return getCalendarToneForProgress(storedValue, seededHabit.quantity)
+    }
+    return calendarDotPattern[(day - 1) % calendarDotPattern.length]
+  }
 
   const getHabitStat = (habit: Habit): HabitCompletionStat => {
     const progressDays = progressByHabitDay[habit.id] ?? {}
@@ -1848,9 +1914,9 @@ function App() {
   const currentValue = useMemo(() => {
     if (!activeHabit) return 0
     if (overlay === 'habit' || overlay === 'menu' || overlay === 'edit') {
-      return progressByHabitDay[activeHabit.id]?.[habitDay] ?? 0
+      return getHabitDayValue(activeHabit, habitDay)
     }
-    return calendarDay === calendarToday ? progressByHabitDay[activeHabit.id]?.We ?? 0 : 1
+    return getHabitDayValue(activeHabit)
   }, [activeHabit, calendarDay, habitDay, overlay, progressByHabitDay])
 
   const resetNewFlow = () => {
@@ -1916,6 +1982,16 @@ function App() {
     setTab(nextTab)
   }
 
+  const selectCalendarDay = (day: number) => {
+    setCalendarDay(day)
+    setHabitDay(getCalendarDayKey(day))
+  }
+
+  const returnToToday = () => {
+    setCalendarDay(calendarToday)
+    setHabitDay(todayWeekKey)
+  }
+
   const setHabitDayValue = (habitId: string, day: string, value: number) => {
     setProgressByHabitDay((previous) => ({
       ...previous,
@@ -1934,7 +2010,7 @@ function App() {
       <div className="app-screen">
         {tab === 'Home' && (
           <>
-            <TopBar onCalendar={() => setOverlay(overlay === 'calendar' ? null : 'calendar')} />
+            <TopBar dateLabel={selectedDateLabel} onCalendar={() => setOverlay(overlay === 'calendar' ? null : 'calendar')} />
             <TimeSelector selected={time} onSelect={setTime} />
 
             {visibleHabits.length > 0 ? (
@@ -1943,15 +2019,16 @@ function App() {
                   <HabitCard
                     key={habit.id}
                     habit={habit}
-                    value={progressByHabitDay[habit.id]?.We ?? 0}
+                    value={getHabitDayValue(habit)}
                     onOpen={() => {
                       setActiveHabitId(habit.id)
+                      setHabitDay(activeHomeDayKey)
                       setOverlay('habit')
                     }}
                     onIncrement={() => setHabitDayValue(
                       habit.id,
-                      todayWeekKey,
-                      Math.min(habit.quantity, (progressByHabitDay[habit.id]?.[todayWeekKey] ?? 0) + 1),
+                      activeHomeDayKey,
+                      Math.min(habit.quantity, getHabitDayValue(habit) + 1),
                     )}
                   />
                 ))}
@@ -1966,8 +2043,9 @@ function App() {
                 <CalendarOverlay
                   selectedDay={calendarDay}
                   onClose={() => setOverlay(null)}
-                  onReturn={() => setCalendarDay(calendarToday)}
-                  onSelectDay={setCalendarDay}
+                  onReturn={returnToToday}
+                  onSelectDay={selectCalendarDay}
+                  getDayTone={getCalendarDayTone}
                 />
               </>
             )}
