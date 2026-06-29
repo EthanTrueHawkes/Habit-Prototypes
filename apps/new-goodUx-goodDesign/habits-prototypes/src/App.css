@@ -1426,7 +1426,7 @@ button {
   top: 32px;
   left: 61px;
   width: 240px;
-  height: 240px;
+  height: 121px;
 }
 
 .breakdown-ring svg {
@@ -1442,7 +1442,7 @@ button {
 }
 
 .breakdown-ring-track {
-  stroke: #e4e7d2;
+  stroke: #e4e6ee;
 }
 
 .breakdown-ring-fill {
@@ -1503,10 +1503,11 @@ button {
 
 .breakdown-stat {
   height: 75px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
+  gap: 8px;
   padding: 16px;
   border-radius: 12px;
   background: #f6f6f9;
@@ -1518,7 +1519,7 @@ button {
   align-items: center;
   gap: 4px;
   color: rgba(0, 0, 0, 0.6);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1;
 }
 

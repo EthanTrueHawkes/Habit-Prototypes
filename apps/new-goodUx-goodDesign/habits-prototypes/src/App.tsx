@@ -611,23 +611,6 @@ function getCalendarTone(ratio: number) {
   return 'pale'
 }
 
-function polarToCartesian(centerX: number, centerY: number, radius: number, angleInDegrees: number) {
-  const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180
-
-  return {
-    x: centerX + radius * Math.cos(angleInRadians),
-    y: centerY + radius * Math.sin(angleInRadians),
-  }
-}
-
-function describeArc(centerX: number, centerY: number, radius: number, startAngle: number, endAngle: number) {
-  const start = polarToCartesian(centerX, centerY, radius, endAngle)
-  const end = polarToCartesian(centerX, centerY, radius, startAngle)
-  const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1'
-
-  return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`
-}
-
 function ProgressArc({ icon, value, max }: { icon: string; value: number; max: number }) {
   const radius = 82
   const circumference = 2 * Math.PI * radius
@@ -816,11 +799,7 @@ function MonthBreakdown({
   includeNew?: boolean
 }) {
   const rate = Math.max(0, Math.min(100, stats.completionRate))
-  const arcStart = 227
-  const arcEnd = 493
-  const arcProgressEnd = arcStart + (arcEnd - arcStart) * (rate / 100)
-  const trackPath = describeArc(120, 120, 91, arcStart, arcEnd)
-  const fillPath = describeArc(120, 120, 91, arcStart, arcProgressEnd)
+  const gaugePath = 'M 10 120 C 10 51 62 10 120 10 C 178 10 230 51 230 120'
   const items = [
     { label: 'Completed', value: stats.completed, icon: assets.breakdownCompleted },
     { label: 'Missed', value: stats.missed, icon: assets.breakdownMissed },
@@ -840,8 +819,15 @@ function MonthBreakdown({
       <div className="breakdown-card">
         <div className="breakdown-ring">
           <svg viewBox="0 0 240 240" aria-hidden="true">
-            <path className="breakdown-ring-track" d={trackPath} />
-            {rate > 0 && <path className="breakdown-ring-fill" d={fillPath} />}
+            <path className="breakdown-ring-track" d={gaugePath} />
+            {rate > 0 && (
+              <path
+                className="breakdown-ring-fill"
+                d={gaugePath}
+                pathLength={100}
+                style={{ strokeDasharray: 100, strokeDashoffset: 100 - rate }}
+              />
+            )}
           </svg>
           <div className="breakdown-rate">
             <b>{rate}%</b>

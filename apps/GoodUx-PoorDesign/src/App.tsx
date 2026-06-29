@@ -37,11 +37,13 @@ const assets = {
   dayBlueBase: './figma-assets/dayBlueBase.svg',
   dayBlueHalf: './figma-assets/dayBlueHalf.svg',
   streakFlame: './figma-assets/streakFlame.svg',
+  streakLaurelLeft: './figma-assets/streakLaurelLeft.png',
+  streakLaurelRight: './figma-assets/streakLaurelRight.png',
 }
 
 type HabitDay = 'Th' | 'Fr' | 'Sa' | 'Su' | 'Mo' | 'Tu' | 'We'
 type HomeTab = 'All Day' | 'Morning' | 'Afternoon' | 'Evening'
-type View = 'home' | 'edit' | 'new'
+type View = 'home' | 'edit' | 'new' | 'progress' | 'progressHabit'
 type CreateStep = 'start' | 'templates' | 'details' | 'goal' | 'time' | 'review'
 type Frequency = 'Daily' | 'Weekly' | 'Monthly'
 
@@ -58,11 +60,29 @@ type Habit = {
 }
 
 type CreateDraft = Habit
+type MonthMetric = {
+  completed: number
+  missed: number
+  skipped: number
+  created: number
+  rate: number
+  completedPossible: number
+  eligibleDays: number
+}
 
 const habitDays: HabitDay[] = ['Th', 'Fr', 'Sa', 'Su', 'Mo', 'Tu', 'We']
 const todayHabitDay: HabitDay = 'We'
 const runningIcon = '\u{1F3C3}\u200D\u2640\uFE0F'
 const clipboardIcon = '\u{1F4CB}\uFE0F'
+const createWeekdayPills = [
+  { label: 'S', key: 'Sun' },
+  { label: 'M', key: 'M' },
+  { label: 'T', key: 'T' },
+  { label: 'W', key: 'W' },
+  { label: 'T', key: 'T2' },
+  { label: 'F', key: 'F' },
+  { label: 'S', key: 'Sat' },
+]
 
 const defaultRunningHabit: Habit = {
   name: 'Go Running',
@@ -72,7 +92,7 @@ const defaultRunningHabit: Habit = {
   goal: 4,
   unit: 'Miles',
   frequency: 'Daily',
-  activeDays: ['M', 'T', 'W', 'T2', 'F', 'S'],
+  activeDays: ['Sun', 'M', 'T', 'W', 'T2', 'F', 'Sat'],
   timeOfDay: 'All Day',
 }
 
@@ -330,6 +350,79 @@ const heatmapColors = {
   blue: '#006297',
 } as const
 
+const currentMonthElapsedDays = 10
+const fixedSkippedHabits = 3
+
+function heatmapColorKeyForProgress(value: number, goal: number): keyof typeof heatmapColors {
+  const progress = goal > 0 ? value / goal : 0
+  if (value <= 0) return 'empty'
+  if (progress <= 0.33) return 'green'
+  if (progress <= 0.66) return 'teal'
+  return 'blue'
+}
+
+function buildJuneMonthRows(cells: CalendarCell[], goal: number) {
+  const colorByDay = new Map(
+    cells
+      .filter((cell): cell is Exclude<CalendarCell, null> => Boolean(cell))
+      .map((cell) => [
+        cell.label,
+        heatmapColorKeyForProgress(progressValueForCalendarColor(cell.color, goal), goal),
+      ]),
+  )
+  let day = 1
+
+  return monthCards[1].rows.map((row) => ({
+    offset: row.offset,
+    cells: row.cells.map(() => colorByDay.get(String(day++)) ?? 'empty'),
+  }))
+}
+
+function getMonthMetric({
+  hasHabit,
+  hasSeededHistory,
+  habit,
+  progressByDate,
+}: {
+  hasHabit: boolean
+  hasSeededHistory: boolean
+  habit: Habit
+  progressByDate: JuneProgressByDate
+}): MonthMetric {
+  if (!hasHabit) {
+    return {
+      completed: 0,
+      missed: 0,
+      skipped: fixedSkippedHabits,
+      created: 0,
+      rate: 0,
+      completedPossible: 0,
+      eligibleDays: 0,
+    }
+  }
+
+  const values = Array.from({ length: currentMonthElapsedDays }, (_, index) => progressByDate[String(index + 1)] ?? 0)
+  const completed = values.filter((value) => value >= habit.goal).length
+  const eligibleDays = hasSeededHistory ? currentMonthElapsedDays : values.filter((value) => value > 0).length
+  const missed = hasSeededHistory ? Math.max(0, currentMonthElapsedDays - completed - fixedSkippedHabits) : 0
+  const rate = eligibleDays > 0 ? Math.round((completed / eligibleDays) * 100) : 0
+
+  return {
+    completed,
+    missed,
+    skipped: fixedSkippedHabits,
+    created: 1,
+    rate,
+    completedPossible: completed,
+    eligibleDays,
+  }
+}
+
+function getCurrentStreak(hasHabit: boolean, todayComplete: boolean) {
+  if (!hasHabit) return 0
+  return todayComplete ? 4 : 3
+}
+
 const monthCards = [
   {
     title: 'May',
@@ -458,7 +551,6 @@ function TopBar({
           </button>
         ))}
       </div>
-      <div className={`top-rule tab-${tabs.indexOf(activeTab)}`} />
     </header>
   )
 }
@@ -468,11 +560,13 @@ function BottomNav({
   active,
   onHome,
   onNew,
+  onProgress,
 }: {
   showLabels: boolean
   active: 'home' | 'new' | 'progress'
   onHome: () => void
   onNew: () => void
+  onProgress?: () => void
 }) {
   return (
     <nav className={`bottom-nav ${showLabels ? 'with-labels' : 'icons-only'}`} aria-label="Main">
@@ -488,7 +582,7 @@ function BottomNav({
         </span>
         <span className="nav-label">New</span>
       </button>
-      <button className={`nav-item ${active === 'progress' ? 'active' : ''}`} type="button">
+      <button className={`nav-item ${active === 'progress' ? 'active' : ''}`} type="button" onClick={onProgress}>
         <span className="nav-box">
           <Icon src={assets.stats} size={32} />
         </span>
@@ -596,6 +690,8 @@ function HabitSheet({
   habit,
   day,
   value,
+  currentStreak,
+  bestStreak,
   onDay,
   onToday,
   onClose,
@@ -608,6 +704,8 @@ function HabitSheet({
   habit: Habit
   day: HabitDay
   value: number
+  currentStreak: number
+  bestStreak: number
   onDay: (day: HabitDay) => void
   onToday: () => void
   onClose: () => void
@@ -687,19 +785,7 @@ function HabitSheet({
           <b>Return to today</b>
         </button>
       )}
-      <section className="sheet-streaks">
-        <div>
-          <b>
-            <img src={assets.streakFlame} alt="" />
-            {value >= habit.goal ? 1 : 0} Day
-          </b>
-          <span>Current Streak</span>
-        </div>
-        <div>
-          <b>13 Days</b>
-          <span>Best Streak</span>
-        </div>
-      </section>
+      <StreakSummary currentStreak={currentStreak} bestStreak={bestStreak} className="sheet-streaks" />
       <section className="sheet-section no-op">
         <div className="month-cards">
           {monthCards.map((month) => (
@@ -793,7 +879,7 @@ function CalendarOverlay({
       <div className="calendar-top">
         <StatusBar />
         <div className="calendar-title-row">
-          <button className="title-button" type="button">
+          <button className="title-button" type="button" onClick={onClose}>
             <span>{formatJuneDate(selectedDate)}</span>
             <Icon src={assets.chevron} size={12} />
           </button>
@@ -808,12 +894,6 @@ function CalendarOverlay({
           {[...pastCalendarMonths].reverse().map((month) => (
             <CalendarMonth key={month.title} title={month.title} cells={month.cells} />
           ))}
-          {!isToday && (
-            <button className="return-today calendar-return" type="button" onClick={onReturnToday}>
-              <Icon src={assets.return} size={14} />
-              <b>Return to today</b>
-            </button>
-          )}
           <CalendarMonth
             title="June"
             cells={cells}
@@ -824,6 +904,14 @@ function CalendarOverlay({
           />
         </div>
       </div>
+      {!isToday && (
+        <div className="calendar-return-wrap">
+          <button className="return-today calendar-return" type="button" onClick={onReturnToday}>
+            <Icon src={assets.return} size={14} />
+            <b>Return to today</b>
+          </button>
+        </div>
+      )}
       <div className="pull-tab" />
     </div>
   )
@@ -876,6 +964,285 @@ function CalendarMonth({
         })}
       </div>
     </section>
+  )
+}
+
+function StreakSummary({
+  currentStreak,
+  bestStreak,
+  className = '',
+}: {
+  currentStreak: number
+  bestStreak: number
+  className?: string
+}) {
+  return (
+    <section className={`streak-summary ${className}`}>
+      <img className="streak-laurel left" src={assets.streakLaurelLeft} alt="" />
+      <div>
+        <b>
+          <img src={assets.streakFlame} alt="" />
+          {currentStreak} {currentStreak === 1 ? 'Day' : 'Days'}
+        </b>
+        <span>Current Streak</span>
+      </div>
+      <div>
+        <b>{bestStreak} Days</b>
+        <span>Best Streak</span>
+      </div>
+      <img className="streak-laurel right" src={assets.streakLaurelRight} alt="" />
+    </section>
+  )
+}
+
+function ProgressHeader({
+  title,
+  subtitle,
+  onBack,
+}: {
+  title: string
+  subtitle?: string
+  onBack?: () => void
+}) {
+  return (
+    <header className={`progress-header ${onBack ? 'detail' : ''}`}>
+      <StatusBar />
+      {onBack && (
+        <button className="progress-back" type="button" onClick={onBack} aria-label="Back">
+          <Icon src={assets.back} size={20} />
+        </button>
+      )}
+      <div className="progress-title-wrap">
+        <h1>{title}</h1>
+        {subtitle && <p>{subtitle}</p>}
+      </div>
+      {!onBack && (
+        <button className="square progress-profile" type="button" aria-label="Profile">
+          <Icon src={assets.profile} />
+        </button>
+      )}
+    </header>
+  )
+}
+
+function MonthHeatmapCards({
+  juneCells,
+  goal,
+  blankHistory = false,
+}: {
+  juneCells: CalendarCell[]
+  goal: number
+  blankHistory?: boolean
+}) {
+  const cards = [
+    blankHistory
+      ? {
+          title: 'May',
+          rows: monthCards[0].rows.map((row) => ({ ...row, cells: row.cells.map(() => 'empty' as const) })),
+        }
+      : monthCards[0],
+    {
+      title: 'June',
+      rows: blankHistory
+        ? monthCards[1].rows.map((row) => ({ ...row, cells: row.cells.map(() => 'empty' as const) }))
+        : buildJuneMonthRows(juneCells, goal),
+    },
+  ]
+
+  return (
+    <section className="progress-heatmap">
+      <div className="month-cards">
+        {cards.map((month) => (
+          <div className="month-card" key={month.title}>
+            <h3>{month.title}</h3>
+            <div className="month-weekdays" aria-hidden="true">
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((weekday, index) => (
+                <span key={`${month.title}-${weekday}-${index}`}>{weekday}</span>
+              ))}
+            </div>
+            <div className="github-grid">
+              {month.rows.map((row, rowIndex) => (
+                <div key={`${month.title}-row-${rowIndex}`}>
+                  {row.cells.map((level, index) => (
+                    <span
+                      key={`${month.title}-${rowIndex}-${index}`}
+                      style={{ backgroundColor: heatmapColors[level] }}
+                      className={index === 0 ? `offset-${row.offset}` : undefined}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="month-card-foot">
+        <b>See All</b>
+        <span><i /> Less <i className="more" /> More</span>
+      </div>
+    </section>
+  )
+}
+
+function MonthBreakdown({ metric }: { metric: MonthMetric }) {
+  const cards = [
+    { title: 'Completed', value: metric.completed, icon: assets.check, label: 'Habits' },
+    { title: 'Missed', value: metric.missed, icon: assets.close, label: 'Habits' },
+    { title: 'Skipped', value: metric.skipped, icon: assets.redo, label: 'Habits' },
+    { title: 'New', value: metric.created, icon: assets.plus, label: 'Habits' },
+  ]
+
+  return (
+    <section className="progress-breakdown">
+      <div className="progress-section-head">
+        <h2>Month Breakdown</h2>
+        <button type="button">
+          <span>June</span>
+          <Icon src={assets.caret} size={12} />
+        </button>
+      </div>
+      <div className="breakdown-card">
+        <div className="breakdown-rate">
+          <span>Monthly Completion Rate</span>
+          <span className="rate-change">↟ 4%</span>
+          <b>{metric.rate}%</b>
+        </div>
+        <div className="breakdown-bar">
+          <span style={{ width: `${metric.rate}%` }} />
+        </div>
+        <div className="metric-grid">
+          {cards.map((card) => (
+            <div className="metric-card" key={card.title}>
+              <span>
+                <Icon src={card.icon} size={20} />
+                {card.title}
+              </span>
+              <b>{card.value} <small>{card.label}</small></b>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function HabitCompletionRow({
+  habit,
+  metric,
+  onOpen,
+}: {
+  habit: Habit
+  metric: MonthMetric
+  onOpen: () => void
+}) {
+  const percent = metric.eligibleDays > 0 ? Math.round((metric.completedPossible / metric.eligibleDays) * 100) : 0
+
+  return (
+    <button className="habit-completion-row" type="button" onClick={onOpen}>
+      <div className="habit-completion-top">
+        <span>
+          <b className="habit-completion-icon">{habit.icon}</b>
+          {habit.name}
+        </span>
+        <span>
+          <em>↑ 6%</em>
+          <strong>{percent}%</strong>
+        </span>
+      </div>
+      <div className="habit-completion-bar">
+        <span style={{ width: `${percent}%` }} />
+      </div>
+    </button>
+  )
+}
+
+function ProgressScreen({
+  hasHabit,
+  habit,
+  metric,
+  juneCells,
+  currentStreak,
+  bestStreak,
+  hasSeededHistory,
+  onHome,
+  onNew,
+  onOpenHabit,
+}: {
+  hasHabit: boolean
+  habit: Habit
+  metric: MonthMetric
+  juneCells: CalendarCell[]
+  currentStreak: number
+  bestStreak: number
+  hasSeededHistory: boolean
+  onHome: () => void
+  onNew: () => void
+  onOpenHabit: () => void
+}) {
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (contentRef.current) contentRef.current.scrollTop = 0
+  }, [])
+
+  return (
+    <main className="phone progress-screen">
+      <ProgressHeader title="Progress" />
+      <div className="progress-content" ref={contentRef}>
+        <div className="progress-top-spacer" aria-hidden="true" />
+        <StreakSummary currentStreak={currentStreak} bestStreak={bestStreak} />
+        <MonthHeatmapCards juneCells={juneCells} goal={habit.goal} blankHistory={!hasSeededHistory && metric.eligibleDays === 0} />
+        <MonthBreakdown metric={metric} />
+        <section className="individual-completion">
+          <div className="individual-head">
+            <h2>Individual Habit Completion</h2>
+            <button type="button">Best <span>↓</span></button>
+          </div>
+          {hasHabit ? (
+            <HabitCompletionRow habit={habit} metric={metric} onOpen={onOpenHabit} />
+          ) : (
+            <div className="habit-completion-empty">No habits yet</div>
+          )}
+        </section>
+      </div>
+      <BottomNav showLabels active="progress" onHome={onHome} onNew={onNew} onProgress={() => undefined} />
+    </main>
+  )
+}
+
+function ProgressHabitScreen({
+  habit,
+  metric,
+  juneCells,
+  currentStreak,
+  bestStreak,
+  hasSeededHistory,
+  onBack,
+}: {
+  habit: Habit
+  metric: MonthMetric
+  juneCells: CalendarCell[]
+  currentStreak: number
+  bestStreak: number
+  hasSeededHistory: boolean
+  onBack: () => void
+}) {
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (contentRef.current) contentRef.current.scrollTop = 0
+  }, [])
+
+  return (
+    <main className="phone progress-screen progress-detail-screen">
+      <ProgressHeader title={habit.name} subtitle="Progress" onBack={onBack} />
+      <div className="progress-content detail" ref={contentRef}>
+        <div className="progress-top-spacer detail" aria-hidden="true" />
+        <StreakSummary currentStreak={currentStreak} bestStreak={bestStreak} />
+        <MonthHeatmapCards juneCells={juneCells} goal={habit.goal} blankHistory={!hasSeededHistory && metric.eligibleDays === 0} />
+        <MonthBreakdown metric={metric} />
+      </div>
+    </main>
   )
 }
 
@@ -1081,12 +1448,14 @@ function CreateStart({
   onTemplates,
   onNext,
   onHome,
+  onProgress,
 }: {
   habitName: string
   onName: (name: string) => void
   onTemplates: () => void
   onNext: () => void
   onHome: () => void
+  onProgress: () => void
 }) {
   const hasTyped = habitName.trim().length > 0
   return (
@@ -1104,7 +1473,7 @@ function CreateStart({
           />
           {hasTyped && (
             <button type="button" onClick={onNext} aria-label="Continue">
-              <Icon src={assets.createCaret} size={18} />
+              <span className="continue-arrow" aria-hidden="true">→</span>
             </button>
           )}
         </div>
@@ -1118,7 +1487,7 @@ function CreateStart({
         </div>
       </section>
       {hasTyped && <KeyboardOverlay />}
-      <BottomNav showLabels active="new" onHome={onHome} onNew={() => undefined} />
+      <BottomNav showLabels active="new" onHome={onHome} onNew={() => undefined} onProgress={onProgress} />
     </CreateShell>
   )
 }
@@ -1127,10 +1496,12 @@ function TemplateList({
   onBack,
   onPick,
   onHome,
+  onProgress,
 }: {
   onBack: () => void
   onPick: () => void
   onHome: () => void
+  onProgress: () => void
 }) {
   return (
     <CreateShell step="templates">
@@ -1154,7 +1525,7 @@ function TemplateList({
           </section>
         ))}
       </div>
-      <BottomNav showLabels active="new" onHome={onHome} onNew={() => undefined} />
+      <BottomNav showLabels active="new" onHome={onHome} onNew={() => undefined} onProgress={onProgress} />
     </CreateShell>
   )
 }
@@ -1353,7 +1724,7 @@ function ColorOverlay({
             ) : (
               <span style={{ background: color }} />
             )}
-            {selected === color && <i />}
+              {selected === color && <i style={{ borderColor: color }} />}
           </button>
         ))}
       </div>
@@ -1417,12 +1788,11 @@ function GoalStep({
                 </div>
                 {draft.frequency === 'Daily' ? (
                   <div className="weekday-pills">
-                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => {
-                      const key = index === 4 ? 'T2' : day
+                    {createWeekdayPills.map(({ label, key }) => {
                       const active = draft.activeDays.includes(key)
                       return (
                         <button
-                          key={`${day}-${index}`}
+                          key={key}
                           className={active ? '' : 'off'}
                           type="button"
                           onClick={() =>
@@ -1434,7 +1804,7 @@ function GoalStep({
                             })
                           }
                         >
-                          {day}
+                          {label}
                         </button>
                       )
                     })}
@@ -1612,11 +1982,10 @@ function ReviewStep({
               ))}
             </div>
             <div className="weekday-pills">
-              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => {
-                const key = index === 4 ? 'T2' : day
+              {createWeekdayPills.map(({ label, key }) => {
                 return (
-                  <span key={`${day}-${index}`} className={draft.activeDays.includes(key) ? '' : 'off'}>
-                    {day}
+                  <span key={key} className={draft.activeDays.includes(key) ? '' : 'off'}>
+                    {label}
                   </span>
                 )
               })}
@@ -1648,9 +2017,11 @@ function ReviewStep({
 
 function CreateHabitFlow({
   onHome,
+  onProgress,
   onComplete,
 }: {
   onHome: () => void
+  onProgress: () => void
   onComplete: (habit: Habit) => void
 }) {
   const emptyCustomHabit: CreateDraft = { ...defaultRunningHabit, goal: 0, unit: '', timeOfDay: 'All Day' }
@@ -1678,7 +2049,7 @@ function CreateHabitFlow({
   }
 
   if (step === 'templates') {
-    return <TemplateList onBack={resetToStart} onPick={chooseTemplate} onHome={onHome} />
+    return <TemplateList onBack={resetToStart} onPick={chooseTemplate} onHome={onHome} onProgress={onProgress} />
   }
 
   if (step === 'details') {
@@ -1738,6 +2109,7 @@ function CreateHabitFlow({
       onTemplates={() => setStep('templates')}
       onNext={startCustom}
       onHome={onHome}
+      onProgress={onProgress}
     />
   )
 }
@@ -1745,6 +2117,7 @@ function CreateHabitFlow({
 function App() {
   const [view, setView] = useState<View>('home')
   const [hasHabit, setHasHabit] = useState(true)
+  const [hasSeededHistory, setHasSeededHistory] = useState(true)
   const [habit, setHabit] = useState<Habit>(defaultRunningHabit)
   const [activeHomeTab, setActiveHomeTab] = useState<HomeTab>('All Day')
   const [habitOpen, setHabitOpen] = useState(false)
@@ -1773,7 +2146,14 @@ function App() {
   )
   const currentValue = progressByDay[selectedHabitDay]
   const homeHabitValue = juneProgressByDate[selectedJuneDate] ?? 0
-  const homeStreak = selectedDate === 'today' && homeHabitValue >= habit.goal ? 1 : 0
+  const todayComplete = hasHabit && (juneProgressByDate[habitDayToJuneDate[todayHabitDay]] ?? 0) >= habit.goal
+  const currentStreak = getCurrentStreak(hasHabit, todayComplete)
+  const bestStreak = Math.max(13, currentStreak)
+  const homeStreak = selectedDate === 'today' && homeHabitValue >= habit.goal ? currentStreak : 0
+  const monthMetric = useMemo(
+    () => getMonthMetric({ hasHabit, hasSeededHistory, habit, progressByDate: juneProgressByDate }),
+    [hasHabit, hasSeededHistory, habit, juneProgressByDate],
+  )
   const headerTitle = formatJuneDate(selectedDate)
   const habitVisible = hasHabit && habit.timeOfDay === activeHomeTab
 
@@ -1791,6 +2171,7 @@ function App() {
 
   const removeHabit = () => {
     setHasHabit(false)
+    setHasSeededHistory(false)
     setHabitOpen(false)
     setCalendarOpen(false)
     setView('home')
@@ -1832,6 +2213,7 @@ function App() {
           active="home"
           onHome={() => setView('home')}
           onNew={() => setView('new')}
+          onProgress={() => setView('progress')}
         />
         {habitOpen && habitVisible && (
           <div className="overlay-click-layer habit-layer" onClick={() => setHabitOpen(false)}>
@@ -1839,6 +2221,8 @@ function App() {
               habit={habit}
               day={selectedHabitDay}
               value={currentValue}
+              currentStreak={currentStreak}
+              bestStreak={bestStreak}
               onDay={selectHabitDay}
               onToday={() => selectHabitDay(todayHabitDay)}
               onClose={() => setHabitOpen(false)}
@@ -1847,7 +2231,7 @@ function App() {
               }
               onEdit={() => setView('edit')}
               onArchive={removeHabit}
-            onDelete={removeHabit}
+              onDelete={removeHabit}
               progressByDay={progressByDay}
             />
           </div>
@@ -1858,7 +2242,10 @@ function App() {
               selectedDate={selectedDate}
               cells={juneCalendarCells}
               onSelectDate={setSelectedDate}
-              onReturnToday={() => setSelectedDate('today')}
+              onReturnToday={() => {
+                setSelectedDate('today')
+                setCalendarOpen(false)
+              }}
               onClose={() => setCalendarOpen(false)}
             />
           </div>
@@ -1871,6 +2258,8 @@ function App() {
       habitOpen,
       homeHabitValue,
       homeStreak,
+      currentStreak,
+      bestStreak,
       habit,
       habitVisible,
       headerTitle,
@@ -1893,15 +2282,48 @@ function App() {
     return (
       <CreateHabitFlow
         onHome={() => setView('home')}
+        onProgress={() => setView('progress')}
         onComplete={(createdHabit) => {
           setHabit(createdHabit)
           setHasHabit(true)
+          setHasSeededHistory(false)
           setHabitOpen(false)
           setCalendarOpen(false)
           setActiveHomeTab(createdHabit.timeOfDay)
           setJuneProgressByDate({})
           setView('home')
         }}
+      />
+    )
+  }
+
+  if (view === 'progress') {
+    return (
+      <ProgressScreen
+        hasHabit={hasHabit}
+        habit={habit}
+        metric={monthMetric}
+        juneCells={juneCalendarCells}
+        currentStreak={currentStreak}
+        bestStreak={bestStreak}
+        hasSeededHistory={hasSeededHistory}
+        onHome={() => setView('home')}
+        onNew={() => setView('new')}
+        onOpenHabit={() => setView('progressHabit')}
+      />
+    )
+  }
+
+  if (view === 'progressHabit') {
+    return (
+      <ProgressHabitScreen
+        habit={habit}
+        metric={monthMetric}
+        juneCells={juneCalendarCells}
+        currentStreak={currentStreak}
+        bestStreak={bestStreak}
+        hasSeededHistory={hasSeededHistory}
+        onBack={() => setView('progress')}
       />
     )
   }
