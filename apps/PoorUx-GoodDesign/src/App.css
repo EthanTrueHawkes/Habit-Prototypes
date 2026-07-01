@@ -568,6 +568,16 @@ button:focus {
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 
+.command-dismiss {
+  position: absolute;
+  z-index: 14;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
 .calendar-layer {
   position: absolute;
   z-index: 40;
@@ -731,7 +741,10 @@ button:focus {
 .sheet-backdrop {
   position: absolute;
   inset: 0;
+  padding: 0;
+  border: 0;
   background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
 }
 
 .log-progress-sheet {
@@ -818,9 +831,24 @@ button:focus {
   white-space: nowrap;
 }
 
-.popup-menu {
+.popup-layer {
   position: absolute;
   z-index: 30;
+  inset: 0;
+}
+
+.popup-backdrop {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.popup-menu {
+  position: absolute;
+  z-index: 1;
   display: grid;
   gap: 0;
   padding: 8px;

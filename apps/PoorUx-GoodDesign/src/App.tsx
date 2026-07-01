@@ -314,6 +314,7 @@ function App() {
   const [customPopup, setCustomPopup] = useState<CustomHabitPopup>(null)
   const [categoryEntryOpen, setCategoryEntryOpen] = useState(false)
   const [categoryEntry, setCategoryEntry] = useState('')
+  const [customCategories, setCustomCategories] = useState<string[]>([])
   const [customDraft, setCustomDraft] = useState<CustomHabitDraft>({
     name: '',
     description: '',
@@ -418,7 +419,14 @@ function App() {
     setCreateMenuOpen(false)
     setCustomPopup(null)
     setCategoryEntryOpen(false)
+    setCategoryEntry('')
     setManageFlow(flow)
+  }
+
+  const closeCustomPopup = () => {
+    setCustomPopup(null)
+    setCategoryEntryOpen(false)
+    setCategoryEntry('')
   }
 
   const saveDraftAsHabit = (draft: CustomHabitDraft) => {
@@ -446,6 +454,7 @@ function App() {
     setCustomPopup(null)
     setCategoryEntryOpen(false)
     setCategoryEntry('')
+    setCustomCategories([])
     setCustomDraft({
       name: '',
       description: '',
@@ -483,6 +492,9 @@ function App() {
             setCategoryEntryOpen={setCategoryEntryOpen}
             categoryEntry={categoryEntry}
             setCategoryEntry={setCategoryEntry}
+            customCategories={customCategories}
+            setCustomCategories={setCustomCategories}
+            onClosePopup={closeCustomPopup}
             onBack={() => openManageFlow(manageFlow === 'newHabit' ? 'main' : 'newHabit')}
             onExplore={() => {
               setManageFlow('main')
@@ -782,12 +794,20 @@ function TrackScreen({
         left={<IconButton icon={figma.hamburger} label="Open track menu" onClick={toggleMenu} />}
       />
       {menuOpen && (
-        <PopupMenu className="track-popup">
+        <PopupMenu className="track-popup" onClose={toggleMenu}>
           <MenuItem icon={figma.menuCalendar} label="Change Day" onClick={onOpenCalendar} />
           <MenuItem icon={figma.menuPlus} label="Add Habit" />
           <MenuItem icon={figma.menuEdit} label="Edit Habits" />
           <MenuItem icon={figma.menuSkip} label="Skip Habit" />
         </PopupMenu>
+      )}
+      {activeHabitActionsId && (
+        <button
+          className="command-dismiss"
+          type="button"
+          aria-label="Close habit commands"
+          onClick={() => setActiveHabitActionsId(null)}
+        />
       )}
       {visibleHabits.length > 0 && (
         <div className="track-content">
@@ -1035,7 +1055,7 @@ function LogProgressSheet({
 
   return (
     <div className="sheet-layer">
-      <div className="sheet-backdrop" />
+      <button className="sheet-backdrop" type="button" aria-label="Close log progress" onClick={onClose} />
       <section className="log-progress-sheet" aria-label="Log Progress">
         <div className="sheet-handle" />
         <button className="sheet-close icon-button" type="button" aria-label="Close log progress" onClick={onClose}>
@@ -1328,7 +1348,7 @@ function ManageScreen({
         right={<IconButton icon={figma.managePlus} label="Create new" onClick={toggleMenu} />}
       />
       {menuOpen && (
-        <PopupMenu className="create-popup">
+        <PopupMenu className="create-popup" onClose={toggleMenu}>
           <MenuItem icon={figma.createHabit} label="Create Habit" onClick={onCreateHabit} />
           <MenuItem icon={figma.createReminder} label="Create Reminder" />
         </PopupMenu>
@@ -1394,6 +1414,9 @@ function ManageFlowScreen({
   setCategoryEntryOpen,
   categoryEntry,
   setCategoryEntry,
+  customCategories,
+  setCustomCategories,
+  onClosePopup,
   onBack,
   onExplore,
   onCustom,
@@ -1409,6 +1432,9 @@ function ManageFlowScreen({
   setCategoryEntryOpen: (open: boolean) => void
   categoryEntry: string
   setCategoryEntry: (value: string) => void
+  customCategories: string[]
+  setCustomCategories: React.Dispatch<React.SetStateAction<string[]>>
+  onClosePopup: () => void
   onBack: () => void
   onExplore: () => void
   onCustom: () => void
@@ -1424,7 +1450,7 @@ function ManageFlowScreen({
     description: draft.description || 'Go running each day for 1 mile.',
     category: draft.category,
     icon: draft.icon || figma.templateRunIcon,
-    frequency: draft.frequency || 'daily',
+    frequency: draft.frequency,
     amount: draft.amount || '1',
     unit: draft.unit || 'Mile',
     reminderName: draft.reminderName,
@@ -1452,7 +1478,9 @@ function ManageFlowScreen({
           setCategoryEntryOpen={setCategoryEntryOpen}
           categoryEntry={categoryEntry}
           setCategoryEntry={setCategoryEntry}
-          onClose={() => setPopup(null)}
+          customCategories={customCategories}
+          setCustomCategories={setCustomCategories}
+          onClose={onClosePopup}
         />
       )}
     </>
@@ -1770,6 +1798,8 @@ function CustomHabitSheet({
   setCategoryEntryOpen,
   categoryEntry,
   setCategoryEntry,
+  customCategories,
+  setCustomCategories,
   onClose,
 }: {
   popup: CustomHabitPopup
@@ -1779,6 +1809,8 @@ function CustomHabitSheet({
   setCategoryEntryOpen: (open: boolean) => void
   categoryEntry: string
   setCategoryEntry: (value: string) => void
+  customCategories: string[]
+  setCustomCategories: React.Dispatch<React.SetStateAction<string[]>>
   onClose: () => void
 }) {
   const update = (key: keyof CustomHabitDraft, value: string) => {
@@ -1810,21 +1842,36 @@ function CustomHabitSheet({
 
   if (popup === 'category') {
     const saveCategory = () => {
-      if (categoryEntry.trim()) {
-        update('category', categoryEntry.trim())
+      const nextCategory = categoryEntry.trim()
+      if (nextCategory) {
+        setCustomCategories((current) => (
+          current.includes(nextCategory) ? current : [...current, nextCategory]
+        ))
+        setCategoryEntry('')
         setCategoryEntryOpen(false)
       }
     }
 
     return (
       <BottomSheet title="Category Manager" height="tall" onClose={onClose}>
-        {!draft.category && !categoryEntryOpen && (
+        {customCategories.map((category) => (
+          <SheetChoice
+            key={category}
+            label={category}
+            selected={draft.category === category}
+            onClick={() => {
+              update('category', category)
+              onClose()
+            }}
+          />
+        ))}
+        {!categoryEntryOpen && (
           <button className="create-category-button" type="button" onClick={() => setCategoryEntryOpen(true)}>
             <span>+</span>
             Create category
           </button>
         )}
-        {!draft.category && categoryEntryOpen && (
+        {categoryEntryOpen && (
           <input
             className="sheet-text-input"
             aria-label="Category name"
@@ -1840,9 +1887,6 @@ function CustomHabitSheet({
             }}
           />
         )}
-        {draft.category && (
-          <SheetChoice label={draft.category} selected onClick={onClose} />
-        )}
       </BottomSheet>
     )
   }
@@ -1854,7 +1898,7 @@ function CustomHabitSheet({
           <SheetChoice
             key={frequency}
             label={formatTimeframe(frequency)}
-            selected={draft.frequency === frequency || (!draft.frequency && frequency === 'daily')}
+            selected={draft.frequency === frequency}
             onClick={() => {
               update('frequency', frequency)
             }}
@@ -1923,7 +1967,7 @@ function BottomSheet({
 }) {
   return (
     <div className="sheet-layer">
-      <div className="sheet-backdrop" />
+      <button className="sheet-backdrop" type="button" aria-label="Close" onClick={onClose} />
       <section className={`manage-bottom-sheet ${height}`} aria-label={title}>
         <div className="sheet-handle" />
         <button className="sheet-close icon-button" type="button" aria-label="Close" onClick={onClose}>
@@ -2066,11 +2110,18 @@ function IconButton({
 function PopupMenu({
   children,
   className,
+  onClose,
 }: {
   children: React.ReactNode
   className: string
+  onClose: () => void
 }) {
-  return <div className={`popup-menu ${className}`}>{children}</div>
+  return (
+    <div className="popup-layer">
+      <button className="popup-backdrop" type="button" aria-label="Close menu" onClick={onClose} />
+      <div className={`popup-menu ${className}`}>{children}</div>
+    </div>
+  )
 }
 
 function MenuItem({ icon, label, onClick }: { icon: string; label: string; onClick?: () => void }) {
