@@ -882,50 +882,28 @@ button:focus {
   margin: 32px auto 0;
 }
 
-.large-arc-layer {
+.large-arc-svg {
   position: absolute;
   left: 0;
   top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 240px;
-  height: 240px;
+  height: 120px;
+  overflow: visible;
 }
 
-.large-arc-rotation {
-  flex: none;
-  transform: rotate(180deg);
+.large-arc-track,
+.large-arc-progress {
+  fill: none;
+  stroke-width: 20;
+  stroke-linecap: round;
 }
 
-.large-arc-frame {
-  position: relative;
-  width: 240px;
-  height: 240px;
+.large-arc-track {
+  stroke: #d9dce6;
 }
 
-.large-arc-crop {
-  position: absolute;
-  bottom: 0;
-  top: 50%;
-  overflow: hidden;
-}
-
-.large-arc-crop.bg {
-  left: 0;
-  right: 0;
-}
-
-.large-arc-crop.progress {
-  left: 21.58%;
-  right: 0;
-}
-
-.large-arc-crop img {
-  display: block;
-  width: 240px;
-  height: 240px;
-  max-width: none;
+.large-arc-progress {
+  stroke: var(--blue);
 }
 
 .large-arc-label {
@@ -2066,7 +2044,18 @@ button:focus {
 }
 
 .settings-arrow.chevron {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
   transform: rotate(-90deg);
+}
+
+.settings-arrow.chevron img {
+  position: absolute;
+  inset: 34.38% 15.62% 28.12%;
+  width: 68.76%;
+  height: 37.5%;
+  object-fit: fill;
 }
 
 .settings-arrow.external {

@@ -29,6 +29,23 @@ type CustomHabitDraft = {
   reminderName: string
   color: string
 }
+type ExploreCard = {
+  title: string
+  meta: string
+  image: string
+}
+type ExploreContent = {
+  featured: {
+    title: string
+    description: string
+    meta: string
+    image: string
+  }
+  sections: {
+    title: string
+    cards: ExploreCard[]
+  }[]
+}
 
 const figma = {
   yogaCard: 'https://www.figma.com/api/mcp/asset/67176fa4-e8f8-437f-9b38-cfb2a403dda7',
@@ -65,8 +82,8 @@ const figma = {
   menuSkip: 'https://www.figma.com/api/mcp/asset/c06a2e27-6d8a-4f0b-81b6-f4b363cdd3a1',
   calendarChevronLeft: 'https://www.figma.com/api/mcp/asset/00953008-15dc-4893-b665-9d720777dbcc',
   calendarChevronRight: 'https://www.figma.com/api/mcp/asset/308dd9b7-82b5-4e3a-ad8b-999de1c5fffd',
-  arcLargeBg: 'https://www.figma.com/api/mcp/asset/711ab93d-f915-47c1-af4e-d17381fef012',
-  arcLargeProgress: 'https://www.figma.com/api/mcp/asset/5d045b05-96ff-4cfb-acdc-6a958a3012ce',
+  arcLargeBg: 'https://www.figma.com/api/mcp/asset/265385ab-162c-4fa7-82aa-b33184698acc',
+  arcLargeProgress: 'https://www.figma.com/api/mcp/asset/89cc0789-f131-49ae-b704-8d75f9bea5fa',
   arcSmallQuarter: 'https://www.figma.com/api/mcp/asset/406ab8e0-68d1-46d0-8b29-120096f60d8c',
   arcSmallBg: 'https://www.figma.com/api/mcp/asset/ac564421-88d9-4216-b15a-0f095f0759d7',
   arcSmallProgress: 'https://www.figma.com/api/mcp/asset/5bcfddae-7e35-4319-85e6-e6ba08b14add',
@@ -93,7 +110,7 @@ const figma = {
   settingsTerms: 'https://www.figma.com/api/mcp/asset/49a94472-7dc8-4e9e-8de9-254974a97409',
   settingsFeedback: 'https://www.figma.com/api/mcp/asset/96949357-f3ac-4920-a814-91170cbb4782',
   settingsLogout: 'https://www.figma.com/api/mcp/asset/c25e7b71-58ac-431c-95e5-0e4de5573e2e',
-  settingsArrow: 'https://www.figma.com/api/mcp/asset/821287d9-c77d-4674-ae4e-e1ea6ebfd6c4',
+  settingsArrow: 'https://www.figma.com/api/mcp/asset/8aa18f38-20ad-42c1-aedb-8d95383979e4',
   settingsExternal: 'https://www.figma.com/api/mcp/asset/01e4ed7f-c905-477b-9137-a50ff96aff08',
 }
 
@@ -135,6 +152,113 @@ const pages: { id: Page; label: string; icon: string; activeIcon: string }[] = [
   { id: 'manage', label: 'Manage', icon: figma.navManage, activeIcon: figma.navManageActive },
   { id: 'settings', label: 'Settings', icon: figma.navSettings, activeIcon: figma.navSettingsActive },
 ]
+const imageUrl = (id: string, width = 600) => (
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=80`
+)
+const exploreContent: Record<Timeframe, ExploreContent> = {
+  daily: {
+    featured: {
+      title: 'Social Media Fast',
+      description: 'Go without any social media for 30 days',
+      meta: 'Marked Daily',
+      image: imageUrl('photo-1512428559087-560fa5ceab42', 900),
+    },
+    sections: [
+      {
+        title: 'Lifestyle',
+        cards: [
+          { title: 'Morning Yoga', meta: '30 minutes', image: imageUrl('photo-1686749143613-0eeacff36894') },
+          { title: 'Go Running', meta: '3 miles', image: imageUrl('photo-1606934369778-3fb8d461404b') },
+          { title: 'Hydrate', meta: '8 cups', image: imageUrl('photo-1618683133131-3c8907882c7c') },
+        ],
+      },
+      {
+        title: 'Abstinence',
+        cards: [
+          { title: 'No Sweets', meta: 'All day', image: imageUrl('photo-1575549595260-623d27ba5e44') },
+          { title: 'No Coffee', meta: 'After 2 PM', image: imageUrl('photo-1495474472287-4d71bcdd2085') },
+          { title: 'Phone-Free Hour', meta: '1 hour', image: imageUrl('photo-1512428559087-560fa5ceab42') },
+        ],
+      },
+      {
+        title: 'Learn',
+        cards: [
+          { title: 'Read Pages', meta: '20 pages', image: imageUrl('photo-1666712304790-65771bc6b84e') },
+          { title: 'New Words', meta: '5 words', image: imageUrl('photo-1635919369994-85cb78c9cc95') },
+          { title: 'Piano Practice', meta: '15 minutes', image: imageUrl('photo-1652181820522-cc76583c9950') },
+        ],
+      },
+    ],
+  },
+  weekly: {
+    featured: {
+      title: 'Meal Prep',
+      description: 'Plan meals and prep lunches for the week',
+      meta: 'Marked Weekly',
+      image: imageUrl('photo-1666819691666-4be36926335e', 900),
+    },
+    sections: [
+      {
+        title: 'Wellness',
+        cards: [
+          { title: 'Long Walk', meta: '3 miles', image: imageUrl('photo-1670438664569-36545ddc7a7f') },
+          { title: 'Strength', meta: '2 sessions', image: imageUrl('photo-1586066626871-9e697071bda6') },
+          { title: 'Sleep Reset', meta: '1 night', image: imageUrl('photo-1718717621302-a359be21a111') },
+        ],
+      },
+      {
+        title: 'Home',
+        cards: [
+          { title: 'Laundry', meta: '1 load', image: imageUrl('photo-1718717621302-a359be21a111') },
+          { title: 'Grocery Run', meta: 'Weekly list', image: imageUrl('photo-1666819691666-4be36926335e', 900) },
+          { title: 'Clean Room', meta: '45 minutes', image: imageUrl('photo-1718717621302-a359be21a111') },
+        ],
+      },
+      {
+        title: 'Connect',
+        cards: [
+          { title: 'Call Family', meta: '1 call', image: imageUrl('photo-1663743629963-6301379e8824') },
+          { title: 'Friend Check', meta: '1 message', image: imageUrl('photo-1663743629963-6301379e8824') },
+          { title: 'Date Night', meta: 'Plan it', image: imageUrl('photo-1675077978387-3975ed3579b4') },
+        ],
+      },
+    ],
+  },
+  monthly: {
+    featured: {
+      title: 'Budget Review',
+      description: 'Look back at spending and set the next plan',
+      meta: 'Marked Monthly',
+      image: imageUrl('photo-1635919369994-85cb78c9cc95', 900),
+    },
+    sections: [
+      {
+        title: 'Reflect',
+        cards: [
+          { title: 'Month Review', meta: '30 minutes', image: imageUrl('photo-1635919369994-85cb78c9cc95') },
+          { title: 'Photo Sort', meta: '1 album', image: imageUrl('photo-1635919369994-85cb78c9cc95') },
+          { title: 'Wins List', meta: '10 wins', image: imageUrl('photo-1635919369994-85cb78c9cc95') },
+        ],
+      },
+      {
+        title: 'Reset',
+        cards: [
+          { title: 'Deep Clean', meta: '1 room', image: imageUrl('photo-1718717621302-a359be21a111') },
+          { title: 'Inbox Zero', meta: 'Monthly', image: imageUrl('photo-1499750310107-5fef28a66643') },
+          { title: 'Donate Items', meta: '5 items', image: imageUrl('photo-1718717621302-a359be21a111') },
+        ],
+      },
+      {
+        title: 'Growth',
+        cards: [
+          { title: 'Skill Goal', meta: 'Pick one', image: imageUrl('photo-1499750310107-5fef28a66643') },
+          { title: 'Book Finish', meta: '1 book', image: imageUrl('photo-1579206630372-ea5c6176866e') },
+          { title: 'Plan Trip', meta: 'Next month', image: imageUrl('photo-1502920917128-1aa500764cbd') },
+        ],
+      },
+    ],
+  },
+}
 
 const prototypeToday = '2020-06-10'
 const monthNames = [
@@ -228,7 +352,6 @@ function App() {
   const [trackDetailOpen, setTrackDetailOpen] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
 
-  const isDaily = timeframe === 'daily'
   const selectedDateHabits = habits.map((habit) => withProgressForDate(habit, selectedDate))
   const selectedHabit = selectedDateHabits.find((habit) => habit.id === selectedHabitId)
 
@@ -373,7 +496,7 @@ function App() {
         {!trackDetailOpen && !inManageFlow && (
           <>
         {page === 'explore' && (
-          <ExploreScreen timeframe={timeframe} setTimeframe={setTimeframe} isDaily={isDaily} />
+          <ExploreScreen timeframe={timeframe} setTimeframe={setTimeframe} />
         )}
         {page === 'track' && (
           <TrackScreen
@@ -536,69 +659,82 @@ function TimeframeSelector({
 function ExploreScreen({
   timeframe,
   setTimeframe,
-  isDaily,
 }: {
   timeframe: Timeframe
   setTimeframe: (timeframe: Timeframe) => void
-  isDaily: boolean
 }) {
+  const content = exploreContent[timeframe]
+
   return (
     <section className="screen">
       <Header title="Explore" timeframe={timeframe} setTimeframe={setTimeframe} />
-      {isDaily && (
-        <div className="explore-content">
-          <section className="explore-section">
-            <h2>Featured</h2>
-            <FeaturedCard />
+      <div className="explore-content">
+        <section className="explore-section">
+          <h2>Featured</h2>
+          <FeaturedCard
+            title={content.featured.title}
+            description={content.featured.description}
+            meta={content.featured.meta}
+            image={content.featured.image}
+          />
+        </section>
+        {content.sections.map((section) => (
+          <section className="explore-section" key={section.title}>
+            <h2>{section.title}</h2>
+            <div className="horizontal-cards">
+              {section.cards.map((card) => (
+                <RecommendationCard card={card} key={`${section.title}-${card.title}`} />
+              ))}
+            </div>
           </section>
-          {['Lifestyle', 'Abstinence', 'Learn'].map((title) => (
-            <section className="explore-section" key={title}>
-              <h2>{title}</h2>
-              <div className="horizontal-cards">
-                <RecommendationCard />
-                <RecommendationCard />
-                <RecommendationCard />
-              </div>
-            </section>
-          ))}
-        </div>
-      )}
+        ))}
+      </div>
     </section>
   )
 }
 
-function FeaturedCard() {
+function FeaturedCard({
+  title,
+  description,
+  meta,
+  image,
+}: {
+  title: string
+  description: string
+  meta: string
+  image: string
+}) {
   return (
     <article className="featured-card">
-      <img src={figma.featuredCard} alt="" />
+      <img src={image} alt="" />
       <div className="card-scrim" />
-      <button className="card-plus" type="button" aria-label="Add Social Media Fast">
+      <button className="card-plus" type="button" aria-label={`Add ${title}`}>
         <img src={figma.plus} alt="" />
       </button>
       <div className="featured-copy">
-        <h3>Social Media Fast</h3>
-        <p>Go without any social media for 30 days</p>
+        <h3>{title}</h3>
+        <p>{description}</p>
       </div>
       <div className="card-meta">
         <img src={figma.clock} alt="" />
-        <span>Marked Daily</span>
+        <span>{meta}</span>
       </div>
     </article>
   )
 }
 
-function RecommendationCard() {
+function RecommendationCard({ card }: { card: ExploreCard }) {
   return (
     <article className="recommendation-card">
-      <img src={figma.yogaCard} alt="" />
+      <img src={card.image} alt="" />
       <div className="card-scrim" />
-      <button className="card-plus" type="button" aria-label="Add Morning Yoga">
+      <button className="card-plus" type="button" aria-label={`Add ${card.title}`}>
         <img src={figma.plus} alt="" />
       </button>
-      <h3>Morning Yoga</h3>
+      <h3>{card.title}</h3>
       <div className="card-meta">
         <img src={figma.clock} alt="" />
-        <span>30 minutes</span>
+        <span>{card.meta}</span>
       </div>
     </article>
   )
@@ -1045,10 +1181,13 @@ function ProgressScreen({
   timeframe: Timeframe
   setTimeframe: (timeframe: Timeframe) => void
 }) {
-  const label = timeframe[0].toUpperCase() + timeframe.slice(1)
   const visibleHabits = habits.filter((habit) => habit.exists && habit.frequency === timeframe)
   const completedCount = visibleHabits.filter((habit) => habit.progress >= habit.target).length
   const totalGoals = visibleHabits.length
+  const displayCompleted = timeframe === 'daily' ? 6 : completedCount
+  const displayTotal = timeframe === 'daily' ? 8 : totalGoals
+  const completionRatio = displayTotal > 0 ? displayCompleted / displayTotal : 0
+  const arcLength = 345.58
 
   return (
     <section className="screen">
@@ -1056,27 +1195,18 @@ function ProgressScreen({
       <div className="progress-content">
         <section className="progress-summary">
           <div className="large-arc">
-            <div className="large-arc-layer">
-              <div className="large-arc-rotation">
-                <div className="large-arc-frame">
-                  <div className="large-arc-crop bg">
-                    <img src={figma.arcLargeBg} alt="" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="large-arc-layer">
-              <div className="large-arc-rotation">
-                <div className="large-arc-frame">
-                  <div className="large-arc-crop progress">
-                    <img src={figma.arcLargeProgress} alt="" />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <svg className="large-arc-svg" width="240" height="120" viewBox="0 0 240 120" aria-hidden="true">
+              <path className="large-arc-track" d="M 10 110 A 110 110 0 0 1 230 110" pathLength={arcLength} />
+              <path
+                className="large-arc-progress"
+                d="M 10 110 A 110 110 0 0 1 230 110"
+                pathLength={arcLength}
+                style={{ strokeDasharray: `${completionRatio * arcLength} ${arcLength}` }}
+              />
+            </svg>
             <div className="large-arc-label">
-              <strong>{timeframe === 'daily' ? '6 of 8' : `${completedCount} of ${totalGoals}`}</strong>
-              <span>{label} Goal Finished</span>
+              <strong>{`${displayCompleted} of ${displayTotal}`}</strong>
+              <span>Goal Finished</span>
             </div>
           </div>
           <div className="metric-row">
@@ -1886,10 +2016,15 @@ function SettingsGroup({
               <span>{row.label}</span>
             </div>
             {row.trailing}
-            {row.arrow && (
+            {row.arrow === 'chevron' && (
+              <span className="settings-arrow chevron" aria-hidden="true">
+                <img src={figma.settingsArrow} alt="" />
+              </span>
+            )}
+            {row.arrow === 'external' && (
               <img
-                className={`settings-arrow ${row.arrow}`}
-                src={row.arrow === 'external' ? figma.settingsExternal : figma.settingsArrow}
+                className="settings-arrow external"
+                src={figma.settingsExternal}
                 alt=""
               />
             )}
