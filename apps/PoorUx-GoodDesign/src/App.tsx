@@ -473,7 +473,6 @@ function App() {
   return (
     <main className="prototype-stage">
       <div className="phone">
-        <StatusBar />
         {trackDetailOpen && selectedHabit && (
           <IndividualHabitScreen
             habit={selectedHabit}
@@ -582,30 +581,6 @@ function App() {
         )}
       </div>
     </main>
-  )
-}
-
-function StatusBar() {
-  return (
-    <div className="status-bar" aria-hidden="true">
-      <span>9:41</span>
-      <div className="status-icons">
-        <div className="cell-bars">
-          <span />
-          <span />
-          <span />
-          <span />
-        </div>
-        <div className="wifi">
-          <span />
-          <span />
-          <span />
-        </div>
-        <div className="battery">
-          <span />
-        </div>
-      </div>
-    </div>
   )
 }
 

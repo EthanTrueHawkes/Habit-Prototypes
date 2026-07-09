@@ -26,6 +26,7 @@ button:focus {
 }
 
 .prototype-stage {
+  width: 100%;
   min-height: 100vh;
   display: grid;
   place-items: center;
@@ -46,120 +47,6 @@ button:focus {
   position: absolute;
   inset: 0;
   overflow: hidden;
-}
-
-.status-bar {
-  position: absolute;
-  z-index: 20;
-  top: 0;
-  left: 0;
-  width: 393px;
-  height: 54px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 21px 34px 0 55px;
-  pointer-events: none;
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.status-icons {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.cell-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  width: 18px;
-  height: 12px;
-}
-
-.cell-bars span {
-  width: 3px;
-  border-radius: 2px;
-  background: #000;
-}
-
-.cell-bars span:nth-child(1) {
-  height: 4px;
-}
-
-.cell-bars span:nth-child(2) {
-  height: 6px;
-}
-
-.cell-bars span:nth-child(3) {
-  height: 9px;
-}
-
-.cell-bars span:nth-child(4) {
-  height: 12px;
-}
-
-.wifi {
-  position: relative;
-  width: 17px;
-  height: 12px;
-}
-
-.wifi span {
-  position: absolute;
-  left: 50%;
-  border: 2px solid #000;
-  border-color: #000 transparent transparent transparent;
-  border-radius: 50%;
-  transform: translateX(-50%);
-}
-
-.wifi span:nth-child(1) {
-  top: 1px;
-  width: 17px;
-  height: 17px;
-}
-
-.wifi span:nth-child(2) {
-  top: 5px;
-  width: 11px;
-  height: 11px;
-}
-
-.wifi span:nth-child(3) {
-  top: 10px;
-  width: 4px;
-  height: 4px;
-  background: #000;
-  border: 0;
-}
-
-.battery {
-  position: relative;
-  width: 25px;
-  height: 13px;
-  border: 1.5px solid #000;
-  border-radius: 4px;
-}
-
-.battery::after {
-  content: "";
-  position: absolute;
-  top: 3px;
-  right: -3.5px;
-  width: 2px;
-  height: 5px;
-  border-radius: 0 2px 2px 0;
-  background: #000;
-}
-
-.battery span {
-  position: absolute;
-  inset: 2px 3px;
-  border-radius: 2px;
-  background: #000;
 }
 
 .screen-header {
@@ -2165,15 +2052,143 @@ button:focus {
 
 @media (max-width: 430px) {
   .prototype-stage {
-    display: block;
+    width: 100%;
+    height: 100dvh;
     min-height: 100dvh;
+    display: block;
+    overflow: hidden;
     background: var(--app-bg);
   }
 
   .phone {
     width: 100vw;
     height: 100dvh;
-    min-height: 852px;
-    margin: 0 auto;
+    min-height: 0;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .screen-header {
+    top: calc(66px + env(safe-area-inset-top));
+    width: 100%;
+  }
+
+  .header-compact {
+    top: calc(74px + env(safe-area-inset-top));
+  }
+
+  .timeframe-selector {
+    width: 100%;
+  }
+
+  .explore-content,
+  .track-content,
+  .progress-content,
+  .manage-content {
+    top: calc(181px + env(safe-area-inset-top));
+    max-height: calc(100dvh - 181px - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    overflow-y: auto;
+    padding-bottom: 16px;
+  }
+
+  .settings-content {
+    top: calc(122px + env(safe-area-inset-top));
+    max-height: calc(100dvh - 122px - 88px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    overflow-y: auto;
+    padding-bottom: 16px;
+  }
+
+  .track-content,
+  .progress-content,
+  .manage-content,
+  .settings-content,
+  .featured-card,
+  .habit-progress-card,
+  .habit-command-tray,
+  .command-card,
+  .progress-summary,
+  .manage-goal-card,
+  .reminder-card,
+  .template-card,
+  .editor-section,
+  .editor-textarea,
+  .editor-radio-card,
+  .editor-radio-card button,
+  .editor-occurrence,
+  .color-card,
+  .detail-header,
+  .detail-content,
+  .detail-general-row,
+  .detail-textarea,
+  .occurrence-card,
+  .custom-habit-sticky,
+  .editor-continue {
+    width: calc(100% - 32px);
+  }
+
+  .habit-inner {
+    width: calc(100% - 8px);
+  }
+
+  .metric-row {
+    width: calc(100% - 24px);
+  }
+
+  .new-flow-header {
+    top: calc(66px + env(safe-area-inset-top));
+    width: calc(100% - 33px);
+  }
+
+  .new-habit-list,
+  .habit-editor-scroll {
+    inset: calc(130px + env(safe-area-inset-top)) 0 0;
+    width: 100%;
+    padding-bottom: calc(112px + env(safe-area-inset-bottom));
+  }
+
+  .custom-habit-sticky {
+    bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+
+  .bottom-nav {
+    width: 100%;
+    height: calc(88px + env(safe-area-inset-bottom));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+
+  .log-progress-sheet,
+  .manage-bottom-sheet {
+    width: 100%;
+    max-height: calc(100dvh - env(safe-area-inset-top));
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .progress-input-row {
+    width: calc(100% - 48px);
+  }
+
+  .progress-input-row input {
+    flex: 1;
+  }
+
+  .sheet-content,
+  .sheet-text-input,
+  .sheet-choice,
+  .reminder-sheet-fields input,
+  .sheet-field-select,
+  .create-category-button,
+  .icon-picker-grid {
+    width: calc(100% - 46px);
+  }
+
+  .calendar-card {
+    width: calc(100% - 32px);
+  }
+
+  .calendar-head,
+  .calendar-grid,
+  .calendar-confirm {
+    width: 100%;
   }
 }

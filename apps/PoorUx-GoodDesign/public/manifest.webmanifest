@@ -1,0 +1,17 @@
+{
+  "name": "C",
+  "short_name": "C",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#eeeef3",
+  "theme_color": "#eeeef3",
+  "icons": [
+    {
+      "src": "/app-icon.png",
+      "sizes": "447x447",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
