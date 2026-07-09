@@ -2,43 +2,43 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import './App.css'
 
 const assets = {
-  sort: './figma-assets/sort.svg',
-  chevron: './figma-assets/chevron.svg',
-  profile: './figma-assets/profile.svg',
-  home: './figma-assets/home.svg',
-  addOutline: './figma-assets/addOutline.svg',
-  stats: './figma-assets/stats.svg',
-  plus: './figma-assets/plus.svg',
-  close: './figma-assets/close.svg',
-  pencil: './figma-assets/pencil.svg',
-  redo: './figma-assets/redo.svg',
-  archive: './figma-assets/archive.svg',
-  trash: './figma-assets/trash.svg',
-  return: './figma-assets/return.svg',
-  back: './figma-assets/back.svg',
-  caret: './figma-assets/caret.svg',
-  check: './figma-assets/check.svg',
-  bell: './figma-assets/bell.svg',
-  date: './figma-assets/date.svg',
-  createBack: './figma-assets/createBack.svg',
-  createClose: './figma-assets/createClose.svg',
-  createCaret: './figma-assets/createCaret.svg',
-  createPin: './figma-assets/createPin.svg',
-  createHourglass: './figma-assets/createHourglass.svg',
-  createBreak: './figma-assets/createBreak.svg',
-  colorPicked: './figma-assets/colorPicked.svg',
-  rowEllipseTrack: './figma-assets/rowEllipseTrack.svg',
-  rowEllipseFill: './figma-assets/rowEllipseFill.svg',
-  largeEllipseTrack: './figma-assets/largeEllipseTrack.svg',
-  largeEllipseFill: './figma-assets/largeEllipseFill.svg',
-  dayEmpty: './figma-assets/dayEmpty.svg',
-  dayGreenHalf: './figma-assets/dayGreenHalf.svg',
-  dayGreenBase: './figma-assets/dayGreenBase.svg',
-  dayBlueBase: './figma-assets/dayBlueBase.svg',
-  dayBlueHalf: './figma-assets/dayBlueHalf.svg',
-  streakFlame: './figma-assets/streakFlame.svg',
-  streakLaurelLeft: './figma-assets/streakLaurelLeft.png',
-  streakLaurelRight: './figma-assets/streakLaurelRight.png',
+  sort: '/figma-assets/sort.svg',
+  chevron: '/figma-assets/chevron.svg',
+  profile: '/figma-assets/profile.svg',
+  home: '/figma-assets/home.svg',
+  addOutline: '/figma-assets/addOutline.svg',
+  stats: '/figma-assets/stats.svg',
+  plus: '/figma-assets/plus.svg',
+  close: '/figma-assets/close.svg',
+  pencil: '/figma-assets/pencil.svg',
+  redo: '/figma-assets/redo.svg',
+  archive: '/figma-assets/archive.svg',
+  trash: '/figma-assets/trash.svg',
+  return: '/figma-assets/return.svg',
+  back: '/figma-assets/back.svg',
+  caret: '/figma-assets/caret.svg',
+  check: '/figma-assets/check.svg',
+  bell: '/figma-assets/bell.svg',
+  date: '/figma-assets/date.svg',
+  createBack: '/figma-assets/createBack.svg',
+  createClose: '/figma-assets/createClose.svg',
+  createCaret: '/figma-assets/createCaret.svg',
+  createPin: '/figma-assets/createPin.svg',
+  createHourglass: '/figma-assets/createHourglass.svg',
+  createBreak: '/figma-assets/createBreak.svg',
+  colorPicked: '/figma-assets/colorPicked.svg',
+  rowEllipseTrack: '/figma-assets/rowEllipseTrack.svg',
+  rowEllipseFill: '/figma-assets/rowEllipseFill.svg',
+  largeEllipseTrack: '/figma-assets/largeEllipseTrack.svg',
+  largeEllipseFill: '/figma-assets/largeEllipseFill.svg',
+  dayEmpty: '/figma-assets/dayEmpty.svg',
+  dayGreenHalf: '/figma-assets/dayGreenHalf.svg',
+  dayGreenBase: '/figma-assets/dayGreenBase.svg',
+  dayBlueBase: '/figma-assets/dayBlueBase.svg',
+  dayBlueHalf: '/figma-assets/dayBlueHalf.svg',
+  streakFlame: '/figma-assets/streakFlame.svg',
+  streakLaurelLeft: '/figma-assets/streakLaurelLeft.png',
+  streakLaurelRight: '/figma-assets/streakLaurelRight.png',
 }
 
 type HabitDay = 'Th' | 'Fr' | 'Sa' | 'Su' | 'Mo' | 'Tu' | 'We'
@@ -500,16 +500,7 @@ function DayProgressTile({
 }
 
 function StatusBar() {
-  return (
-    <div className="status-bar" aria-hidden="true">
-      <span>9:41</span>
-      <span className="status-icons">
-        <span className="signal-bars"><i /><i /><i /></span>
-        <span className="wifi-mark" />
-        <span className="battery-mark" />
-      </span>
-    </div>
-  )
+  return <div className="status-bar" aria-hidden="true" />
 }
 
 function TopBar({

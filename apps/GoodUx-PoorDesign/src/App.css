@@ -3454,3 +3454,117 @@ input:focus {
 .day-strip button.selected {
   opacity: 1;
 }
+
+@media (max-width: 480px) {
+  :root {
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --bottom-nav-mobile-height: calc(98px + var(--safe-bottom));
+  }
+
+  .phone {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-width: none;
+    overflow: hidden;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .home-screen,
+  .edit-screen,
+  .create-screen,
+  .progress-screen {
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .top-bar,
+  .progress-header,
+  .habit-list,
+  .bottom-nav,
+  .calendar-overlay,
+  .calendar-fade,
+  .habit-sheet,
+  .day-strip,
+  .sheet-streaks,
+  .streak-summary,
+  .progress-content,
+  .progress-breakdown,
+  .breakdown-card,
+  .individual-completion,
+  .habit-completion-row,
+  .habit-completion-empty,
+  .create-header,
+  .create-start-content,
+  .create-name-input,
+  .create-bottom,
+  .keyboard-overlay,
+  .emoji-panel,
+  .unit-drawer {
+    width: 100%;
+    max-width: none;
+  }
+
+  .top-row,
+  .calendar-title-row,
+  .edit-top {
+    width: auto;
+    right: 16px;
+  }
+
+  .sort-button {
+    left: auto;
+    right: 56px;
+  }
+
+  .section-tabs {
+    width: calc(100% - 32px);
+    justify-content: center;
+    gap: clamp(16px, 5vw, 24px);
+  }
+
+  .bottom-nav,
+  .bottom-nav.with-labels,
+  .bottom-nav.icons-only {
+    top: auto;
+    bottom: 0;
+    height: var(--bottom-nav-mobile-height);
+    justify-content: space-between;
+    gap: 0;
+    padding: 8px 48px calc(24px + var(--safe-bottom));
+  }
+
+  .create-bottom {
+    top: auto;
+    bottom: 0;
+    height: calc(88px + var(--safe-bottom));
+    padding-bottom: var(--safe-bottom);
+  }
+
+  .create-review .create-bottom {
+    top: auto;
+  }
+
+  .progress-content {
+    bottom: var(--bottom-nav-mobile-height);
+  }
+
+  .progress-content.detail {
+    bottom: 0;
+    padding-bottom: calc(24px + var(--safe-bottom));
+  }
+
+  .edit-form {
+    padding-bottom: calc(32px + var(--safe-bottom));
+  }
+
+  .calendar-return-wrap {
+    bottom: calc(24px + var(--safe-bottom));
+  }
+
+  .keyboard-overlay,
+  .emoji-panel {
+    bottom: 0;
+  }
+}
