@@ -730,25 +730,6 @@ function App() {
   )
 }
 
-function StatusBar() {
-  return (
-    <div className="status-bar" aria-hidden="true">
-      <span className="status-time">9:41</span>
-      <span className="status-cluster">
-        <span className="cell-bars">
-          <span />
-          <span />
-          <span />
-        </span>
-        <span className="wifi-mark" />
-        <span className="battery-mark">
-          <span />
-        </span>
-      </span>
-    </div>
-  )
-}
-
 type HeaderProps = {
   page: Page
   trackDateLabel?: string
@@ -768,7 +749,6 @@ function AppHeader({
 }: HeaderProps) {
   return (
     <header className={trackDateLabel ? 'app-header has-track-date' : 'app-header'}>
-      <StatusBar />
       {page === 'track' && (
         <button className="header-square header-left" type="button" onClick={onTrackMenu} aria-label="Open menu">
           <span className="hamburger-icon" aria-hidden="true">
@@ -798,7 +778,6 @@ function AppHeader({
 function SettingsHeader() {
   return (
     <header className="settings-header">
-      <StatusBar />
       <h1>Settings</h1>
     </header>
   )
@@ -1408,7 +1387,6 @@ function NewHabitPage({
 function NewHabitHeader({ onBack, onExplore }: { onBack: () => void; onExplore: () => void }) {
   return (
     <header className="new-habit-header">
-      <StatusBar />
       <div className="new-habit-header-row">
         <button type="button" onClick={onBack} aria-label="Back to Manage">
           <img src={habitBackIcon} alt="" />
@@ -1902,7 +1880,6 @@ function IndividualHabitPage({
   return (
     <div className="habit-detail-screen">
       <div className="habit-detail-header-bg" />
-      <StatusBar />
       <header className="habit-detail-header">
         <button type="button" onClick={onBack} aria-label="Back to Track">
           <img src={habitBackIcon} alt="" />

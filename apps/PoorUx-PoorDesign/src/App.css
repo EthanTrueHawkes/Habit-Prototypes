@@ -6,10 +6,12 @@
   --black-text: #141414;
   --muted-panel: #dedede;
   --row-icon-bg: #eeeff4;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .phone-shell {
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   background: #2f2f2f;
@@ -36,118 +38,6 @@ button {
 .phone-frame button:focus,
 .phone-frame button:focus-visible {
   outline: none;
-}
-
-.status-bar {
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 54px;
-  color: #000;
-  pointer-events: none;
-}
-
-.status-time {
-  position: absolute;
-  left: 57px;
-  top: 22px;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.status-cluster {
-  position: absolute;
-  right: 34px;
-  top: 22px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.cell-bars {
-  display: flex;
-  align-items: end;
-  gap: 2px;
-  width: 18px;
-  height: 12px;
-}
-
-.cell-bars span {
-  display: block;
-  width: 4px;
-  background: #000;
-  border-radius: 2px 2px 0 0;
-}
-
-.cell-bars span:nth-child(1) {
-  height: 5px;
-}
-
-.cell-bars span:nth-child(2) {
-  height: 8px;
-}
-
-.cell-bars span:nth-child(3) {
-  height: 11px;
-}
-
-.wifi-mark {
-  position: relative;
-  width: 16px;
-  height: 12px;
-}
-
-.wifi-mark::before,
-.wifi-mark::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  border: 2px solid #000;
-  border-color: #000 transparent transparent;
-  border-radius: 50%;
-  transform: translateX(-50%);
-}
-
-.wifi-mark::before {
-  top: 0;
-  width: 16px;
-  height: 16px;
-}
-
-.wifi-mark::after {
-  top: 5px;
-  width: 9px;
-  height: 9px;
-}
-
-.battery-mark {
-  position: relative;
-  display: block;
-  width: 24px;
-  height: 12px;
-  border: 1.5px solid #000;
-  border-radius: 4px;
-}
-
-.battery-mark::after {
-  content: '';
-  position: absolute;
-  right: -4px;
-  top: 3px;
-  width: 2px;
-  height: 6px;
-  background: #000;
-  border-radius: 0 2px 2px 0;
-}
-
-.battery-mark span {
-  position: absolute;
-  left: 2px;
-  top: 2px;
-  width: 17px;
-  height: 6px;
-  border-radius: 2px;
-  background: #000;
 }
 
 .app-header,
@@ -2275,13 +2165,110 @@ button.radio-row:last-child {
 }
 
 @media (max-width: 480px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    background: var(--background);
+  }
+
   .phone-shell {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
     padding: 0;
+    overflow: hidden;
+    background: var(--background);
   }
 
   .phone-frame {
     width: 100vw;
-    height: min(852px, 100vh);
-    border-radius: 40px;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .app-header,
+  .settings-header,
+  .timeframe-tabs,
+  .track-row,
+  .track-row-main,
+  .manage-row,
+  .reminder-row,
+  .habit-log-sheet,
+  .log-field-block,
+  .log-value-row,
+  .habit-detail-header-bg,
+  .habit-detail-content,
+  .habit-edit-section,
+  .habit-name-row,
+  .habit-description-box,
+  .color-grid,
+  .detail-select-row,
+  .radio-block,
+  .occurrence-row,
+  .split-row,
+  .custom-reminder-row,
+  .habit-continue-button,
+  .bottom-nav,
+  .new-habit-header,
+  .new-template-row,
+  .manage-picker-sheet,
+  .picker-row,
+  .reminder-picker-field,
+  .reminder-picker-field input,
+  .reminder-picker-field strong {
+    width: 100%;
+  }
+
+  .content-scroll {
+    bottom: calc(98px + var(--safe-bottom));
+  }
+
+  .bottom-nav {
+    height: calc(98px + var(--safe-bottom));
+    padding-bottom: var(--safe-bottom);
+  }
+
+  .habit-log-sheet {
+    height: calc(100% - 106px);
+  }
+
+  .habit-action-tray,
+  .track-calendar-popup,
+  .progress-summary,
+  .featured-section,
+  .feature-card,
+  .habit-action-panel {
+    width: calc(100% - 32px);
+  }
+
+  .habit-action-panel {
+    max-width: 361px;
+  }
+
+  .summary-bar {
+    width: 100%;
+  }
+
+  .summary-cards {
+    width: 100%;
+  }
+
+  .manage-picker-sheet {
+    height: calc(100% - 20px);
+  }
+
+  .new-habit-sticky-button {
+    bottom: calc(24px + var(--safe-bottom));
   }
 }
