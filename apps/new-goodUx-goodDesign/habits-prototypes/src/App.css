@@ -2615,3 +2615,227 @@ button {
     width: 100%;
   }
 }
+
+/* Motion system: short, low-distance transitions for a mobile-app feel. */
+@keyframes motion-page-enter {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes motion-sheet-enter {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes motion-calendar-enter {
+  from {
+    opacity: 0;
+    translate: 0 -12px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes motion-pop-enter {
+  from {
+    opacity: 0;
+    scale: 0.96;
+    translate: 0 4px;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes motion-backdrop-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes motion-error-nudge {
+  0%, 100% { translate: 0 0; }
+  35% { translate: -3px 0; }
+  70% { translate: 3px 0; }
+}
+
+.app-screen > .new-screen,
+.app-screen > .progress-screen,
+.top,
+.time-selector,
+.home-list,
+.empty-home {
+  animation: motion-page-enter 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.calendar-drop {
+  animation: motion-calendar-enter 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.habit-sheet,
+.icon-drawer,
+.unit-drawer {
+  animation: motion-sheet-enter 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.sheet-grabber,
+.calendar-backdrop,
+.drawer-backdrop,
+.color-modal-backdrop {
+  animation: motion-backdrop-enter 160ms ease-out both;
+}
+
+.menu-popover,
+.color-modal {
+  transform-origin: top right;
+  animation: motion-pop-enter 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.color-modal {
+  transform-origin: center;
+}
+
+.new-name-field button {
+  animation: motion-pop-enter 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.type-card.expanded > button:not(:first-child),
+.frequency-field.expanded .frequency-panel,
+.field-error,
+.return-today-row,
+.calendar-return {
+  animation: motion-page-enter 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.create-time-box.error {
+  animation: motion-error-nudge 180ms ease-out;
+}
+
+.icon-button,
+.card-arrow,
+.template-button,
+.detail-field,
+.primary-flow-button,
+.return-button,
+.return-today-row,
+.calendar-return,
+.menu-popover button,
+.color-modal button,
+.icon-grid button,
+.unit-list button,
+.create-time-box button,
+.frequency-tabs button,
+.day-selector button,
+.week-pills button,
+.month-grid button,
+.bottom-nav button,
+.time-option,
+.today-button,
+.calendar-date-button {
+  transition:
+    scale 120ms ease,
+    translate 160ms ease,
+    opacity 160ms ease,
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.icon-button:active,
+.card-arrow:active,
+.template-button:active,
+.detail-field:active,
+.primary-flow-button:active,
+.return-button:active,
+.return-today-row:active,
+.calendar-return:active,
+.menu-popover button:active,
+.color-modal button:active,
+.icon-grid button:active,
+.unit-list button:active,
+.create-time-box button:active,
+.frequency-tabs button:active,
+.day-selector button:active,
+.week-pills button:active,
+.month-grid button:not(:disabled):active,
+.bottom-nav button:active,
+.today-button:active,
+.calendar-date-button:active {
+  scale: 0.97;
+  transition-duration: 70ms;
+}
+
+.habit-card {
+  transition:
+    scale 140ms ease,
+    box-shadow 180ms ease;
+}
+
+.habit-card:has(.habit-card-main:active) {
+  scale: 0.99;
+}
+
+.time-option.selected {
+  translate: 0 -1px;
+}
+
+.bottom-nav img {
+  transition: translate 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.bottom-nav .active img {
+  translate: 0 -1px;
+}
+
+.small-arc-fill,
+.arc-fill,
+.day-arc-fill {
+  transition: stroke-dasharray 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.flow-progress span,
+.completion-bar span,
+.habit-completion-track i {
+  transition: width 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.month-grid .picked,
+.week-pills .selected,
+.create-time-box button.selected,
+.frequency-tabs .selected,
+.day-selector .selected,
+.color-modal button.selected {
+  transition-duration: 180ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

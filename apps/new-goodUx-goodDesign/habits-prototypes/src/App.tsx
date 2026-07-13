@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import type { FormEvent } from 'react'
-import './App.css'
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { FormEvent } from "react";
+import "./App.css";
 
-const ICONS = '/assets/icons/'
+const ICONS = "/assets/icons/";
 const assets = {
   profile: `${ICONS}profile.svg`,
   flame: `${ICONS}flame.svg`,
@@ -72,7 +72,7 @@ const assets = {
   menuDelete: `${ICONS}menu-delete.svg`,
   editBack: `${ICONS}edit-back.svg`,
   reminderPlus: `${ICONS}reminder-plus.svg`,
-}
+};
 
 const templateAssets = {
   walk: `${ICONS}template-walk.svg`,
@@ -91,13 +91,13 @@ const templateAssets = {
   lunges: `${ICONS}template-lunges.svg`,
   stretch: `${ICONS}template-stretch.svg`,
   yoga: `${ICONS}template-yoga.svg`,
-}
+};
 
 type TemplateItem = {
-  label: string
-  icon: string
-  glyph?: 'warm' | 'cool' | 'balance' | 'flexibility'
-}
+  label: string;
+  icon: string;
+  glyph?: "warm" | "cool" | "balance" | "flexibility";
+};
 
 const iconDrawerAssets = [
   `${ICONS}drawer-01.svg`,
@@ -127,206 +127,300 @@ const iconDrawerAssets = [
   `${ICONS}drawer-25.svg`,
   `${ICONS}drawer-26.svg`,
   `${ICONS}drawer-27.svg`,
-]
+];
 
-type AppTab = 'Home' | 'New' | 'Progress'
-type TimeKey = 'All Day' | 'Morning' | 'Afternoon' | 'Evening'
-type Overlay = 'habit' | 'calendar' | 'menu' | 'edit' | null
-type HabitType = 'Make' | 'Limit' | 'Break'
-type NewStep = 'landing' | 'templates' | 'details' | 'goal' | 'review'
-type NewPopup = 'icons' | 'colors' | 'types' | 'units' | null
-type Frequency = 'Daily' | 'Weekly' | 'Monthly'
+type AppTab = "Home" | "New" | "Progress";
+type TimeKey = "All Day" | "Morning" | "Afternoon" | "Evening";
+type Overlay = "habit" | "calendar" | "menu" | "edit" | null;
+type HabitType = "Make" | "Limit" | "Break";
+type NewStep = "landing" | "templates" | "details" | "goal" | "review";
+type NewPopup = "icons" | "colors" | "types" | "units" | null;
+type Frequency = "Daily" | "Weekly" | "Monthly";
 
 type Habit = {
-  id: string
-  name: string
-  color: string
-  icon: string
-  type: HabitType
-  quantity: number
-  unit: string
-  frequency: Frequency
-  activeDays: string[]
-  timeOfDay: TimeKey
-  streak: number
-}
+  id: string;
+  name: string;
+  color: string;
+  icon: string;
+  type: HabitType;
+  quantity: number;
+  unit: string;
+  frequency: Frequency;
+  activeDays: string[];
+  timeOfDay: TimeKey;
+  streak: number;
+};
 
-type DraftHabit = Omit<Habit, 'timeOfDay'> & {
-  timeOfDay: TimeKey | ''
-}
+type DraftHabit = Omit<Habit, "timeOfDay"> & {
+  timeOfDay: TimeKey | "";
+};
 
 type MonthBreakdownStats = {
-  completed: number
-  missed: number
-  skipped: number
-  newHabits?: number
-  completionRate: number
-  trend: number
-}
+  completed: number;
+  missed: number;
+  skipped: number;
+  newHabits?: number;
+  completionRate: number;
+  trend: number;
+};
 
 type HabitCompletionStat = {
-  activeDays: number
-  completedDays: number
-  missedDays: number
-  skippedDays: number
-  completionRate: number
-  trend: number
-  todayRatio: number
-}
+  activeDays: number;
+  completedDays: number;
+  missedDays: number;
+  skippedDays: number;
+  completionRate: number;
+  trend: number;
+  todayRatio: number;
+};
 
 const times: { label: TimeKey; icon: string }[] = [
-  { label: 'All Day', icon: assets.allDay },
-  { label: 'Morning', icon: assets.morning },
-  { label: 'Afternoon', icon: assets.afternoon },
-  { label: 'Evening', icon: assets.evening },
-]
+  { label: "All Day", icon: assets.allDay },
+  { label: "Morning", icon: assets.morning },
+  { label: "Afternoon", icon: assets.afternoon },
+  { label: "Evening", icon: assets.evening },
+];
 
 const createTimes: { label: TimeKey; icon: string; selectedIcon: string }[] = [
-  { label: 'All Day', icon: assets.timeAllDay, selectedIcon: assets.timeAllDaySelected },
-  { label: 'Morning', icon: assets.timeMorning, selectedIcon: assets.timeMorningSelected },
-  { label: 'Afternoon', icon: assets.timeAfternoon, selectedIcon: assets.timeAfternoonSelected },
-  { label: 'Evening', icon: assets.timeEvening, selectedIcon: assets.timeEveningSelected },
-]
+  {
+    label: "All Day",
+    icon: assets.timeAllDay,
+    selectedIcon: assets.timeAllDaySelected,
+  },
+  {
+    label: "Morning",
+    icon: assets.timeMorning,
+    selectedIcon: assets.timeMorningSelected,
+  },
+  {
+    label: "Afternoon",
+    icon: assets.timeAfternoon,
+    selectedIcon: assets.timeAfternoonSelected,
+  },
+  {
+    label: "Evening",
+    icon: assets.timeEvening,
+    selectedIcon: assets.timeEveningSelected,
+  },
+];
 
-const week = ['Th', 'Fr', 'Sa', 'Su', 'Mo', 'Tu', 'We']
-const createDays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-const createDayKeys = createDays.map((day, index) => `${day}-${index}`)
-const calendarToday = 10
-const todayWeekKey = 'We'
-const defaultCurrentStreak = 3
-const defaultBestStreak = 13
-const colors = ['#4fb9f3', '#63e578', '#f17eda', '#efb74f', '#ec6a6a', '#c165eb', '#be1b1b', '#3e960e', '#9e0974', '#cc6a14', '#005d8f']
-const units = ['Done', 'Times', 'Miles', 'Pages', 'Minutes', 'Hours', 'Cups', 'Custom']
-const calendarColors = ['#006297', '#37a398', '#97da90', '#e4e7d2']
+const week = ["Th", "Fr", "Sa", "Su", "Mo", "Tu", "We"];
+const createDays = ["S", "M", "T", "W", "T", "F", "S"];
+const createDayKeys = createDays.map((day, index) => `${day}-${index}`);
+const calendarToday = 10;
+const todayWeekKey = "We";
+const defaultCurrentStreak = 3;
+const defaultBestStreak = 13;
+const colors = [
+  "#4fb9f3",
+  "#63e578",
+  "#f17eda",
+  "#efb74f",
+  "#ec6a6a",
+  "#c165eb",
+  "#be1b1b",
+  "#3e960e",
+  "#9e0974",
+  "#cc6a14",
+  "#005d8f",
+];
+const units = [
+  "Done",
+  "Times",
+  "Miles",
+  "Pages",
+  "Minutes",
+  "Hours",
+  "Cups",
+  "Custom",
+];
+const calendarColors = ["#006297", "#37a398", "#97da90", "#e4e7d2"];
 const mayCalendar = [
-  ['', '', '', '', '', 'blue', 'teal'],
-  ['blue', 'blue', 'blue', 'green', 'pale', 'green', 'blue'],
-  ['pale', 'pale', 'green', 'blue', 'pale', 'pale', 'green'],
-  ['green', 'pale', 'teal', 'teal', 'pale', 'teal', 'teal'],
-  ['teal', 'green', 'green', 'blue', 'blue', 'blue', 'blue'],
-  ['blue', '', '', '', '', '', ''],
-]
+  ["", "", "", "", "", "blue", "teal"],
+  ["blue", "blue", "blue", "green", "pale", "green", "blue"],
+  ["pale", "pale", "green", "blue", "pale", "pale", "green"],
+  ["green", "pale", "teal", "teal", "pale", "teal", "teal"],
+  ["teal", "green", "green", "blue", "blue", "blue", "blue"],
+  ["blue", "", "", "", "", "", ""],
+];
 const juneCalendar = [
-  ['', 'blue', 'blue', 'teal', 'green', 'blue', 'blue'],
-  ['pale', 'green', 'teal', 'blue', 'pale', 'pale', 'pale'],
-  ['teal', 'blue', 'blue', 'teal', 'pale', 'teal', 'green'],
-  ['pale', 'pale', 'green', 'blue', 'green', 'teal', 'blue'],
-  ['green', 'blue', 'pale', '', '', '', ''],
-]
+  ["", "blue", "blue", "teal", "green", "blue", "blue"],
+  ["pale", "green", "teal", "blue", "pale", "pale", "pale"],
+  ["teal", "blue", "blue", "teal", "pale", "teal", "green"],
+  ["pale", "pale", "green", "blue", "green", "teal", "blue"],
+  ["green", "blue", "pale", "", "", "", ""],
+];
 const calendarPalette: Record<string, string> = {
   blue: calendarColors[0],
   teal: calendarColors[1],
   green: calendarColors[2],
   pale: calendarColors[3],
-}
-const calendarDotPattern = ['teal', 'teal', 'blue', 'green', 'green', 'teal', 'pale', 'blue', 'green', 'teal', 'teal', 'blue', 'blue', 'green', 'teal', 'teal', 'pale', 'pale', 'green', 'pale', 'teal', 'pale', 'blue', 'blue', 'green', 'green', 'blue', 'pale', 'teal', 'blue', 'green']
-const getCalendarDayKey = (day: number) => (day === calendarToday ? todayWeekKey : `June-${day}`)
+};
+const calendarDotPattern = [
+  "teal",
+  "teal",
+  "blue",
+  "green",
+  "green",
+  "teal",
+  "pale",
+  "blue",
+  "green",
+  "teal",
+  "teal",
+  "blue",
+  "blue",
+  "green",
+  "teal",
+  "teal",
+  "pale",
+  "pale",
+  "green",
+  "pale",
+  "teal",
+  "pale",
+  "blue",
+  "blue",
+  "green",
+  "green",
+  "blue",
+  "pale",
+  "teal",
+  "blue",
+  "green",
+];
+const getCalendarDayKey = (day: number) =>
+  day === calendarToday ? todayWeekKey : `June-${day}`;
 const seededProgressByTone: Record<string, number> = {
   pale: 0,
   green: 1,
   teal: 3,
   blue: 4,
-}
+};
 const getCalendarToneForProgress = (value: number, max: number) => {
-  const ratio = max > 0 ? value / max : 0
-  if (ratio >= 1) return 'blue'
-  if (ratio >= 0.5) return 'teal'
-  if (ratio > 0) return 'green'
-  return 'pale'
-}
+  const ratio = max > 0 ? value / max : 0;
+  if (ratio >= 1) return "blue";
+  if (ratio >= 0.5) return "teal";
+  if (ratio > 0) return "green";
+  return "pale";
+};
 
 const categories = [
-  { label: 'Fitness', icon: assets.fitness },
-  { label: 'Health', icon: assets.health },
-  { label: 'Learn', icon: assets.learn },
-  { label: 'Personal', icon: assets.personal },
-  { label: 'Finance', icon: assets.finance },
-  { label: 'Relationships', icon: assets.relationships },
-  { label: 'Work', icon: assets.work },
-  { label: 'Lifestyle', icon: assets.lifestyle },
-]
+  { label: "Fitness", icon: assets.fitness },
+  { label: "Health", icon: assets.health },
+  { label: "Learn", icon: assets.learn },
+  { label: "Personal", icon: assets.personal },
+  { label: "Finance", icon: assets.finance },
+  { label: "Relationships", icon: assets.relationships },
+  { label: "Work", icon: assets.work },
+  { label: "Lifestyle", icon: assets.lifestyle },
+];
 
 const templates: { group: string; items: TemplateItem[] }[] = [
-  { group: 'Cardio', items: [
-    { label: 'Walk', icon: templateAssets.walk },
-    { label: 'Run', icon: templateAssets.run },
-    { label: 'Bike', icon: templateAssets.bike },
-    { label: 'Swim', icon: templateAssets.swim },
-    { label: 'Sports', icon: templateAssets.sports },
-    { label: 'Hike', icon: templateAssets.hike },
-    { label: 'Long Distance', icon: templateAssets.longDistance },
-    { label: 'Stairs', icon: templateAssets.stairs },
-  ] },
-  { group: 'Strength', items: [
-    { label: 'Lift Weights', icon: templateAssets.weights },
-    { label: 'Push ups', icon: templateAssets.pushUps },
-    { label: 'Squats', icon: templateAssets.squats },
-    { label: 'Pull Ups', icon: templateAssets.pullUps },
-    { label: 'Plank', icon: templateAssets.plank },
-    { label: 'Lunges', icon: templateAssets.lunges },
-  ] },
-  { group: 'Mobility', items: [
-    { label: 'Stretch', icon: templateAssets.stretch },
-    { label: 'Yoga', icon: templateAssets.yoga },
-    { label: 'Warm up', icon: templateAssets.stretch, glyph: 'warm' },
-    { label: 'Cool downs', icon: templateAssets.yoga, glyph: 'cool' },
-    { label: 'Balance', icon: templateAssets.yoga, glyph: 'balance' },
-    { label: 'Flexibility', icon: templateAssets.stretch, glyph: 'flexibility' },
-  ] },
-]
+  {
+    group: "Cardio",
+    items: [
+      { label: "Walk", icon: templateAssets.walk },
+      { label: "Run", icon: templateAssets.run },
+      { label: "Bike", icon: templateAssets.bike },
+      { label: "Swim", icon: templateAssets.swim },
+      { label: "Sports", icon: templateAssets.sports },
+      { label: "Hike", icon: templateAssets.hike },
+      { label: "Long Distance", icon: templateAssets.longDistance },
+      { label: "Stairs", icon: templateAssets.stairs },
+    ],
+  },
+  {
+    group: "Strength",
+    items: [
+      { label: "Lift Weights", icon: templateAssets.weights },
+      { label: "Push ups", icon: templateAssets.pushUps },
+      { label: "Squats", icon: templateAssets.squats },
+      { label: "Pull Ups", icon: templateAssets.pullUps },
+      { label: "Plank", icon: templateAssets.plank },
+      { label: "Lunges", icon: templateAssets.lunges },
+    ],
+  },
+  {
+    group: "Mobility",
+    items: [
+      { label: "Stretch", icon: templateAssets.stretch },
+      { label: "Yoga", icon: templateAssets.yoga },
+      { label: "Warm up", icon: templateAssets.stretch, glyph: "warm" },
+      { label: "Cool downs", icon: templateAssets.yoga, glyph: "cool" },
+      { label: "Balance", icon: templateAssets.yoga, glyph: "balance" },
+      {
+        label: "Flexibility",
+        icon: templateAssets.stretch,
+        glyph: "flexibility",
+      },
+    ],
+  },
+];
 
 const seededHabit: Habit = {
-  id: 'seed-running',
-  name: 'Go Running',
-  color: '#005d8f',
+  id: "seed-running",
+  name: "Go Running",
+  color: "#005d8f",
   icon: assets.run,
-  type: 'Make',
+  type: "Make",
   quantity: 4,
-  unit: 'Miles',
-  frequency: 'Daily',
+  unit: "Miles",
+  frequency: "Daily",
   activeDays: createDayKeys,
-  timeOfDay: 'All Day',
+  timeOfDay: "All Day",
   streak: 12,
-}
+};
 
 const createDraft = (
-  name = 'Go Running',
+  name = "Go Running",
   icon = assets.run,
-  timeOfDay: TimeKey | '' = '',
+  timeOfDay: TimeKey | "" = "",
   prefillGoal = false,
 ): DraftHabit => ({
   id: `habit-${Date.now()}`,
   name,
-  color: '#005d8f',
+  color: "#005d8f",
   icon,
-  type: 'Make',
+  type: "Make",
   quantity: prefillGoal ? 4 : 0,
-  unit: prefillGoal ? 'Miles' : '',
-  frequency: 'Daily',
+  unit: prefillGoal ? "Miles" : "",
+  frequency: "Daily",
   activeDays: createDayKeys,
   timeOfDay,
   streak: 0,
-})
+});
 
 function IconButton({
-  className = '',
+  className = "",
   icon,
   label,
   onClick,
 }: {
-  className?: string
-  icon: string
-  label: string
-  onClick?: () => void
+  className?: string;
+  icon: string;
+  label: string;
+  onClick?: () => void;
 }) {
   return (
-    <button className={`icon-button ${className}`} type="button" aria-label={label} onClick={onClick}>
+    <button
+      className={`icon-button ${className}`}
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+    >
       <img src={icon} alt="" />
     </button>
-  )
+  );
 }
 
-function TopBar({ dateLabel, onCalendar }: { dateLabel: string; onCalendar: () => void }) {
+function TopBar({
+  dateLabel,
+  onCalendar,
+}: {
+  dateLabel: string;
+  onCalendar: () => void;
+}) {
   return (
     <header className="top">
       <div className="top-row">
@@ -334,25 +428,29 @@ function TopBar({ dateLabel, onCalendar }: { dateLabel: string; onCalendar: () =
           <span>{dateLabel}</span>
           <img src={assets.chevron} alt="" />
         </button>
-        <IconButton className="top-plus" icon={assets.topPlus} label="New habit" />
+        <IconButton
+          className="top-plus"
+          icon={assets.topPlus}
+          label="New habit"
+        />
         <IconButton icon={assets.profile} label="Profile" />
       </div>
     </header>
-  )
+  );
 }
 
 function TimeSelector({
   selected,
   onSelect,
 }: {
-  selected: TimeKey
-  onSelect: (time: TimeKey) => void
+  selected: TimeKey;
+  onSelect: (time: TimeKey) => void;
 }) {
   return (
     <nav className="time-selector" aria-label="Time of day">
       {times.map((time) => (
         <button
-          className={`time-option ${selected === time.label ? 'selected' : ''}`}
+          className={`time-option ${selected === time.label ? "selected" : ""}`}
           key={time.label}
           type="button"
           onClick={() => onSelect(time.label)}
@@ -362,21 +460,36 @@ function TimeSelector({
         </button>
       ))}
     </nav>
-  )
+  );
 }
 
-function HabitCardProgress({ icon, value, max }: { icon: string; value: number; max: number }) {
-  const radius = 25
-  const circumference = 2 * Math.PI * radius
-  const progress = Math.max(0, Math.min(1, max > 0 ? value / max : 0))
-  const dash = circumference * 0.73
-  const gap = circumference - dash
-  const cardIcon = icon === `${ICONS}drawer-03.svg` ? `${ICONS}drawer-03-card.svg` : icon
+function HabitCardProgress({
+  icon,
+  value,
+  max,
+}: {
+  icon: string;
+  value: number;
+  max: number;
+}) {
+  const radius = 25;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.max(0, Math.min(1, max > 0 ? value / max : 0));
+  const dash = circumference * 0.73;
+  const gap = circumference - dash;
+  const cardIcon =
+    icon === `${ICONS}drawer-03.svg` ? `${ICONS}drawer-03-card.svg` : icon;
 
   return (
     <div className="habit-progress-small">
       <svg viewBox="0 0 64 56" aria-hidden="true">
-        <circle className="small-arc-track" cx="32" cy="28" r={radius} strokeDasharray={`${dash} ${gap}`} />
+        <circle
+          className="small-arc-track"
+          cx="32"
+          cy="28"
+          r={radius}
+          strokeDasharray={`${dash} ${gap}`}
+        />
         {progress > 0 && (
           <circle
             className="small-arc-fill"
@@ -389,7 +502,7 @@ function HabitCardProgress({ icon, value, max }: { icon: string; value: number; 
       </svg>
       <img src={cardIcon} alt="" />
     </div>
-  )
+  );
 }
 
 function HabitCard({
@@ -398,20 +511,26 @@ function HabitCard({
   onOpen,
   onIncrement,
 }: {
-  habit: Habit
-  value: number
-  onOpen: () => void
-  onIncrement: () => void
+  habit: Habit;
+  value: number;
+  onOpen: () => void;
+  onIncrement: () => void;
 }) {
-  const completeToday = value >= habit.quantity
+  const completeToday = value >= habit.quantity;
 
   return (
     <div className="habit-card">
       <button className="habit-card-main" type="button" onClick={onOpen}>
-        <HabitCardProgress icon={habit.icon} value={value} max={habit.quantity} />
+        <HabitCardProgress
+          icon={habit.icon}
+          value={value}
+          max={habit.quantity}
+        />
         <div className="habit-copy">
           <strong>{habit.name}</strong>
-          <span>{value} of {habit.quantity} {habit.unit}</span>
+          <span>
+            {value} of {habit.quantity} {habit.unit}
+          </span>
         </div>
       </button>
       {completeToday && (
@@ -420,11 +539,16 @@ function HabitCard({
           <span>1</span>
         </div>
       )}
-      <button className="card-arrow" type="button" aria-label={`Increase ${habit.name}`} onClick={onIncrement}>
+      <button
+        className="card-arrow"
+        type="button"
+        aria-label={`Increase ${habit.name}`}
+        onClick={onIncrement}
+      >
         <img src={assets.cardArrow} alt="" />
       </button>
     </div>
-  )
+  );
 }
 
 function EmptyHome({ onNew }: { onNew: () => void }) {
@@ -435,7 +559,11 @@ function EmptyHome({ onNew }: { onNew: () => void }) {
         <span>Time to make your first habit</span>
       </div>
       <button className="habit-card empty-card" type="button" onClick={onNew}>
-        <img className="habit-progress-small" src={assets.cardProgress} alt="" />
+        <img
+          className="habit-progress-small"
+          src={assets.cardProgress}
+          alt=""
+        />
         <div className="habit-copy">
           <strong>Make a new habit</strong>
           <span>0 of 1</span>
@@ -445,32 +573,55 @@ function EmptyHome({ onNew }: { onNew: () => void }) {
         </span>
       </button>
     </main>
-  )
+  );
 }
 
 function BottomNav({
   active,
   onNavigate,
 }: {
-  active: AppTab
-  onNavigate: (tab: AppTab) => void
+  active: AppTab;
+  onNavigate: (tab: AppTab) => void;
 }) {
   return (
     <nav className="bottom-nav" aria-label="App navigation">
-      <button className={active === 'Home' ? 'active' : ''} type="button" onClick={() => onNavigate('Home')}>
-        <img src={active === 'Home' ? assets.homeSelected : assets.home} alt="" />
+      <button
+        className={active === "Home" ? "active" : ""}
+        type="button"
+        onClick={() => onNavigate("Home")}
+      >
+        <img
+          src={active === "Home" ? assets.homeSelected : assets.home}
+          alt=""
+        />
         <span>Home</span>
       </button>
-      <button className={active === 'New' ? 'active' : ''} type="button" onClick={() => onNavigate('New')}>
-        <img src={active === 'New' ? assets.navNewSelected : assets.navNew} alt="" />
+      <button
+        className={active === "New" ? "active" : ""}
+        type="button"
+        onClick={() => onNavigate("New")}
+      >
+        <img
+          src={active === "New" ? assets.navNewSelected : assets.navNew}
+          alt=""
+        />
         <span>New</span>
       </button>
-      <button className={active === 'Progress' ? 'active' : ''} type="button" onClick={() => onNavigate('Progress')}>
-        <img src={active === 'Progress' ? assets.progressSelected : assets.progress} alt="" />
+      <button
+        className={active === "Progress" ? "active" : ""}
+        type="button"
+        onClick={() => onNavigate("Progress")}
+      >
+        <img
+          src={
+            active === "Progress" ? assets.progressSelected : assets.progress
+          }
+          alt=""
+        />
         <span>Progress</span>
       </button>
     </nav>
-  )
+  );
 }
 
 function CalendarOverlay({
@@ -480,28 +631,41 @@ function CalendarOverlay({
   onClose,
   getDayTone,
 }: {
-  selectedDay: number
-  onSelectDay: (day: number) => void
-  onReturn: () => void
-  onClose: () => void
-  getDayTone: (day: number) => string
+  selectedDay: number;
+  onSelectDay: (day: number) => void;
+  onReturn: () => void;
+  onClose: () => void;
+  getDayTone: (day: number) => string;
 }) {
-  const scrollerRef = useRef<HTMLDivElement>(null)
-  const selectedLabel = selectedDay === calendarToday ? 'Today' : `June ${formatOrdinal(selectedDay)}`
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const selectedLabel =
+    selectedDay === calendarToday
+      ? "Today"
+      : `June ${formatOrdinal(selectedDay)}`;
 
   useEffect(() => {
-    const scroller = scrollerRef.current
-    if (scroller) scroller.scrollTop = scroller.scrollHeight
-  }, [])
+    const scroller = scrollerRef.current;
+    if (scroller) scroller.scrollTop = scroller.scrollHeight;
+  }, []);
 
   return (
-    <section className={`calendar-drop ${selectedDay !== calendarToday ? 'has-return' : ''}`}>
+    <section
+      className={`calendar-drop ${selectedDay !== calendarToday ? "has-return" : ""}`}
+    >
       <div className="calendar-top">
-        <button className="calendar-date-button" type="button" onClick={onClose}>
+        <button
+          className="calendar-date-button"
+          type="button"
+          onClick={onClose}
+        >
           <span>{selectedLabel}</span>
           <img src={assets.chevron} alt="" />
         </button>
-        <IconButton icon={assets.close} label="Close calendar" onClick={onClose} />
+        <IconButton
+          icon={assets.close}
+          label="Close calendar"
+          onClick={onClose}
+        />
       </div>
       <div className="calendar-grabber"></div>
       <div className="calendar-scroll" ref={scrollerRef}>
@@ -520,13 +684,17 @@ function CalendarOverlay({
         </div>
       </div>
       {selectedDay !== calendarToday && (
-        <button className="return-button calendar-return" type="button" onClick={onReturn}>
+        <button
+          className="return-button calendar-return"
+          type="button"
+          onClick={onReturn}
+        >
           <img src={assets.calendarReturnToday} alt="" />
           <span>Return to today</span>
         </button>
       )}
     </section>
-  )
+  );
 }
 
 function CalendarMonth({
@@ -537,92 +705,117 @@ function CalendarMonth({
   onSelectDay,
   getDayTone,
 }: {
-  name: string
-  days: number
-  startOffset: number
-  selectedDay?: number
-  onSelectDay?: (day: number) => void
-  getDayTone?: (day: number) => string
+  name: string;
+  days: number;
+  startOffset: number;
+  selectedDay?: number;
+  onSelectDay?: (day: number) => void;
+  getDayTone?: (day: number) => string;
 }) {
-  const isCurrentMonth = name === 'June'
+  const isCurrentMonth = name === "June";
   const cells: { key: string; day?: number }[] = [
-    ...Array.from({ length: startOffset }, (_, index) => ({ key: `blank-${index}` })),
-    ...Array.from({ length: days }, (_, index) => ({ key: `${name}-${index + 1}`, day: index + 1 })),
-  ]
+    ...Array.from({ length: startOffset }, (_, index) => ({
+      key: `blank-${index}`,
+    })),
+    ...Array.from({ length: days }, (_, index) => ({
+      key: `${name}-${index + 1}`,
+      day: index + 1,
+    })),
+  ];
 
   return (
     <section className="calendar-month">
       <h2>{name}</h2>
       <div className="weekday-row">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <span key={day}>{day}</span>
         ))}
       </div>
       <div className="month-grid">
         {cells.map((cell) => {
-          const isFutureDay = isCurrentMonth && Boolean(cell.day && cell.day > calendarToday)
-          const tone = cell.day && isCurrentMonth
-            ? getDayTone?.(cell.day) ?? calendarDotPattern[(cell.day - 1) % calendarDotPattern.length]
-            : cell.day
-              ? calendarDotPattern[(cell.day - 1) % calendarDotPattern.length]
-              : 'pale'
+          const isFutureDay =
+            isCurrentMonth && Boolean(cell.day && cell.day > calendarToday);
+          const tone =
+            cell.day && isCurrentMonth
+              ? (getDayTone?.(cell.day) ??
+                calendarDotPattern[(cell.day - 1) % calendarDotPattern.length])
+              : cell.day
+                ? calendarDotPattern[(cell.day - 1) % calendarDotPattern.length]
+                : "pale";
 
           return cell.day ? (
             <button
-              className={`${cell.day === selectedDay ? 'picked' : ''} ${isCurrentMonth && cell.day === calendarToday ? 'today' : ''} ${isFutureDay ? 'future' : ''}`}
+              className={`${cell.day === selectedDay ? "picked" : ""} ${isCurrentMonth && cell.day === calendarToday ? "today" : ""} ${isFutureDay ? "future" : ""}`}
               disabled={isFutureDay}
               key={cell.key}
               type="button"
               onClick={() => {
-                if (isCurrentMonth && cell.day && !isFutureDay) onSelectDay?.(cell.day)
+                if (isCurrentMonth && cell.day && !isFutureDay)
+                  onSelectDay?.(cell.day);
               }}
             >
               <span>{cell.day}</span>
-              {!isFutureDay && <i style={{ background: calendarPalette[tone] }}></i>}
+              {!isFutureDay && (
+                <i style={{ background: calendarPalette[tone] }}></i>
+              )}
             </button>
           ) : (
             <span className="calendar-empty-cell" key={cell.key}></span>
-          )
+          );
         })}
       </div>
     </section>
-  )
+  );
 }
 
 function formatOrdinal(day: number) {
-  if (day % 100 >= 11 && day % 100 <= 13) return `${day}th`
-  if (day % 10 === 1) return `${day}st`
-  if (day % 10 === 2) return `${day}nd`
-  if (day % 10 === 3) return `${day}rd`
-  return `${day}th`
+  if (day % 100 >= 11 && day % 100 <= 13) return `${day}th`;
+  if (day % 10 === 1) return `${day}st`;
+  if (day % 10 === 2) return `${day}nd`;
+  if (day % 10 === 3) return `${day}rd`;
+  return `${day}th`;
 }
 
 function formatDays(days: number) {
-  return `${days} ${days === 1 ? 'Day' : 'Days'}`
+  return `${days} ${days === 1 ? "Day" : "Days"}`;
 }
 
 function getProgressRatio(value: number, max: number) {
-  return Math.max(0, Math.min(1, max > 0 ? value / max : 0))
+  return Math.max(0, Math.min(1, max > 0 ? value / max : 0));
 }
 
 function getCalendarTone(ratio: number) {
-  if (ratio >= 1) return 'blue'
-  if (ratio >= 0.67) return 'teal'
-  if (ratio > 0) return 'green'
-  return 'pale'
+  if (ratio >= 1) return "blue";
+  if (ratio >= 0.67) return "teal";
+  if (ratio > 0) return "green";
+  return "pale";
 }
 
-function ProgressArc({ icon, value, max }: { icon: string; value: number; max: number }) {
-  const radius = 82
-  const circumference = 2 * Math.PI * radius
-  const progress = Math.max(0, Math.min(1, value / max))
-  const dash = circumference * 0.73
-  const gap = circumference - dash
+function ProgressArc({
+  icon,
+  value,
+  max,
+}: {
+  icon: string;
+  value: number;
+  max: number;
+}) {
+  const radius = 82;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.max(0, Math.min(1, value / max));
+  const dash = circumference * 0.73;
+  const gap = circumference - dash;
 
   return (
     <div className="progress-arc">
       <svg viewBox="0 0 200 200" aria-hidden="true">
-        <circle className="arc-track" cx="100" cy="100" r={radius} strokeDasharray={`${dash} ${gap}`} />
+        <circle
+          className="arc-track"
+          cx="100"
+          cy="100"
+          r={radius}
+          strokeDasharray={`${dash} ${gap}`}
+        />
         {progress > 0 && (
           <circle
             className="arc-fill"
@@ -635,7 +828,7 @@ function ProgressArc({ icon, value, max }: { icon: string; value: number; max: n
       </svg>
       <img className="progress-habit-icon" src={icon} alt="" />
     </div>
-  )
+  );
 }
 
 function DayProgressButton({
@@ -645,20 +838,25 @@ function DayProgressButton({
   max,
   onClick,
 }: {
-  day: string
-  selected: boolean
-  value: number
-  max: number
-  onClick: () => void
+  day: string;
+  selected: boolean;
+  value: number;
+  max: number;
+  onClick: () => void;
 }) {
-  const radius = 16
-  const circumference = 2 * Math.PI * radius
-  const progress = Math.max(0, Math.min(1, max > 0 ? value / max : 0))
-  const dash = circumference * 0.73
-  const gap = circumference - dash
+  const radius = 16;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.max(0, Math.min(1, max > 0 ? value / max : 0));
+  const dash = circumference * 0.73;
+  const gap = circumference - dash;
 
   return (
-    <button className={selected ? 'selected' : ''} type="button" onMouseDown={(event) => event.preventDefault()} onClick={onClick}>
+    <button
+      className={selected ? "selected" : ""}
+      type="button"
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={onClick}
+    >
       <svg className="day-arc" viewBox="0 0 40 40" aria-hidden="true">
         <circle
           className="day-arc-track"
@@ -679,7 +877,7 @@ function DayProgressButton({
       </svg>
       <span>{day}</span>
     </button>
-  )
+  );
 }
 
 function StreakSummary({
@@ -687,12 +885,12 @@ function StreakSummary({
   best = defaultBestStreak,
   empty = false,
 }: {
-  current: number
-  best?: number
-  empty?: boolean
+  current: number;
+  best?: number;
+  empty?: boolean;
 }) {
   return (
-    <div className={`streak-summary ${empty ? 'empty' : ''}`}>
+    <div className={`streak-summary ${empty ? "empty" : ""}`}>
       <img className="laurel laurel-left" src={assets.laurelLeft} alt="" />
       <div className="current-streak">
         <span>
@@ -707,7 +905,7 @@ function StreakSummary({
       </div>
       <img className="laurel laurel-right" src={assets.laurelRight} alt="" />
     </div>
-  )
+  );
 }
 
 function MonthlyStats({ streak }: { streak: number }) {
@@ -730,7 +928,7 @@ function MonthlyStats({ streak }: { streak: number }) {
       </div>
       <StreakSummary current={Math.min(3, streak)} />
     </section>
-  )
+  );
 }
 
 function MonthCard({ name, rows }: { name: string; rows: string[][] }) {
@@ -738,7 +936,7 @@ function MonthCard({ name, rows }: { name: string; rows: string[][] }) {
     <section className="month-card">
       <strong>{name}</strong>
       <div className="month-weekdays" aria-hidden="true">
-        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+        {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
           <span key={`${day}-${index}`}>{day}</span>
         ))}
       </div>
@@ -748,32 +946,39 @@ function MonthCard({ name, rows }: { name: string; rows: string[][] }) {
             {row.map((color, columnIndex) => (
               <i
                 key={`${name}-${rowIndex}-${columnIndex}`}
-                style={{ background: color ? calendarPalette[color] : 'transparent' }}
+                style={{
+                  background: color ? calendarPalette[color] : "transparent",
+                }}
               ></i>
             ))}
           </div>
         ))}
       </div>
     </section>
-  )
+  );
 }
 
 function tintCalendarRows(rows: string[][], todayRatio?: number) {
-  if (typeof todayRatio !== 'number') return rows
-  let seenDays = 0
-  const todayTone = getCalendarTone(todayRatio)
+  if (typeof todayRatio !== "number") return rows;
+  let seenDays = 0;
+  const todayTone = getCalendarTone(todayRatio);
 
-  return rows.map((row) => row.map((tone) => {
-    if (!tone) return ''
-    seenDays += 1
-    if (seenDays === calendarToday) return todayTone
-    return 'pale'
-  }))
+  return rows.map((row) =>
+    row.map((tone) => {
+      if (!tone) return "";
+      seenDays += 1;
+      if (seenDays === calendarToday) return todayTone;
+      return "pale";
+    }),
+  );
 }
 
 function CalendarHistory({ todayRatio }: { todayRatio?: number }) {
-  const mayRows = typeof todayRatio === 'number' ? tintCalendarRows(mayCalendar, 0) : mayCalendar
-  const juneRows = tintCalendarRows(juneCalendar, todayRatio)
+  const mayRows =
+    typeof todayRatio === "number"
+      ? tintCalendarRows(mayCalendar, 0)
+      : mayCalendar;
+  const juneRows = tintCalendarRows(juneCalendar, todayRatio);
 
   return (
     <section className="calendar-history">
@@ -784,29 +989,45 @@ function CalendarHistory({ todayRatio }: { todayRatio?: number }) {
       <div className="calendar-history-foot">
         <button type="button">See All</button>
         <div className="calendar-legend" aria-label="Completion legend">
-          <span><i></i> Less</span>
-          <span><i></i> More</span>
+          <span>
+            <i></i> Less
+          </span>
+          <span>
+            <i></i> More
+          </span>
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 function MonthBreakdown({
   stats,
   includeNew = true,
 }: {
-  stats: MonthBreakdownStats
-  includeNew?: boolean
+  stats: MonthBreakdownStats;
+  includeNew?: boolean;
 }) {
-  const rate = Math.max(0, Math.min(100, stats.completionRate))
-  const gaugePath = 'M 10 120 C 10 51 62 10 120 10 C 178 10 230 51 230 120'
+  const rate = Math.max(0, Math.min(100, stats.completionRate));
+  const gaugePath = "M 10 120 C 10 51 62 10 120 10 C 178 10 230 51 230 120";
   const items = [
-    { label: 'Completed', value: stats.completed, icon: assets.breakdownCompleted },
-    { label: 'Missed', value: stats.missed, icon: assets.breakdownMissed },
-    { label: 'Skipped', value: stats.skipped, icon: assets.breakdownSkipped },
-    ...(includeNew ? [{ label: 'New', value: stats.newHabits ?? 0, icon: assets.breakdownNew }] : []),
-  ]
+    {
+      label: "Completed",
+      value: stats.completed,
+      icon: assets.breakdownCompleted,
+    },
+    { label: "Missed", value: stats.missed, icon: assets.breakdownMissed },
+    { label: "Skipped", value: stats.skipped, icon: assets.breakdownSkipped },
+    ...(includeNew
+      ? [
+          {
+            label: "New",
+            value: stats.newHabits ?? 0,
+            icon: assets.breakdownNew,
+          },
+        ]
+      : []),
+  ];
 
   return (
     <section className="month-breakdown">
@@ -839,20 +1060,23 @@ function MonthBreakdown({
             </em>
           </div>
         </div>
-        <div className={`breakdown-grid ${includeNew ? '' : 'three-items'}`}>
+        <div className={`breakdown-grid ${includeNew ? "" : "three-items"}`}>
           {items.map((item) => (
             <div className="breakdown-stat" key={item.label}>
               <span>
                 <img src={item.icon} alt="" />
                 {item.label}
               </span>
-              <strong>{item.value}<small>Habits</small></strong>
+              <strong>
+                {item.value}
+                <small>Habits</small>
+              </strong>
             </div>
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 function HabitCompletionRow({
@@ -860,9 +1084,9 @@ function HabitCompletionRow({
   stat,
   onOpen,
 }: {
-  habit: Habit
-  stat: HabitCompletionStat
-  onOpen: () => void
+  habit: Habit;
+  stat: HabitCompletionStat;
+  onOpen: () => void;
 }) {
   return (
     <button className="habit-completion-row" type="button" onClick={onOpen}>
@@ -885,7 +1109,7 @@ function HabitCompletionRow({
         <i style={{ width: `${stat.completionRate}%` }}></i>
       </span>
     </button>
-  )
+  );
 }
 
 function ProgressMain({
@@ -895,11 +1119,11 @@ function ProgressMain({
   currentStreak,
   onHabit,
 }: {
-  habits: Habit[]
-  statsByHabit: Record<string, HabitCompletionStat>
-  monthStats: MonthBreakdownStats
-  currentStreak: number
-  onHabit: (id: string) => void
+  habits: Habit[];
+  statsByHabit: Record<string, HabitCompletionStat>;
+  monthStats: MonthBreakdownStats;
+  currentStreak: number;
+  onHabit: (id: string) => void;
 }) {
   return (
     <main className="progress-screen">
@@ -932,7 +1156,7 @@ function ProgressMain({
         </section>
       </div>
     </main>
-  )
+  );
 }
 
 function ProgressHabitDetail({
@@ -940,23 +1164,31 @@ function ProgressHabitDetail({
   stat,
   onBack,
 }: {
-  habit: Habit
-  stat: HabitCompletionStat
-  onBack: () => void
+  habit: Habit;
+  stat: HabitCompletionStat;
+  onBack: () => void;
 }) {
-  const hasStarted = stat.completedDays > 0
+  const hasStarted = stat.completedDays > 0;
 
   return (
     <main className="progress-screen progress-detail-screen">
       <header className="progress-detail-topbar">
-        <IconButton icon={assets.editBack} label="Back to progress" onClick={onBack} />
+        <IconButton
+          icon={assets.editBack}
+          label="Back to progress"
+          onClick={onBack}
+        />
         <div>
           <h1>{habit.name}</h1>
           <span>Progress</span>
         </div>
       </header>
       <div className="progress-content progress-detail-content">
-        <StreakSummary current={hasStarted ? stat.completedDays : 0} best={hasStarted ? stat.completedDays : 0} empty={!hasStarted} />
+        <StreakSummary
+          current={hasStarted ? stat.completedDays : 0}
+          best={hasStarted ? stat.completedDays : 0}
+          empty={!hasStarted}
+        />
         <CalendarHistory todayRatio={stat.todayRatio} />
         <MonthBreakdown
           includeNew={false}
@@ -970,7 +1202,7 @@ function ProgressHabitDetail({
         />
       </div>
     </main>
-  )
+  );
 }
 
 function HabitOverlay({
@@ -983,22 +1215,22 @@ function HabitOverlay({
   onMenu,
   onReturnToday,
 }: {
-  habit: Habit
-  day: string
-  value: number
-  progressByDay: Record<string, number>
-  onDay: (day: string) => void
-  onValue: (value: number) => void
-  onMenu: () => void
-  onReturnToday: () => void
+  habit: Habit;
+  day: string;
+  value: number;
+  progressByDay: Record<string, number>;
+  onDay: (day: string) => void;
+  onValue: (value: number) => void;
+  onMenu: () => void;
+  onReturnToday: () => void;
 }) {
-  const numericValue = Number.isFinite(value) ? value : 0
+  const numericValue = Number.isFinite(value) ? value : 0;
   const selectDay = (nextDay: string) => {
-    onDay(nextDay)
+    onDay(nextDay);
     window.requestAnimationFrame(() => {
-      document.querySelector<HTMLElement>('.habit-sheet')?.scrollTo({ top: 0 })
-    })
-  }
+      document.querySelector<HTMLElement>(".habit-sheet")?.scrollTo({ top: 0 });
+    });
+  };
 
   return (
     <>
@@ -1007,9 +1239,15 @@ function HabitOverlay({
         <div className="sheet-header">
           <div className="sheet-title">
             <strong>{habit.name}</strong>
-            <span>{habit.frequency} <b>-</b> {habit.timeOfDay}</span>
+            <span>
+              {habit.frequency} <b>-</b> {habit.timeOfDay}
+            </span>
           </div>
-          <IconButton icon={assets.more} label="More options" onClick={onMenu} />
+          <IconButton
+            icon={assets.more}
+            label="More options"
+            onClick={onMenu}
+          />
         </div>
 
         <div className="value-stage">
@@ -1019,7 +1257,11 @@ function HabitOverlay({
             onClick={() => onValue(Math.max(0, numericValue - 1))}
           />
           <div className="value-control">
-            <ProgressArc icon={habit.icon} value={numericValue} max={habit.quantity} />
+            <ProgressArc
+              icon={habit.icon}
+              value={numericValue}
+              max={habit.quantity}
+            />
             <label>
               <input
                 inputMode="numeric"
@@ -1027,9 +1269,18 @@ function HabitOverlay({
                 min={0}
                 type="number"
                 value={numericValue}
-                onChange={(event) => onValue(Math.max(0, Math.min(habit.quantity, Number(event.target.value))))}
+                onChange={(event) =>
+                  onValue(
+                    Math.max(
+                      0,
+                      Math.min(habit.quantity, Number(event.target.value)),
+                    ),
+                  )
+                }
               />
-              <span>of {habit.quantity} {habit.unit.toLowerCase()}</span>
+              <span>
+                of {habit.quantity} {habit.unit.toLowerCase()}
+              </span>
             </label>
           </div>
           <IconButton
@@ -1052,8 +1303,12 @@ function HabitOverlay({
           ))}
         </div>
 
-        {day !== 'We' && (
-          <button className="return-today-row" type="button" onClick={onReturnToday}>
+        {day !== "We" && (
+          <button
+            className="return-today-row"
+            type="button"
+            onClick={onReturnToday}
+          >
             <img src={assets.returnToday} alt="" />
             <span>Return to today</span>
           </button>
@@ -1063,7 +1318,7 @@ function HabitOverlay({
         <CalendarHistory />
       </section>
     </>
-  )
+  );
 }
 
 function HabitMenu({
@@ -1072,28 +1327,38 @@ function HabitMenu({
   onArchive,
   onDelete,
 }: {
-  onEdit: () => void
-  onSkip: () => void
-  onArchive: () => void
-  onDelete: () => void
+  onEdit: () => void;
+  onSkip: () => void;
+  onArchive: () => void;
+  onDelete: () => void;
 }) {
   const menuItems = [
-    { label: 'Edit Habit', icon: assets.menuEdit, onClick: onEdit },
-    { label: 'Skip Today', icon: assets.menuSkip, onClick: onSkip },
-    { label: 'Archive Habit', icon: assets.menuArchive, onClick: onArchive },
-    { label: 'Delete Habit', icon: assets.menuDelete, onClick: onDelete, danger: true },
-  ]
+    { label: "Edit Habit", icon: assets.menuEdit, onClick: onEdit },
+    { label: "Skip Today", icon: assets.menuSkip, onClick: onSkip },
+    { label: "Archive Habit", icon: assets.menuArchive, onClick: onArchive },
+    {
+      label: "Delete Habit",
+      icon: assets.menuDelete,
+      onClick: onDelete,
+      danger: true,
+    },
+  ];
 
   return (
     <div className="menu-popover">
       {menuItems.map((item) => (
-        <button className={item.danger ? 'danger' : ''} key={item.label} type="button" onClick={item.onClick}>
+        <button
+          className={item.danger ? "danger" : ""}
+          key={item.label}
+          type="button"
+          onClick={item.onClick}
+        >
           <img src={item.icon} alt="" />
           <span>{item.label}</span>
         </button>
       ))}
     </div>
-  )
+  );
 }
 
 function EditHabit({
@@ -1102,32 +1367,51 @@ function EditHabit({
   onSave,
   onDelete,
 }: {
-  habit: Habit
-  onBack: () => void
-  onSave: (habit: Habit) => void
-  onDelete: () => void
+  habit: Habit;
+  onBack: () => void;
+  onSave: (habit: Habit) => void;
+  onDelete: () => void;
 }) {
-  const [draft, setDraft] = useState<Habit>(habit)
-  const [popup, setPopup] = useState<NewPopup | 'frequency'>('frequency')
-  const patchDraft = (patch: Partial<Habit>) => setDraft((previous) => ({ ...previous, ...patch }))
+  const [draft, setDraft] = useState<Habit>(habit);
+  const [popup, setPopup] = useState<NewPopup | "frequency">("frequency");
+  const patchDraft = (patch: Partial<Habit>) =>
+    setDraft((previous) => ({ ...previous, ...patch }));
 
   return (
     <section className="new-screen edit-habit-screen">
       <div className="edit-flow-nav">
         <IconButton icon={assets.editBack} label="Back" onClick={onBack} />
         <strong>Edit Habit</strong>
-        <button className="edit-save-button" type="button" onClick={() => onSave(draft)}>Save</button>
+        <button
+          className="edit-save-button"
+          type="button"
+          onClick={() => onSave(draft)}
+        >
+          Save
+        </button>
       </div>
 
       <div className="review-content edit-content">
         <section className="field-group">
           <p>Details</p>
           <label className="detail-field text-input edit-name-input">
-            <input value={draft.name} onChange={(event) => patchDraft({ name: event.target.value })} />
+            <input
+              value={draft.name}
+              onChange={(event) => patchDraft({ name: event.target.value })}
+            />
           </label>
           <div className="field-pair">
-            <DetailRow label="Icon" icon={draft.icon} iconTone="gradient" onClick={() => setPopup('icons')} />
-            <DetailRow label="Color" color={draft.color} onClick={() => setPopup('colors')} />
+            <DetailRow
+              label="Icon"
+              icon={draft.icon}
+              iconTone="gradient"
+              onClick={() => setPopup("icons")}
+            />
+            <DetailRow
+              label="Color"
+              color={draft.color}
+              onClick={() => setPopup("colors")}
+            />
           </div>
         </section>
 
@@ -1135,11 +1419,11 @@ function EditHabit({
           <p>Type</p>
           <TypeField
             type={draft.type}
-            expanded={popup === 'types'}
-            onToggle={() => setPopup(popup === 'types' ? null : 'types')}
+            expanded={popup === "types"}
+            onToggle={() => setPopup(popup === "types" ? null : "types")}
             onSelect={(type) => {
-              patchDraft({ type })
-              setPopup(null)
+              patchDraft({ type });
+              setPopup(null);
             }}
           />
         </section>
@@ -1153,16 +1437,28 @@ function EditHabit({
                 min={1}
                 type="number"
                 value={draft.quantity}
-                onChange={(event) => patchDraft({ quantity: event.target.value ? Math.max(1, Number(event.target.value)) : 1 })}
+                onChange={(event) =>
+                  patchDraft({
+                    quantity: event.target.value
+                      ? Math.max(1, Number(event.target.value))
+                      : 1,
+                  })
+                }
               />
             </label>
-            <DetailRow label={draft.unit} chevron onClick={() => setPopup('units')} />
+            <DetailRow
+              label={draft.unit}
+              chevron
+              onClick={() => setPopup("units")}
+            />
           </div>
           <FrequencyField
             frequency={draft.frequency}
             activeDays={draft.activeDays}
-            expanded={popup === 'frequency'}
-            onToggle={() => setPopup(popup === 'frequency' ? null : 'frequency')}
+            expanded={popup === "frequency"}
+            onToggle={() =>
+              setPopup(popup === "frequency" ? null : "frequency")
+            }
             onFrequency={(frequency) => patchDraft({ frequency })}
             onDays={(activeDays) => patchDraft({ activeDays })}
           />
@@ -1173,12 +1469,19 @@ function EditHabit({
           <div className="create-time-box">
             {createTimes.map((item) => (
               <button
-                className={draft.timeOfDay === item.label ? 'selected' : ''}
+                className={draft.timeOfDay === item.label ? "selected" : ""}
                 key={item.label}
                 type="button"
                 onClick={() => patchDraft({ timeOfDay: item.label })}
               >
-                <img src={draft.timeOfDay === item.label ? item.selectedIcon : item.icon} alt="" />
+                <img
+                  src={
+                    draft.timeOfDay === item.label
+                      ? item.selectedIcon
+                      : item.icon
+                  }
+                  alt=""
+                />
                 <span>{item.label}</span>
               </button>
             ))}
@@ -1187,7 +1490,11 @@ function EditHabit({
 
         <section className="field-group">
           <p>Reminders</p>
-          <DetailRow label="Create custom reminder" icon={assets.reminderPlus} muted />
+          <DetailRow
+            label="Create custom reminder"
+            icon={assets.reminderPlus}
+            muted
+          />
         </section>
 
         <div className="field-pair date-pair">
@@ -1201,15 +1508,48 @@ function EditHabit({
           </section>
         </div>
 
-        <button className="edit-delete-button" type="button" onClick={onDelete}>Delete Habit</button>
+        <button className="edit-delete-button" type="button" onClick={onDelete}>
+          Delete Habit
+        </button>
       </div>
 
-      {(popup === 'icons' || popup === 'units') && <button className="drawer-backdrop" type="button" aria-label="Close popup" onClick={() => setPopup(null)} />}
-      {popup === 'icons' && <IconDrawer onClose={() => setPopup(null)} onSelect={(icon) => { patchDraft({ icon }); setPopup(null) }} />}
-      {popup === 'colors' && <ColorPicker color={draft.color} onClose={() => setPopup(null)} onSelect={(color) => { patchDraft({ color }); setPopup(null) }} />}
-      {popup === 'units' && <UnitDrawer onSelect={(unit) => { patchDraft({ unit }); setPopup(null) }} />}
+      {(popup === "icons" || popup === "units") && (
+        <button
+          className="drawer-backdrop"
+          type="button"
+          aria-label="Close popup"
+          onClick={() => setPopup(null)}
+        />
+      )}
+      {popup === "icons" && (
+        <IconDrawer
+          onClose={() => setPopup(null)}
+          onSelect={(icon) => {
+            patchDraft({ icon });
+            setPopup(null);
+          }}
+        />
+      )}
+      {popup === "colors" && (
+        <ColorPicker
+          color={draft.color}
+          onClose={() => setPopup(null)}
+          onSelect={(color) => {
+            patchDraft({ color });
+            setPopup(null);
+          }}
+        />
+      )}
+      {popup === "units" && (
+        <UnitDrawer
+          onSelect={(unit) => {
+            patchDraft({ unit });
+            setPopup(null);
+          }}
+        />
+      )}
     </section>
-  )
+  );
 }
 
 function FlowNav({
@@ -1218,10 +1558,10 @@ function FlowNav({
   onBack,
   onExit,
 }: {
-  progress?: number
-  title?: string
-  onBack?: () => void
-  onExit: () => void
+  progress?: number;
+  title?: string;
+  onBack?: () => void;
+  onExit: () => void;
 }) {
   return (
     <>
@@ -1234,41 +1574,54 @@ function FlowNav({
         )}
         <IconButton icon={assets.close} label="Close" onClick={onExit} />
       </div>
-      {typeof progress === 'number' && (
+      {typeof progress === "number" && (
         <div className="flow-progress">
-          <span style={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }}></span>
+          <span
+            style={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }}
+          ></span>
         </div>
       )}
     </>
-  )
+  );
 }
 
-function TemplateGlyphIcon({ glyph }: { glyph: NonNullable<TemplateItem['glyph']> }) {
-  const gradientId = `template-gradient-${glyph}`
+function TemplateGlyphIcon({
+  glyph,
+}: {
+  glyph: NonNullable<TemplateItem["glyph"]>;
+}) {
+  const gradientId = `template-gradient-${glyph}`;
 
   return (
     <svg className="template-glyph" viewBox="0 0 24 24" aria-hidden="true">
       <defs>
-        <linearGradient id={gradientId} x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+        <linearGradient
+          id={gradientId}
+          x1="3"
+          y1="3"
+          x2="21"
+          y2="21"
+          gradientUnits="userSpaceOnUse"
+        >
           <stop stopColor="#426fff" />
           <stop offset="1" stopColor="#24c7ef" />
         </linearGradient>
       </defs>
-      {glyph === 'warm' && (
+      {glyph === "warm" && (
         <>
           <path stroke={`url(#${gradientId})`} d="M5 15c2-3 4-4 7-4s5 1 7 4" />
           <path stroke={`url(#${gradientId})`} d="M8 18h8" />
           <path stroke={`url(#${gradientId})`} d="M8 7l2 2m6-2-2 2M12 4v3" />
         </>
       )}
-      {glyph === 'cool' && (
+      {glyph === "cool" && (
         <>
           <path stroke={`url(#${gradientId})`} d="M6 7c2 2 4 2 6 0s4-2 6 0" />
           <path stroke={`url(#${gradientId})`} d="M6 12c2 2 4 2 6 0s4-2 6 0" />
           <path stroke={`url(#${gradientId})`} d="M6 17c2 2 4 2 6 0s4-2 6 0" />
         </>
       )}
-      {glyph === 'balance' && (
+      {glyph === "balance" && (
         <>
           <path stroke={`url(#${gradientId})`} d="M12 5v14" />
           <path stroke={`url(#${gradientId})`} d="M7 9h10" />
@@ -1277,7 +1630,7 @@ function TemplateGlyphIcon({ glyph }: { glyph: NonNullable<TemplateItem['glyph']
           <path stroke={`url(#${gradientId})`} d="M9 19h6" />
         </>
       )}
-      {glyph === 'flexibility' && (
+      {glyph === "flexibility" && (
         <>
           <path stroke={`url(#${gradientId})`} d="M5 17c3-6 6-9 10-9" />
           <path stroke={`url(#${gradientId})`} d="M14 8l5 2" />
@@ -1286,7 +1639,7 @@ function TemplateGlyphIcon({ glyph }: { glyph: NonNullable<TemplateItem['glyph']
         </>
       )}
     </svg>
-  )
+  );
 }
 
 function TemplateButton({
@@ -1295,20 +1648,24 @@ function TemplateButton({
   glyph,
   onClick,
 }: {
-  label: string
-  icon: string
-  glyph?: TemplateItem['glyph']
-  onClick: () => void
+  label: string;
+  icon: string;
+  glyph?: TemplateItem["glyph"];
+  onClick: () => void;
 }) {
   return (
     <button className="template-button" type="button" onClick={onClick}>
       <span className="template-icon">
-        {glyph ? <TemplateGlyphIcon glyph={glyph} /> : <img src={icon} alt="" />}
+        {glyph ? (
+          <TemplateGlyphIcon glyph={glyph} />
+        ) : (
+          <img src={icon} alt="" />
+        )}
       </span>
       <span className="template-label">{label}</span>
       <img className="template-arrow" src={assets.templateArrow} alt="" />
     </button>
-  )
+  );
 }
 
 function NewLanding({
@@ -1317,15 +1674,15 @@ function NewLanding({
   onCustom,
   onCategory,
 }: {
-  draftName: string
-  onName: (name: string) => void
-  onCustom: () => void
-  onCategory: () => void
+  draftName: string;
+  onName: (name: string) => void;
+  onCustom: () => void;
+  onCategory: () => void;
 }) {
   const submitCustom = (event: FormEvent) => {
-    event.preventDefault()
-    if (draftName.trim()) onCustom()
-  }
+    event.preventDefault();
+    if (draftName.trim()) onCustom();
+  };
 
   return (
     <section className="new-screen">
@@ -1348,12 +1705,17 @@ function NewLanding({
         <p>Templates</p>
         <div className="template-grid">
           {categories.map((category) => (
-            <TemplateButton key={category.label} label={category.label} icon={category.icon} onClick={onCategory} />
+            <TemplateButton
+              key={category.label}
+              label={category.label}
+              icon={category.icon}
+              onClick={onCategory}
+            />
           ))}
         </div>
       </section>
     </section>
-  )
+  );
 }
 
 function TemplateList({
@@ -1361,9 +1723,9 @@ function TemplateList({
   onExit,
   onSelect,
 }: {
-  onBack: () => void
-  onExit: () => void
-  onSelect: (name: string, icon: string) => void
+  onBack: () => void;
+  onExit: () => void;
+  onSelect: (name: string, icon: string) => void;
 }) {
   return (
     <section className="new-screen">
@@ -1379,7 +1741,12 @@ function TemplateList({
                   label={item.label}
                   icon={item.icon}
                   glyph={item.glyph}
-                  onClick={() => onSelect(item.label === 'Run' ? 'Go Running' : item.label, item.icon)}
+                  onClick={() =>
+                    onSelect(
+                      item.label === "Run" ? "Go Running" : item.label,
+                      item.icon,
+                    )
+                  }
                 />
               ))}
             </div>
@@ -1387,42 +1754,51 @@ function TemplateList({
         ))}
       </div>
     </section>
-  )
+  );
 }
 
 function DetailRow({
   label,
   value,
   icon,
-  iconTone = 'plain',
+  iconTone = "plain",
   color,
   chevron,
   muted,
   onClick,
 }: {
-  label: string
-  value?: string
-  icon?: string
-  iconTone?: 'plain' | 'gradient'
-  color?: string
-  chevron?: boolean
-  muted?: boolean
-  onClick?: () => void
+  label: string;
+  value?: string;
+  icon?: string;
+  iconTone?: "plain" | "gradient";
+  color?: string;
+  chevron?: boolean;
+  muted?: boolean;
+  onClick?: () => void;
 }) {
   return (
-    <button className={`detail-field ${muted ? 'muted' : ''}`} type="button" onClick={onClick}>
+    <button
+      className={`detail-field ${muted ? "muted" : ""}`}
+      type="button"
+      onClick={onClick}
+    >
       <span>{label}</span>
       {value && <strong>{value}</strong>}
-      {icon && iconTone === 'gradient' ? (
+      {icon && iconTone === "gradient" ? (
         <span
           className="detail-icon-gradient"
-          style={{ WebkitMaskImage: `url("${icon}")`, maskImage: `url("${icon}")` }}
+          style={{
+            WebkitMaskImage: `url("${icon}")`,
+            maskImage: `url("${icon}")`,
+          }}
         ></span>
-      ) : icon && <img src={icon} alt="" />}
+      ) : (
+        icon && <img src={icon} alt="" />
+      )}
       {color && <i style={{ background: color }}></i>}
       {chevron && <img className="field-chevron" src={assets.chevron} alt="" />}
     </button>
-  )
+  );
 }
 
 function TypeField({
@@ -1431,20 +1807,33 @@ function TypeField({
   onToggle,
   onSelect,
 }: {
-  type: HabitType
-  expanded: boolean
-  onToggle: () => void
-  onSelect: (type: HabitType) => void
+  type: HabitType;
+  expanded: boolean;
+  onToggle: () => void;
+  onSelect: (type: HabitType) => void;
 }) {
   const typeOptions: { label: HabitType; icon: string; helper: string }[] = [
-    { label: 'Make', icon: assets.typeMake, helper: 'Build a routine you want to do more often.' },
-    { label: 'Limit', icon: assets.typeLimit, helper: 'Set a limit for something you want to do less.' },
-    { label: 'Break', icon: assets.typeBreak, helper: 'Mark a habit that you want to avoid and break.' },
-  ]
-  const selected = typeOptions.find((option) => option.label === type) ?? typeOptions[0]
+    {
+      label: "Make",
+      icon: assets.typeMake,
+      helper: "Build a routine you want to do more often.",
+    },
+    {
+      label: "Limit",
+      icon: assets.typeLimit,
+      helper: "Set a limit for something you want to do less.",
+    },
+    {
+      label: "Break",
+      icon: assets.typeBreak,
+      helper: "Mark a habit that you want to avoid and break.",
+    },
+  ];
+  const selected =
+    typeOptions.find((option) => option.label === type) ?? typeOptions[0];
 
   return (
-    <div className={`type-card ${expanded ? 'expanded' : ''}`}>
+    <div className={`type-card ${expanded ? "expanded" : ""}`}>
       <button type="button" onClick={onToggle}>
         <span className="type-copy">
           <img src={selected.icon} alt="" />
@@ -1453,21 +1842,30 @@ function TypeField({
             <em>{selected.helper}</em>
           </span>
         </span>
-        {!expanded && <img className="field-chevron" src={assets.chevron} alt="" />}
+        {!expanded && (
+          <img className="field-chevron" src={assets.chevron} alt="" />
+        )}
       </button>
-      {expanded && typeOptions.filter((option) => option.label !== type).map((option) => (
-        <button key={option.label} type="button" onClick={() => onSelect(option.label)}>
-          <span className="type-copy">
-            <img src={option.icon} alt="" />
-            <span>
-              <strong>{option.label}</strong>
-              <em>{option.helper}</em>
-            </span>
-          </span>
-        </button>
-      ))}
+      {expanded &&
+        typeOptions
+          .filter((option) => option.label !== type)
+          .map((option) => (
+            <button
+              key={option.label}
+              type="button"
+              onClick={() => onSelect(option.label)}
+            >
+              <span className="type-copy">
+                <img src={option.icon} alt="" />
+                <span>
+                  <strong>{option.label}</strong>
+                  <em>{option.helper}</em>
+                </span>
+              </span>
+            </button>
+          ))}
     </div>
-  )
+  );
 }
 
 function DetailsStep({
@@ -1479,13 +1877,13 @@ function DetailsStep({
   onBack,
   onExit,
 }: {
-  draft: DraftHabit
-  popup: NewPopup
-  onPatch: (patch: Partial<DraftHabit>) => void
-  onPopup: (popup: NewPopup) => void
-  onNext: () => void
-  onBack: () => void
-  onExit: () => void
+  draft: DraftHabit;
+  popup: NewPopup;
+  onPatch: (patch: Partial<DraftHabit>) => void;
+  onPopup: (popup: NewPopup) => void;
+  onNext: () => void;
+  onBack: () => void;
+  onExit: () => void;
 }) {
   return (
     <section className="new-screen">
@@ -1502,46 +1900,96 @@ function DetailsStep({
             />
           </label>
           <div className="field-pair">
-            <DetailRow label="Icon" icon={draft.icon} iconTone="gradient" onClick={() => onPopup('icons')} />
-            <DetailRow label="Color" color={draft.color} onClick={() => onPopup('colors')} />
+            <DetailRow
+              label="Icon"
+              icon={draft.icon}
+              iconTone="gradient"
+              onClick={() => onPopup("icons")}
+            />
+            <DetailRow
+              label="Color"
+              color={draft.color}
+              onClick={() => onPopup("colors")}
+            />
           </div>
         </section>
         <section className="field-group">
           <p>Type</p>
           <TypeField
             type={draft.type}
-            expanded={popup === 'types'}
-            onToggle={() => onPopup(popup === 'types' ? null : 'types')}
+            expanded={popup === "types"}
+            onToggle={() => onPopup(popup === "types" ? null : "types")}
             onSelect={(type) => {
-              onPatch({ type })
-              onPopup(null)
+              onPatch({ type });
+              onPopup(null);
             }}
           />
         </section>
       </div>
-      <button className="primary-flow-button" type="button" onClick={onNext}>Next</button>
-      {(popup === 'icons' || popup === 'units') && <button className="drawer-backdrop" type="button" aria-label="Close popup" onClick={() => onPopup(null)} />}
-      {popup === 'icons' && <IconDrawer onClose={() => onPopup(null)} onSelect={(icon) => { onPatch({ icon }); onPopup(null) }} />}
-      {popup === 'colors' && <ColorPicker color={draft.color} onClose={() => onPopup(null)} onSelect={(color) => { onPatch({ color }); onPopup(null) }} />}
+      <button className="primary-flow-button" type="button" onClick={onNext}>
+        Next
+      </button>
+      {(popup === "icons" || popup === "units") && (
+        <button
+          className="drawer-backdrop"
+          type="button"
+          aria-label="Close popup"
+          onClick={() => onPopup(null)}
+        />
+      )}
+      {popup === "icons" && (
+        <IconDrawer
+          onClose={() => onPopup(null)}
+          onSelect={(icon) => {
+            onPatch({ icon });
+            onPopup(null);
+          }}
+        />
+      )}
+      {popup === "colors" && (
+        <ColorPicker
+          color={draft.color}
+          onClose={() => onPopup(null)}
+          onSelect={(color) => {
+            onPatch({ color });
+            onPopup(null);
+          }}
+        />
+      )}
     </section>
-  )
+  );
 }
 
-function IconDrawer({ onClose, onSelect }: { onClose: () => void; onSelect: (icon: string) => void }) {
+function IconDrawer({
+  onClose,
+  onSelect,
+}: {
+  onClose: () => void;
+  onSelect: (icon: string) => void;
+}) {
   return (
     <section className="icon-drawer">
       <div className="drawer-grabber"></div>
-      <IconButton className="drawer-close" icon={assets.close} label="Close icons" onClick={onClose} />
+      <IconButton
+        className="drawer-close"
+        icon={assets.close}
+        label="Close icons"
+        onClick={onClose}
+      />
       <strong>Icons</strong>
       <div className="icon-grid">
         {iconDrawerAssets.map((icon, index) => (
-          <button key={`${icon}-${index}`} type="button" onClick={() => onSelect(icon)}>
+          <button
+            key={`${icon}-${index}`}
+            type="button"
+            onClick={() => onSelect(icon)}
+          >
             <img src={icon} alt="" />
           </button>
         ))}
       </div>
     </section>
-  )
+  );
 }
 
 function ColorPicker({
@@ -1549,21 +1997,26 @@ function ColorPicker({
   onClose,
   onSelect,
 }: {
-  color: string
-  onClose: () => void
-  onSelect: (color: string) => void
+  color: string;
+  onClose: () => void;
+  onSelect: (color: string) => void;
 }) {
   return (
     <div className="color-modal-backdrop" onClick={onClose}>
       <div className="color-modal" onClick={(event) => event.stopPropagation()}>
         {colors.map((option) => (
-          <button className={color === option ? 'selected' : ''} key={option} type="button" onClick={() => onSelect(option)}>
+          <button
+            className={color === option ? "selected" : ""}
+            key={option}
+            type="button"
+            onClick={() => onSelect(option)}
+          >
             <span style={{ background: option }}></span>
           </button>
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 function FrequencyField({
@@ -1574,20 +2027,24 @@ function FrequencyField({
   onFrequency,
   onDays,
 }: {
-  frequency: Frequency
-  activeDays: string[]
-  expanded: boolean
-  onToggle: () => void
-  onFrequency: (frequency: Frequency) => void
-  onDays: (days: string[]) => void
+  frequency: Frequency;
+  activeDays: string[];
+  expanded: boolean;
+  onToggle: () => void;
+  onFrequency: (frequency: Frequency) => void;
+  onDays: (days: string[]) => void;
 }) {
   const toggleDay = (day: string, index: number) => {
-    const key = `${day}-${index}`
-    onDays(activeDays.includes(key) ? activeDays.filter((item) => item !== key) : [...activeDays, key])
-  }
+    const key = `${day}-${index}`;
+    onDays(
+      activeDays.includes(key)
+        ? activeDays.filter((item) => item !== key)
+        : [...activeDays, key],
+    );
+  };
 
   return (
-    <div className={`frequency-field ${expanded ? 'expanded' : ''}`}>
+    <div className={`frequency-field ${expanded ? "expanded" : ""}`}>
       <button className="frequency-head" type="button" onClick={onToggle}>
         <span>{frequency}</span>
         <img src={assets.chevron} alt="" />
@@ -1595,34 +2052,49 @@ function FrequencyField({
       {expanded && (
         <div className="frequency-panel">
           <div className="frequency-tabs">
-            {(['Daily', 'Weekly', 'Monthly'] as Frequency[]).map((option) => (
-              <button className={frequency === option ? 'selected' : ''} key={option} type="button" onClick={() => onFrequency(option)}>
+            {(["Daily", "Weekly", "Monthly"] as Frequency[]).map((option) => (
+              <button
+                className={frequency === option ? "selected" : ""}
+                key={option}
+                type="button"
+                onClick={() => onFrequency(option)}
+              >
                 {option}
               </button>
             ))}
           </div>
-          {frequency === 'Daily' ? (
+          {frequency === "Daily" ? (
             <div className="day-selector">
               {createDays.map((day, index) => {
-                const key = `${day}-${index}`
+                const key = `${day}-${index}`;
                 return (
-                  <button className={activeDays.includes(key) ? 'selected' : ''} key={key} type="button" onClick={() => toggleDay(day, index)}>
+                  <button
+                    className={activeDays.includes(key) ? "selected" : ""}
+                    key={key}
+                    type="button"
+                    onClick={() => toggleDay(day, index)}
+                  >
                     {day}
                   </button>
-                )
+                );
               })}
             </div>
           ) : (
             <label className="interval-field">
               <span>Every</span>
-              <input inputMode="numeric" min={1} type="number" defaultValue={1} />
-              <span>{frequency === 'Weekly' ? 'week' : 'month'}</span>
+              <input
+                inputMode="numeric"
+                min={1}
+                type="number"
+                defaultValue={1}
+              />
+              <span>{frequency === "Weekly" ? "week" : "month"}</span>
             </label>
           )}
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function GoalStep({
@@ -1635,22 +2107,30 @@ function GoalStep({
   onBack,
   onExit,
 }: {
-  draft: DraftHabit
-  popup: NewPopup
-  error: boolean
-  onPatch: (patch: Partial<DraftHabit>) => void
-  onPopup: (popup: NewPopup) => void
-  onNext: () => void
-  onBack: () => void
-  onExit: () => void
+  draft: DraftHabit;
+  popup: NewPopup;
+  error: boolean;
+  onPatch: (patch: Partial<DraftHabit>) => void;
+  onPopup: (popup: NewPopup) => void;
+  onNext: () => void;
+  onBack: () => void;
+  onExit: () => void;
 }) {
-  const fieldsReady = draft.quantity > 0 && Boolean(draft.unit)
-  const canContinue = fieldsReady && Boolean(draft.timeOfDay)
+  const fieldsReady = draft.quantity > 0 && Boolean(draft.unit);
+  const canContinue = fieldsReady && Boolean(draft.timeOfDay);
 
   return (
     <section className="new-screen">
-      <FlowNav progress={fieldsReady ? 5 / 6 : 2 / 3} onBack={onBack} onExit={onExit} />
-      <h1 className="flow-heading time-heading">{fieldsReady ? 'What time of day should this be completed?' : 'What is your habit goal?'}</h1>
+      <FlowNav
+        progress={fieldsReady ? 5 / 6 : 2 / 3}
+        onBack={onBack}
+        onExit={onExit}
+      />
+      <h1 className="flow-heading time-heading">
+        {fieldsReady
+          ? "What time of day should this be completed?"
+          : "What is your habit goal?"}
+      </h1>
       <div className="flow-form goal-form">
         <section className="field-group">
           <p>Goal</p>
@@ -1661,17 +2141,28 @@ function GoalStep({
                 min={1}
                 type="number"
                 placeholder="Value"
-                value={draft.quantity || ''}
-                onChange={(event) => onPatch({ quantity: event.target.value ? Math.max(1, Number(event.target.value)) : 0 })}
+                value={draft.quantity || ""}
+                onChange={(event) =>
+                  onPatch({
+                    quantity: event.target.value
+                      ? Math.max(1, Number(event.target.value))
+                      : 0,
+                  })
+                }
               />
             </label>
-            <DetailRow label={draft.unit || 'Unit'} chevron muted={!draft.unit} onClick={() => onPopup('units')} />
+            <DetailRow
+              label={draft.unit || "Unit"}
+              chevron
+              muted={!draft.unit}
+              onClick={() => onPopup("units")}
+            />
           </div>
           <FrequencyField
             frequency={draft.frequency}
             activeDays={draft.activeDays}
-            expanded={popup === 'types'}
-            onToggle={() => onPopup(popup === 'types' ? null : 'types')}
+            expanded={popup === "types"}
+            onToggle={() => onPopup(popup === "types" ? null : "types")}
             onFrequency={(frequency) => onPatch({ frequency })}
             onDays={(activeDays) => onPatch({ activeDays })}
           />
@@ -1679,28 +2170,59 @@ function GoalStep({
         {fieldsReady && (
           <section className="field-group">
             <p>Time of day</p>
-            <div className={`create-time-box ${error && !draft.timeOfDay ? 'error' : ''}`}>
+            <div
+              className={`create-time-box ${error && !draft.timeOfDay ? "error" : ""}`}
+            >
               {createTimes.map((item) => (
                 <button
-                  className={draft.timeOfDay === item.label ? 'selected' : ''}
+                  className={draft.timeOfDay === item.label ? "selected" : ""}
                   key={item.label}
                   type="button"
                   onClick={() => onPatch({ timeOfDay: item.label })}
                 >
-                  <img src={draft.timeOfDay === item.label ? item.selectedIcon : item.icon} alt="" />
+                  <img
+                    src={
+                      draft.timeOfDay === item.label
+                        ? item.selectedIcon
+                        : item.icon
+                    }
+                    alt=""
+                  />
                   <span>{item.label}</span>
                 </button>
               ))}
             </div>
-            {error && !draft.timeOfDay && <p className="field-error">Select time of day</p>}
+            {error && !draft.timeOfDay && (
+              <p className="field-error">Select time of day</p>
+            )}
           </section>
         )}
       </div>
-      <button className={`primary-flow-button ${canContinue ? '' : 'disabled'}`} type="button" onClick={onNext}>Next</button>
-      {popup === 'units' && <button className="drawer-backdrop" type="button" aria-label="Close popup" onClick={() => onPopup(null)} />}
-      {popup === 'units' && <UnitDrawer onSelect={(unit) => { onPatch({ unit }); onPopup(null) }} />}
+      <button
+        className={`primary-flow-button ${canContinue ? "" : "disabled"}`}
+        type="button"
+        onClick={onNext}
+      >
+        Next
+      </button>
+      {popup === "units" && (
+        <button
+          className="drawer-backdrop"
+          type="button"
+          aria-label="Close popup"
+          onClick={() => onPopup(null)}
+        />
+      )}
+      {popup === "units" && (
+        <UnitDrawer
+          onSelect={(unit) => {
+            onPatch({ unit });
+            onPopup(null);
+          }}
+        />
+      )}
     </section>
-  )
+  );
 }
 
 function UnitDrawer({ onSelect }: { onSelect: (unit: string) => void }) {
@@ -1709,11 +2231,13 @@ function UnitDrawer({ onSelect }: { onSelect: (unit: string) => void }) {
       <div className="drawer-grabber"></div>
       <div className="unit-list">
         {units.map((unit) => (
-          <button key={unit} type="button" onClick={() => onSelect(unit)}>{unit}</button>
+          <button key={unit} type="button" onClick={() => onSelect(unit)}>
+            {unit}
+          </button>
         ))}
       </div>
     </section>
-  )
+  );
 }
 
 function ReviewStep({
@@ -1722,12 +2246,12 @@ function ReviewStep({
   onExit,
   onCreate,
 }: {
-  draft: DraftHabit
-  onPatch: (patch: Partial<DraftHabit>) => void
-  onExit: () => void
-  onCreate: () => void
+  draft: DraftHabit;
+  onPatch: (patch: Partial<DraftHabit>) => void;
+  onExit: () => void;
+  onCreate: () => void;
 }) {
-  const [popup, setPopup] = useState<NewPopup | 'frequency'>(null)
+  const [popup, setPopup] = useState<NewPopup | "frequency">(null);
 
   return (
     <section className="new-screen review-screen">
@@ -1737,19 +2261,28 @@ function ReviewStep({
           <p>Details</p>
           <DetailRow label={draft.name} />
           <div className="field-pair">
-            <DetailRow label="Icon" icon={draft.icon} iconTone="gradient" onClick={() => setPopup('icons')} />
-            <DetailRow label="Color" color={draft.color} onClick={() => setPopup('colors')} />
+            <DetailRow
+              label="Icon"
+              icon={draft.icon}
+              iconTone="gradient"
+              onClick={() => setPopup("icons")}
+            />
+            <DetailRow
+              label="Color"
+              color={draft.color}
+              onClick={() => setPopup("colors")}
+            />
           </div>
         </section>
         <section className="field-group">
           <p>Type</p>
           <TypeField
             type={draft.type}
-            expanded={popup === 'types'}
-            onToggle={() => setPopup(popup === 'types' ? null : 'types')}
+            expanded={popup === "types"}
+            onToggle={() => setPopup(popup === "types" ? null : "types")}
             onSelect={(type) => {
-              onPatch({ type })
-              setPopup(null)
+              onPatch({ type });
+              setPopup(null);
             }}
           />
         </section>
@@ -1757,13 +2290,19 @@ function ReviewStep({
           <p>Goal</p>
           <div className="field-pair">
             <DetailRow label={`${draft.quantity}`} />
-            <DetailRow label={draft.unit} chevron onClick={() => setPopup('units')} />
+            <DetailRow
+              label={draft.unit}
+              chevron
+              onClick={() => setPopup("units")}
+            />
           </div>
           <FrequencyField
             frequency={draft.frequency}
             activeDays={draft.activeDays}
-            expanded={popup === 'frequency'}
-            onToggle={() => setPopup(popup === 'frequency' ? null : 'frequency')}
+            expanded={popup === "frequency"}
+            onToggle={() =>
+              setPopup(popup === "frequency" ? null : "frequency")
+            }
             onFrequency={(frequency) => onPatch({ frequency })}
             onDays={(activeDays) => onPatch({ activeDays })}
           />
@@ -1773,12 +2312,19 @@ function ReviewStep({
           <div className="create-time-box">
             {createTimes.map((item) => (
               <button
-                className={draft.timeOfDay === item.label ? 'selected' : ''}
+                className={draft.timeOfDay === item.label ? "selected" : ""}
                 key={item.label}
                 type="button"
                 onClick={() => onPatch({ timeOfDay: item.label })}
               >
-                <img src={draft.timeOfDay === item.label ? item.selectedIcon : item.icon} alt="" />
+                <img
+                  src={
+                    draft.timeOfDay === item.label
+                      ? item.selectedIcon
+                      : item.icon
+                  }
+                  alt=""
+                />
                 <span>{item.label}</span>
               </button>
             ))}
@@ -1799,75 +2345,134 @@ function ReviewStep({
           </section>
         </div>
       </div>
-      <button className="primary-flow-button review-create-button" type="button" onClick={onCreate}>Create Habit</button>
-      {(popup === 'icons' || popup === 'units') && <button className="drawer-backdrop" type="button" aria-label="Close popup" onClick={() => setPopup(null)} />}
-      {popup === 'icons' && <IconDrawer onClose={() => setPopup(null)} onSelect={(icon) => { onPatch({ icon }); setPopup(null) }} />}
-      {popup === 'colors' && <ColorPicker color={draft.color} onClose={() => setPopup(null)} onSelect={(color) => { onPatch({ color }); setPopup(null) }} />}
-      {popup === 'units' && <UnitDrawer onSelect={(unit) => { onPatch({ unit }); setPopup(null) }} />}
+      <button
+        className="primary-flow-button review-create-button"
+        type="button"
+        onClick={onCreate}
+      >
+        Create Habit
+      </button>
+      {(popup === "icons" || popup === "units") && (
+        <button
+          className="drawer-backdrop"
+          type="button"
+          aria-label="Close popup"
+          onClick={() => setPopup(null)}
+        />
+      )}
+      {popup === "icons" && (
+        <IconDrawer
+          onClose={() => setPopup(null)}
+          onSelect={(icon) => {
+            onPatch({ icon });
+            setPopup(null);
+          }}
+        />
+      )}
+      {popup === "colors" && (
+        <ColorPicker
+          color={draft.color}
+          onClose={() => setPopup(null)}
+          onSelect={(color) => {
+            onPatch({ color });
+            setPopup(null);
+          }}
+        />
+      )}
+      {popup === "units" && (
+        <UnitDrawer
+          onSelect={(unit) => {
+            onPatch({ unit });
+            setPopup(null);
+          }}
+        />
+      )}
     </section>
-  )
+  );
 }
 
 function App() {
-  const [tab, setTab] = useState<AppTab>('Home')
-  const [overlay, setOverlay] = useState<Overlay>(null)
-  const [time, setTime] = useState<TimeKey>('All Day')
-  const [habitDay, setHabitDay] = useState('We')
-  const [calendarDay, setCalendarDay] = useState(calendarToday)
-  const [habits, setHabits] = useState<Habit[]>([seededHabit])
-  const [activeHabitId, setActiveHabitId] = useState(seededHabit.id)
-  const [progressHabitId, setProgressHabitId] = useState<string | null>(null)
-  const [progressByHabitDay, setProgressByHabitDay] = useState<Record<string, Record<string, number>>>({
+  const [tab, setTab] = useState<AppTab>("Home");
+  const [overlay, setOverlay] = useState<Overlay>(null);
+  const [time, setTime] = useState<TimeKey>("All Day");
+  const [habitDay, setHabitDay] = useState("We");
+  const [calendarDay, setCalendarDay] = useState(calendarToday);
+  const [habits, setHabits] = useState<Habit[]>([seededHabit]);
+  const [activeHabitId, setActiveHabitId] = useState(seededHabit.id);
+  const [progressHabitId, setProgressHabitId] = useState<string | null>(null);
+  const [progressByHabitDay, setProgressByHabitDay] = useState<
+    Record<string, Record<string, number>>
+  >({
     [seededHabit.id]: { [todayWeekKey]: 0 },
-  })
-  const [skippedByHabitDay, setSkippedByHabitDay] = useState<Record<string, Record<string, boolean>>>({})
-  const [createdThisMonthCount, setCreatedThisMonthCount] = useState(0)
-  const [newStep, setNewStep] = useState<NewStep>('landing')
-  const [newPopup, setNewPopup] = useState<NewPopup>(null)
-  const [typedName, setTypedName] = useState('')
-  const [draft, setDraft] = useState<DraftHabit>(() => createDraft())
-  const [showTimeError, setShowTimeError] = useState(false)
+  });
+  const [skippedByHabitDay, setSkippedByHabitDay] = useState<
+    Record<string, Record<string, boolean>>
+  >({});
+  const [createdThisMonthCount, setCreatedThisMonthCount] = useState(0);
+  const [newStep, setNewStep] = useState<NewStep>("landing");
+  const [newPopup, setNewPopup] = useState<NewPopup>(null);
+  const [typedName, setTypedName] = useState("");
+  const [draft, setDraft] = useState<DraftHabit>(() => createDraft());
+  const [showTimeError, setShowTimeError] = useState(false);
 
-  const activeHabit = habits.find((habit) => habit.id === activeHabitId) ?? habits[0]
-  const progressHabit = habits.find((habit) => habit.id === progressHabitId) ?? null
-  const visibleHabits = habits.filter((habit) => habit.timeOfDay === time)
-  const selectedDateLabel = calendarDay === calendarToday ? 'Today' : `June ${formatOrdinal(calendarDay)}`
-  const activeHomeDayKey = getCalendarDayKey(calendarDay)
+  const activeHabit =
+    habits.find((habit) => habit.id === activeHabitId) ?? habits[0];
+  const progressHabit =
+    habits.find((habit) => habit.id === progressHabitId) ?? null;
+  const visibleHabits = habits.filter((habit) => habit.timeOfDay === time);
+  const selectedDateLabel =
+    calendarDay === calendarToday
+      ? "Today"
+      : `June ${formatOrdinal(calendarDay)}`;
+  const activeHomeDayKey = getCalendarDayKey(calendarDay);
 
   const getSeededHistoricalValue = (habit: Habit, day: number) => {
-    if (habit.id !== seededHabit.id || day >= calendarToday) return 0
-    const tone = calendarDotPattern[(day - 1) % calendarDotPattern.length]
-    return Math.min(habit.quantity, seededProgressByTone[tone] ?? 0)
-  }
+    if (habit.id !== seededHabit.id || day >= calendarToday) return 0;
+    const tone = calendarDotPattern[(day - 1) % calendarDotPattern.length];
+    return Math.min(habit.quantity, seededProgressByTone[tone] ?? 0);
+  };
 
   const getHabitDayValue = (habit: Habit, dayKey = activeHomeDayKey) => {
-    const storedValue = progressByHabitDay[habit.id]?.[dayKey]
-    if (typeof storedValue === 'number') return storedValue
-    if (dayKey === getCalendarDayKey(calendarDay)) return getSeededHistoricalValue(habit, calendarDay)
-    return 0
-  }
+    const storedValue = progressByHabitDay[habit.id]?.[dayKey];
+    if (typeof storedValue === "number") return storedValue;
+    if (dayKey === getCalendarDayKey(calendarDay))
+      return getSeededHistoricalValue(habit, calendarDay);
+    return 0;
+  };
 
   const getCalendarDayTone = (day: number) => {
-    const dayKey = getCalendarDayKey(day)
-    const storedValue = progressByHabitDay[seededHabit.id]?.[dayKey]
-    if (typeof storedValue === 'number') {
-      return getCalendarToneForProgress(storedValue, seededHabit.quantity)
+    const dayKey = getCalendarDayKey(day);
+    const storedValue = progressByHabitDay[seededHabit.id]?.[dayKey];
+    if (typeof storedValue === "number") {
+      return getCalendarToneForProgress(storedValue, seededHabit.quantity);
     }
-    return calendarDotPattern[(day - 1) % calendarDotPattern.length]
-  }
+    return calendarDotPattern[(day - 1) % calendarDotPattern.length];
+  };
 
   const getHabitStat = (habit: Habit): HabitCompletionStat => {
-    const progressDays = progressByHabitDay[habit.id] ?? {}
-    const skipDays = skippedByHabitDay[habit.id] ?? {}
-    const activeDayKeys = Array.from(new Set([todayWeekKey, ...Object.keys(progressDays), ...Object.keys(skipDays)]))
-    const todayRatio = getProgressRatio(progressDays[todayWeekKey] ?? 0, habit.quantity)
-    const completedDays = activeDayKeys.filter((day) => getProgressRatio(progressDays[day] ?? 0, habit.quantity) >= 1).length
-    const skippedDays = activeDayKeys.filter((day) => skipDays[day]).length
-    const activeDays = Math.max(1, activeDayKeys.length)
+    const progressDays = progressByHabitDay[habit.id] ?? {};
+    const skipDays = skippedByHabitDay[habit.id] ?? {};
+    const activeDayKeys = Array.from(
+      new Set([
+        todayWeekKey,
+        ...Object.keys(progressDays),
+        ...Object.keys(skipDays),
+      ]),
+    );
+    const todayRatio = getProgressRatio(
+      progressDays[todayWeekKey] ?? 0,
+      habit.quantity,
+    );
+    const completedDays = activeDayKeys.filter(
+      (day) => getProgressRatio(progressDays[day] ?? 0, habit.quantity) >= 1,
+    ).length;
+    const skippedDays = activeDayKeys.filter((day) => skipDays[day]).length;
+    const activeDays = Math.max(1, activeDayKeys.length);
     const missedDays = activeDayKeys.filter(
-      (day) => day !== todayWeekKey && !skipDays[day] && (progressDays[day] ?? 0) <= 0
-    ).length
-    const completionRate = Math.round((completedDays / activeDays) * 100)
+      (day) =>
+        day !== todayWeekKey && !skipDays[day] && (progressDays[day] ?? 0) <= 0,
+    ).length;
+    const completionRate = Math.round((completedDays / activeDays) * 100);
 
     return {
       activeDays,
@@ -1875,129 +2480,150 @@ function App() {
       missedDays,
       skippedDays,
       completionRate,
-      trend: completionRate > 0 ? Math.max(4, Math.round(completionRate * 0.06)) : 0,
+      trend:
+        completionRate > 0 ? Math.max(4, Math.round(completionRate * 0.06)) : 0,
       todayRatio,
-    }
-  }
+    };
+  };
 
-  const statsByHabit = habits.reduce<Record<string, HabitCompletionStat>>((stats, habit) => {
-    stats[habit.id] = getHabitStat(habit)
-    return stats
-  }, {})
+  const statsByHabit = habits.reduce<Record<string, HabitCompletionStat>>(
+    (stats, habit) => {
+      stats[habit.id] = getHabitStat(habit);
+      return stats;
+    },
+    {},
+  );
 
-  const completedTodayCount = habits.filter((habit) => statsByHabit[habit.id]?.completedDays).length
-  const skippedTodayCount = habits.filter((habit) => statsByHabit[habit.id]?.skippedDays).length
-  const allHabitsCompleteToday = habits.length > 0 && completedTodayCount === habits.length
-  const currentStreak = defaultCurrentStreak + (allHabitsCompleteToday ? 1 : 0)
+  const completedTodayCount = habits.filter(
+    (habit) => statsByHabit[habit.id]?.completedDays,
+  ).length;
+  const skippedTodayCount = habits.filter(
+    (habit) => statsByHabit[habit.id]?.skippedDays,
+  ).length;
+  const allHabitsCompleteToday =
+    habits.length > 0 && completedTodayCount === habits.length;
+  const currentStreak = defaultCurrentStreak + (allHabitsCompleteToday ? 1 : 0);
   const monthStats: MonthBreakdownStats = {
     completed: 13 + completedTodayCount,
     missed: 13,
     skipped: 13 + skippedTodayCount,
     newHabits: 13 + createdThisMonthCount,
-    completionRate: Math.min(100, 72 + completedTodayCount * 2 - skippedTodayCount),
+    completionRate: Math.min(
+      100,
+      72 + completedTodayCount * 2 - skippedTodayCount,
+    ),
     trend: 6 + completedTodayCount,
-  }
+  };
 
   const currentValue = useMemo(() => {
-    if (!activeHabit) return 0
-    if (overlay === 'habit' || overlay === 'menu' || overlay === 'edit') {
-      return getHabitDayValue(activeHabit, habitDay)
+    if (!activeHabit) return 0;
+    if (overlay === "habit" || overlay === "menu" || overlay === "edit") {
+      return getHabitDayValue(activeHabit, habitDay);
     }
-    return getHabitDayValue(activeHabit)
-  }, [activeHabit, calendarDay, habitDay, overlay, progressByHabitDay])
+    return getHabitDayValue(activeHabit);
+  }, [activeHabit, calendarDay, habitDay, overlay, progressByHabitDay]);
 
   const resetNewFlow = () => {
-    setNewStep('landing')
-    setNewPopup(null)
-    setTypedName('')
-    setDraft(createDraft())
-    setShowTimeError(false)
-  }
+    setNewStep("landing");
+    setNewPopup(null);
+    setTypedName("");
+    setDraft(createDraft());
+    setShowTimeError(false);
+  };
 
   const goNew = () => {
-    resetNewFlow()
-    setOverlay(null)
-    setTab('New')
-  }
+    resetNewFlow();
+    setOverlay(null);
+    setTab("New");
+  };
 
   const removeHabit = (id: string) => {
-    setHabits((previous) => previous.filter((habit) => habit.id !== id))
+    setHabits((previous) => previous.filter((habit) => habit.id !== id));
     setProgressByHabitDay((previous) => {
-      const next = { ...previous }
-      delete next[id]
-      return next
-    })
+      const next = { ...previous };
+      delete next[id];
+      return next;
+    });
     setSkippedByHabitDay((previous) => {
-      const next = { ...previous }
-      delete next[id]
-      return next
-    })
-    setProgressHabitId((previous) => (previous === id ? null : previous))
-    setOverlay(null)
-  }
+      const next = { ...previous };
+      delete next[id];
+      return next;
+    });
+    setProgressHabitId((previous) => (previous === id ? null : previous));
+    setOverlay(null);
+  };
 
   const patchDraft = (patch: Partial<DraftHabit>) => {
-    setDraft((previous) => ({ ...previous, ...patch }))
-    if (patch.timeOfDay) setShowTimeError(false)
-  }
+    setDraft((previous) => ({ ...previous, ...patch }));
+    if (patch.timeOfDay) setShowTimeError(false);
+  };
 
   const createHabit = () => {
-    if (!draft.timeOfDay) return
+    if (!draft.timeOfDay) return;
     const nextHabit: Habit = {
       ...draft,
       id: `habit-${Date.now()}`,
-      unit: draft.unit || 'Miles',
+      unit: draft.unit || "Miles",
       quantity: draft.quantity || 4,
       timeOfDay: draft.timeOfDay,
-    }
-    setHabits((previous) => [...previous, nextHabit])
-    setProgressByHabitDay((previous) => ({ ...previous, [nextHabit.id]: { [todayWeekKey]: 0 } }))
-    setCreatedThisMonthCount((previous) => previous + 1)
-    setActiveHabitId(nextHabit.id)
-    setTime(nextHabit.timeOfDay)
-    resetNewFlow()
-    setTab('Home')
-  }
+    };
+    setHabits((previous) => [...previous, nextHabit]);
+    setProgressByHabitDay((previous) => ({
+      ...previous,
+      [nextHabit.id]: { [todayWeekKey]: 0 },
+    }));
+    setCreatedThisMonthCount((previous) => previous + 1);
+    setActiveHabitId(nextHabit.id);
+    setTime(nextHabit.timeOfDay);
+    resetNewFlow();
+    setTab("Home");
+  };
 
   const handleNavigate = (nextTab: AppTab) => {
-    if (nextTab === 'New') {
-      goNew()
-      return
+    if (nextTab === "New") {
+      goNew();
+      return;
     }
-    setOverlay(null)
-    if (nextTab !== 'Progress') setProgressHabitId(null)
-    setTab(nextTab)
-  }
+    setOverlay(null);
+    if (nextTab !== "Progress") setProgressHabitId(null);
+    setTab(nextTab);
+  };
 
   const selectCalendarDay = (day: number) => {
-    setCalendarDay(day)
-    setHabitDay(getCalendarDayKey(day))
-  }
+    setCalendarDay(day);
+    setHabitDay(getCalendarDayKey(day));
+  };
 
   const returnToToday = () => {
-    setCalendarDay(calendarToday)
-    setHabitDay(todayWeekKey)
-  }
+    setCalendarDay(calendarToday);
+    setHabitDay(todayWeekKey);
+    setOverlay(null);
+  };
 
   const setHabitDayValue = (habitId: string, day: string, value: number) => {
     setProgressByHabitDay((previous) => ({
       ...previous,
       [habitId]: { ...(previous[habitId] ?? {}), [day]: value },
-    }))
+    }));
     if (value > 0) {
       setSkippedByHabitDay((previous) => ({
         ...previous,
         [habitId]: { ...(previous[habitId] ?? {}), [day]: false },
-      }))
+      }));
     }
-  }
+  };
 
   return (
     <div className="phone-shell">
       <div className="app-screen">
-        {tab === 'Home' && (
+        {tab === "Home" && (
           <>
-            <TopBar dateLabel={selectedDateLabel} onCalendar={() => setOverlay(overlay === 'calendar' ? null : 'calendar')} />
+            <TopBar
+              dateLabel={selectedDateLabel}
+              onCalendar={() =>
+                setOverlay(overlay === "calendar" ? null : "calendar")
+              }
+            />
             <TimeSelector selected={time} onSelect={setTime} />
 
             {visibleHabits.length > 0 ? (
@@ -2008,15 +2634,17 @@ function App() {
                     habit={habit}
                     value={getHabitDayValue(habit)}
                     onOpen={() => {
-                      setActiveHabitId(habit.id)
-                      setHabitDay(activeHomeDayKey)
-                      setOverlay('habit')
+                      setActiveHabitId(habit.id);
+                      setHabitDay(activeHomeDayKey);
+                      setOverlay("habit");
                     }}
-                    onIncrement={() => setHabitDayValue(
-                      habit.id,
-                      activeHomeDayKey,
-                      Math.min(habit.quantity, getHabitDayValue(habit) + 1),
-                    )}
+                    onIncrement={() =>
+                      setHabitDayValue(
+                        habit.id,
+                        activeHomeDayKey,
+                        Math.min(habit.quantity, getHabitDayValue(habit) + 1),
+                      )
+                    }
                   />
                 ))}
               </main>
@@ -2024,9 +2652,14 @@ function App() {
               <EmptyHome onNew={goNew} />
             ) : null}
 
-            {overlay === 'calendar' && (
+            {overlay === "calendar" && (
               <>
-                <button className="calendar-backdrop" type="button" aria-label="Close calendar" onClick={() => setOverlay(null)} />
+                <button
+                  className="calendar-backdrop"
+                  type="button"
+                  aria-label="Close calendar"
+                  onClick={() => setOverlay(null)}
+                />
                 <CalendarOverlay
                   selectedDay={calendarDay}
                   onClose={() => setOverlay(null)}
@@ -2037,132 +2670,146 @@ function App() {
               </>
             )}
 
-            {overlay === 'habit' && (
-              <button className="overlay-dismiss" type="button" aria-label="Close habit overlay" onClick={() => setOverlay(null)} />
+            {overlay === "habit" && (
+              <button
+                className="overlay-dismiss"
+                type="button"
+                aria-label="Close habit overlay"
+                onClick={() => setOverlay(null)}
+              />
             )}
 
-            {activeHabit && overlay === 'habit' && (
+            {activeHabit && (overlay === "habit" || overlay === "menu") && (
               <HabitOverlay
                 habit={activeHabit}
                 day={habitDay}
                 progressByDay={progressByHabitDay[activeHabit.id] ?? {}}
                 value={currentValue}
                 onDay={setHabitDay}
-                onMenu={() => setOverlay('menu')}
-                onReturnToday={() => setHabitDay('We')}
-                onValue={(value) => setHabitDayValue(activeHabit.id, habitDay, value)}
+                onMenu={() =>
+                  setOverlay(overlay === "menu" ? "habit" : "menu")
+                }
+                onReturnToday={() => setHabitDay("We")}
+                onValue={(value) =>
+                  setHabitDayValue(activeHabit.id, habitDay, value)
+                }
               />
             )}
 
-            {activeHabit && overlay === 'menu' && (
+            {activeHabit && overlay === "menu" && (
               <>
-                <button className="menu-dismiss" type="button" aria-label="Close habit menu" onClick={() => setOverlay('habit')} />
-                <HabitOverlay
-                  habit={activeHabit}
-                  day={habitDay}
-                  progressByDay={progressByHabitDay[activeHabit.id] ?? {}}
-                  value={currentValue}
-                  onDay={setHabitDay}
-                  onMenu={() => setOverlay('habit')}
-                  onReturnToday={() => setHabitDay('We')}
-                  onValue={(value) => setHabitDayValue(activeHabit.id, habitDay, value)}
+                <button
+                  className="menu-dismiss"
+                  type="button"
+                  aria-label="Close habit menu"
+                  onClick={() => setOverlay("habit")}
                 />
                 <HabitMenu
                   onArchive={() => removeHabit(activeHabit.id)}
                   onDelete={() => removeHabit(activeHabit.id)}
-                  onEdit={() => setOverlay('edit')}
+                  onEdit={() => setOverlay("edit")}
                   onSkip={() => {
-                    setHabitDayValue(activeHabit.id, habitDay, 0)
+                    setHabitDayValue(activeHabit.id, habitDay, 0);
                     setSkippedByHabitDay((previous) => ({
                       ...previous,
-                      [activeHabit.id]: { ...(previous[activeHabit.id] ?? {}), [habitDay]: true },
-                    }))
-                    setOverlay('habit')
+                      [activeHabit.id]: {
+                        ...(previous[activeHabit.id] ?? {}),
+                        [habitDay]: true,
+                      },
+                    }));
+                    setOverlay("habit");
                   }}
                 />
               </>
             )}
 
-            {activeHabit && overlay === 'edit' && (
+            {activeHabit && overlay === "edit" && (
               <EditHabit
                 habit={activeHabit}
-                onBack={() => setOverlay('habit')}
+                onBack={() => setOverlay("habit")}
                 onDelete={() => removeHabit(activeHabit.id)}
                 onSave={(updatedHabit) => {
-                  setHabits((previous) => previous.map((habit) => (habit.id === updatedHabit.id ? updatedHabit : habit)))
+                  setHabits((previous) =>
+                    previous.map((habit) =>
+                      habit.id === updatedHabit.id ? updatedHabit : habit,
+                    ),
+                  );
                   setProgressByHabitDay((previous) => ({
                     ...previous,
                     [updatedHabit.id]: {
                       ...(previous[updatedHabit.id] ?? {}),
-                      [habitDay]: Math.min(previous[updatedHabit.id]?.[habitDay] ?? 0, updatedHabit.quantity),
+                      [habitDay]: Math.min(
+                        previous[updatedHabit.id]?.[habitDay] ?? 0,
+                        updatedHabit.quantity,
+                      ),
                     },
-                  }))
-                  setActiveHabitId(updatedHabit.id)
-                  setTime(updatedHabit.timeOfDay)
-                  setOverlay('habit')
+                  }));
+                  setActiveHabitId(updatedHabit.id);
+                  setTime(updatedHabit.timeOfDay);
+                  setOverlay("habit");
                 }}
               />
             )}
           </>
         )}
 
-        {tab === 'New' && (
+        {tab === "New" && (
           <>
-            {newStep === 'landing' && (
+            {newStep === "landing" && (
               <NewLanding
                 draftName={typedName}
                 onName={setTypedName}
                 onCustom={() => {
-                  setDraft(createDraft(typedName.trim(), assets.run))
-                  setNewStep('details')
+                  setDraft(createDraft(typedName.trim(), assets.run));
+                  setNewStep("details");
                 }}
-                onCategory={() => setNewStep('templates')}
+                onCategory={() => setNewStep("templates")}
               />
             )}
-            {newStep === 'templates' && (
+            {newStep === "templates" && (
               <TemplateList
-                onBack={() => setNewStep('landing')}
+                onBack={() => setNewStep("landing")}
                 onExit={resetNewFlow}
                 onSelect={(name, icon) => {
-                  setDraft(createDraft(name, icon, 'All Day', true))
-                  setNewStep('review')
+                  setDraft(createDraft(name, icon, "All Day", true));
+                  setNewStep("review");
                 }}
               />
             )}
-            {newStep === 'details' && (
+            {newStep === "details" && (
               <DetailsStep
                 draft={draft}
                 popup={newPopup}
                 onPatch={patchDraft}
                 onPopup={setNewPopup}
-                onBack={() => setNewStep('landing')}
+                onBack={() => setNewStep("landing")}
                 onExit={resetNewFlow}
                 onNext={() => {
-                  setNewPopup(null)
-                  setNewStep('goal')
+                  setNewPopup(null);
+                  setNewStep("goal");
                 }}
               />
             )}
-            {newStep === 'goal' && (
+            {newStep === "goal" && (
               <GoalStep
                 draft={draft}
                 popup={newPopup}
                 error={showTimeError}
                 onPatch={patchDraft}
                 onPopup={setNewPopup}
-                onBack={() => setNewStep('details')}
+                onBack={() => setNewStep("details")}
                 onExit={resetNewFlow}
                 onNext={() => {
                   if (!draft.timeOfDay) {
-                    setShowTimeError(true)
-                    return
+                    setShowTimeError(true);
+                    return;
                   }
-                  setNewPopup(null)
-                  setNewStep('review')
+                  setNewPopup(null);
+                  setNewStep("review");
                 }}
               />
             )}
-            {newStep === 'review' && (
+            {newStep === "review" && (
               <ReviewStep
                 draft={draft}
                 onPatch={patchDraft}
@@ -2173,7 +2820,7 @@ function App() {
           </>
         )}
 
-        {tab === 'Progress' && !progressHabit && (
+        {tab === "Progress" && !progressHabit && (
           <ProgressMain
             habits={habits}
             statsByHabit={statsByHabit}
@@ -2183,7 +2830,7 @@ function App() {
           />
         )}
 
-        {tab === 'Progress' && progressHabit && (
+        {tab === "Progress" && progressHabit && (
           <ProgressHabitDetail
             habit={progressHabit}
             stat={statsByHabit[progressHabit.id]}
@@ -2191,10 +2838,12 @@ function App() {
           />
         )}
 
-      {(tab !== 'New' || newStep === 'landing') && !progressHabit && <BottomNav active={tab} onNavigate={handleNavigate} />}
+        {(tab !== "New" || newStep === "landing") && !progressHabit && (
+          <BottomNav active={tab} onNavigate={handleNavigate} />
+        )}
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
