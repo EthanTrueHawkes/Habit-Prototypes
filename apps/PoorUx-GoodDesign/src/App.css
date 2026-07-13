@@ -339,7 +339,7 @@ button:focus {
 }
 
 .track-habit-item.commands-open {
-  z-index: 8;
+  z-index: 15;
 }
 
 .habit-progress-card {
@@ -1027,6 +1027,11 @@ button:focus {
 
 .manage-goal-card {
   height: 80px;
+  cursor: pointer;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
 }
 
 .manage-icon-box {
@@ -1716,7 +1721,7 @@ button:focus {
 
 .detail-screen {
   overflow-y: auto;
-  padding-bottom: 48px;
+  padding-bottom: 64px;
 }
 
 .detail-screen::-webkit-scrollbar {
@@ -1726,14 +1731,14 @@ button:focus {
 .detail-header {
   position: sticky;
   z-index: 15;
-  top: 66px;
-  left: 16px;
+  top: 0;
   width: 361px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin: 66px 16px 0;
+  background: #eeeef3;
 }
 
 .detail-header h1 {
@@ -1744,12 +1749,22 @@ button:focus {
   line-height: 1;
 }
 
+.detail-save {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  color: #005d8f;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .detail-content {
   display: flex;
   flex-direction: column;
   gap: 24px;
   width: 361px;
-  margin: 12px 16px 0;
+  margin: 24px 16px 0;
 }
 
 .detail-section {
@@ -1772,18 +1787,10 @@ button:focus {
   width: 361px;
 }
 
-.detail-color-swatch,
 .detail-icon-box,
 .detail-field,
 .detail-textarea {
   border-radius: 16px;
-}
-
-.detail-color-swatch {
-  width: 56px;
-  height: 56px;
-  flex: 0 0 auto;
-  background: var(--blue);
 }
 
 .detail-icon-box {
@@ -1792,8 +1799,8 @@ button:focus {
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  background: #f0f0f6;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
 }
 
 .detail-icon-box img {
@@ -1802,18 +1809,33 @@ button:focus {
 }
 
 .detail-field {
+  width: 100%;
   min-height: 56px;
   display: flex;
   align-items: center;
   border: 1px solid rgba(0, 0, 0, 0.1);
   background: #fff;
   padding: 14px 16px;
+  color: #000;
+  font: inherit;
   font-size: 16px;
   line-height: normal;
 }
 
 .name-field {
   flex: 1;
+  min-width: 0;
+}
+
+.detail-tip {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+}
+
+.detail-tip span {
+  color: #0042e8;
+  text-decoration: underline;
 }
 
 .detail-textarea {
@@ -1826,8 +1848,17 @@ button:focus {
   font-size: 16px;
 }
 
-.detail-textarea p {
-  margin: 0;
+.detail-textarea textarea {
+  width: 100%;
+  height: 86px;
+  resize: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 0;
+  color: #000;
+  font: inherit;
+  font-size: 16px;
   line-height: normal;
 }
 
@@ -1840,35 +1871,60 @@ button:focus {
   font-weight: 300;
 }
 
-.select-field {
+.detail-color-grid {
+  width: 361px;
+  display: grid;
+  grid-template-columns: repeat(6, 48px);
   justify-content: space-between;
-}
-
-.select-field img {
-  width: 20px;
-  height: 20px;
-}
-
-.frequency-buttons,
-.detail-double {
-  display: flex;
-  gap: 16px;
-}
-
-.frequency-buttons button {
-  height: 56px;
-  flex: 1;
-  cursor: pointer;
+  row-gap: 4px;
+  padding: 12px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 16px;
   background: #fff;
-  font-size: 16px;
 }
 
-.frequency-buttons button.selected {
-  border-color: var(--blue);
-  background: var(--blue);
-  color: #fff;
+.detail-color-grid button,
+.detail-custom-color {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border-radius: 16px;
+}
+
+.detail-color-grid button span {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.detail-color-grid button.selected span {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px #005d8f;
+}
+
+.detail-custom-color img {
+  width: 24px;
+  height: 24px;
+}
+
+.detail-custom-color input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.detail-select,
+.detail-double select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url('/icons/detail-chevron.svg');
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 20px 20px;
+  padding-right: 44px;
 }
 
 .occurrence-card {
@@ -1883,7 +1939,7 @@ button:focus {
   background: #fff;
 }
 
-.occurrence-card span {
+.occurrence-card button {
   width: 36px;
   height: 36px;
   display: grid;
@@ -1891,20 +1947,136 @@ button:focus {
   border-radius: 50%;
   background: rgba(238, 238, 243, 0.6);
   color: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  font: inherit;
   font-size: 14px;
 }
 
-.occurrence-card span.selected {
+.occurrence-card button.selected {
   background: #005d8f;
   color: #fff;
 }
 
+.detail-double {
+  display: flex;
+  gap: 16px;
+}
+
 .detail-double .detail-field {
+  width: 0;
   flex: 1;
 }
 
-.muted-field {
+.detail-date-field {
+  position: relative;
+  width: 0;
+  min-width: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  background: #fff;
+  padding: 14px 16px;
+}
+
+.detail-date-field span {
+  min-width: 0;
   color: rgba(0, 0, 0, 0.4);
+  font-size: 16px;
+}
+
+.detail-date-field img {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.detail-date-field input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.detail-date-field input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  cursor: pointer;
+}
+
+.detail-radio-card {
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.detail-radio-card label {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 16px;
+  font-size: 16px;
+}
+
+.detail-radio-card label:first-child {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.detail-radio-card input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #005d8f;
+}
+
+.detail-create-reminder {
+  width: 100%;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  background: #fff;
+  padding: 14px 16px;
+  color: rgba(0, 0, 0, 0.4);
+  font: inherit;
+  font-size: 16px;
+  text-align: left;
+}
+
+.detail-create-reminder span {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.detail-reminder-row {
+  display: flex;
+  gap: 8px;
+}
+
+.detail-reminder-row .detail-field {
+  flex: 1;
+}
+
+.detail-reminder-row button {
+  cursor: pointer;
+  color: #b42318;
+  font: inherit;
+  font-size: 14px;
 }
 
 .settings-content {

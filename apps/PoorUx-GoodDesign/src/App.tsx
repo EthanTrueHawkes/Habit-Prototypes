@@ -17,6 +17,13 @@ type Habit = {
   progressHistory: Record<string, number>
   target: number
   unit: string
+  color: string
+  isGood: boolean
+  occurrence: boolean[]
+  startDate: string
+  endDate: string
+  requireMemo: boolean
+  reminderName: string
 }
 type CustomHabitDraft = {
   name: string
@@ -48,101 +55,96 @@ type ExploreContent = {
 }
 
 const figma = {
-  yogaCard: 'https://www.figma.com/api/mcp/asset/67176fa4-e8f8-437f-9b38-cfb2a403dda7',
-  featuredCard: 'https://www.figma.com/api/mcp/asset/72b9e8da-bc78-49dd-b4c2-005759fd4b6d',
-  plus: 'https://www.figma.com/api/mcp/asset/26505dc9-1ba2-4076-97c5-029f4babae29',
-  clock: 'https://www.figma.com/api/mcp/asset/254ecfc8-583a-420e-957a-1f7b8838d208',
-  navExplore: 'https://www.figma.com/api/mcp/asset/2df2406a-ea4e-4bad-b595-66e78c2b33df',
-  navExploreActive: 'https://www.figma.com/api/mcp/asset/c2ff72fd-c272-4124-86e0-31252d680a8d',
-  navTrack: 'https://www.figma.com/api/mcp/asset/739c7df6-e5fc-4c57-b6bc-b236070e3099',
-  navTrackActive: 'https://www.figma.com/api/mcp/asset/720f63b3-e34d-4c9f-8553-4043c1d5121d',
-  navProgress: 'https://www.figma.com/api/mcp/asset/d1e004e0-43c0-4ecf-a400-018ddd7589b3',
-  navProgressActive: 'https://www.figma.com/api/mcp/asset/4d3a960a-92b2-4092-8211-3c70ce989790',
-  navManage: 'https://www.figma.com/api/mcp/asset/c172c12d-d0b6-4979-8802-00205c3962b4',
-  navManageActive: 'https://www.figma.com/api/mcp/asset/1bfaf222-241e-49fc-8b0d-bafe8b92d755',
-  navSettings: 'https://www.figma.com/api/mcp/asset/77d42471-d247-469b-9cb5-b188365c1e4a',
-  navSettingsActive: 'https://www.figma.com/api/mcp/asset/d9549dcf-b068-40a9-a806-ce2ef99540d0',
-  chevronDown: 'https://www.figma.com/api/mcp/asset/7cdd1e7d-64e6-48bf-8029-1e5df0a20f70',
-  habitNotebook: 'https://www.figma.com/api/mcp/asset/c7ab27a4-7dfa-4ec2-a4e3-87d85e867ffe',
-  running: 'https://www.figma.com/api/mcp/asset/1e800a30-1516-4f61-bf0a-26851e98fd32',
-  hamburger: 'https://www.figma.com/api/mcp/asset/d32415f2-8207-456c-8cd8-4f6d93568d25',
-  commandPointer: 'https://www.figma.com/api/mcp/asset/f9948e00-eaf9-4d0f-a053-b61fc857b1fb',
-  commandView: 'https://www.figma.com/api/mcp/asset/9e82221c-e1cf-477b-9afc-94e1e3407363',
-  commandReset: 'https://www.figma.com/api/mcp/asset/ec83d99e-3070-4417-bfab-5ca3432f9187',
-  commandSkip: 'https://www.figma.com/api/mcp/asset/655d4dca-2a52-4328-a515-8de3776cf965',
-  commandDelete: 'https://www.figma.com/api/mcp/asset/df037a9b-6770-4bcc-a08f-6277cf2e7910',
-  popupClose: 'https://www.figma.com/api/mcp/asset/e55d26ac-1965-4104-b43f-f8fc148668c6',
-  detailRunning: 'https://www.figma.com/api/mcp/asset/29d63602-144b-41e4-a584-eb9b3564b969',
-  detailChevron: 'https://www.figma.com/api/mcp/asset/277edf15-4654-4215-b918-4773899745e1',
-  detailBack: 'https://www.figma.com/api/mcp/asset/0aabfa27-eda1-4581-859f-98c8232416c7',
-  detailEdit: 'https://www.figma.com/api/mcp/asset/ac7401c6-fc4b-4f7a-bb4c-fe9a32a98af4',
-  menuCalendar: 'https://www.figma.com/api/mcp/asset/5cd7e45c-453d-4a73-b1b4-4fe817e5805c',
-  menuPlus: 'https://www.figma.com/api/mcp/asset/15a10c23-fb5b-4f78-8213-baae9a76a6a1',
-  menuEdit: 'https://www.figma.com/api/mcp/asset/95a884c0-18a9-46f7-88b9-377db6ff2e90',
-  menuSkip: 'https://www.figma.com/api/mcp/asset/c06a2e27-6d8a-4f0b-81b6-f4b363cdd3a1',
-  calendarChevronLeft: 'https://www.figma.com/api/mcp/asset/00953008-15dc-4893-b665-9d720777dbcc',
-  calendarChevronRight: 'https://www.figma.com/api/mcp/asset/308dd9b7-82b5-4e3a-ad8b-999de1c5fffd',
-  arcLargeBg: 'https://www.figma.com/api/mcp/asset/265385ab-162c-4fa7-82aa-b33184698acc',
-  arcLargeProgress: 'https://www.figma.com/api/mcp/asset/89cc0789-f131-49ae-b704-8d75f9bea5fa',
-  arcSmallQuarter: 'https://www.figma.com/api/mcp/asset/406ab8e0-68d1-46d0-8b29-120096f60d8c',
-  arcSmallBg: 'https://www.figma.com/api/mcp/asset/ac564421-88d9-4216-b15a-0f095f0759d7',
-  arcSmallProgress: 'https://www.figma.com/api/mcp/asset/5bcfddae-7e35-4319-85e6-e6ba08b14add',
-  manageMore: 'https://www.figma.com/api/mcp/asset/93f8f24c-ec7c-4055-912f-beae90371602',
-  managePlus: 'https://www.figma.com/api/mcp/asset/35642657-9ff9-49f9-86fb-d1a8b2fd126f',
-  createHabit: 'https://www.figma.com/api/mcp/asset/9d06d323-9aa6-4c13-8df6-683af769cb22',
-  createReminder: 'https://www.figma.com/api/mcp/asset/2327c1f8-9597-41ee-a274-d5bb23cd0a4b',
-  newHabitBack: 'https://www.figma.com/api/mcp/asset/db5feaad-6adb-402d-b9d7-043102007969',
-  newHabitExplore: 'https://www.figma.com/api/mcp/asset/6fba93f8-2975-4fa6-b587-f114b8baeda4',
-  newHabitCustom: 'https://www.figma.com/api/mcp/asset/edb6b304-89f9-4226-8c57-16438c09b029',
-  newHabitRun: 'https://www.figma.com/api/mcp/asset/3462c7ae-fe42-4446-9164-b1292807ff4d',
-  newHabitArrow: 'https://www.figma.com/api/mcp/asset/1fc9e253-67fc-47b2-b5ef-e2d42644a559',
-  customHabitIcon: 'https://www.figma.com/api/mcp/asset/c329e95f-ab83-4e28-9440-4b7fd379cf46',
-  selectedColorRing: 'https://www.figma.com/api/mcp/asset/ab863d66-2ab2-489c-aec0-5f2d6984c9cc',
-  colorWheel: 'https://www.figma.com/api/mcp/asset/ccbc5f67-f39a-4aa0-bae3-d51daebfca11',
-  sheetCheck: 'https://www.figma.com/api/mcp/asset/e02ab08f-e1c8-4af9-aa81-fb918f4dc85a',
-  templateRunIcon: 'https://www.figma.com/api/mcp/asset/91065155-6fa7-4bab-bda8-252192617d56',
-  settingsProfile: 'https://www.figma.com/api/mcp/asset/27b2bf9d-cd19-4fea-bc83-ad286ccbf764',
-  settingsApp: 'https://www.figma.com/api/mcp/asset/a4423d6b-5bb7-4f41-81cd-78b24b32f99f',
-  settingsAppearance: 'https://www.figma.com/api/mcp/asset/d5a8cbff-0f03-4888-8ed2-15574fb79493',
-  settingsSun: 'https://www.figma.com/api/mcp/asset/c4fd02fe-e34d-458b-b7e9-889af3bfc15b',
-  settingsMoon: 'https://www.figma.com/api/mcp/asset/40b71c91-f563-4806-97fb-de034a8b0682',
-  settingsPrivacy: 'https://www.figma.com/api/mcp/asset/9462c8ca-0e4a-4241-9d00-2753ab803567',
-  settingsTerms: 'https://www.figma.com/api/mcp/asset/49a94472-7dc8-4e9e-8de9-254974a97409',
-  settingsFeedback: 'https://www.figma.com/api/mcp/asset/96949357-f3ac-4920-a814-91170cbb4782',
-  settingsLogout: 'https://www.figma.com/api/mcp/asset/c25e7b71-58ac-431c-95e5-0e4de5573e2e',
-  settingsArrow: 'https://www.figma.com/api/mcp/asset/8aa18f38-20ad-42c1-aedb-8d95383979e4',
-  settingsExternal: 'https://www.figma.com/api/mcp/asset/01e4ed7f-c905-477b-9137-a50ff96aff08',
+  plus: '/icons/plus.svg',
+  clock: '/icons/clock.svg',
+  navExplore: '/icons/nav-explore.svg',
+  navExploreActive: '/icons/nav-explore-active.svg',
+  navTrack: '/icons/nav-track.svg',
+  navTrackActive: '/icons/nav-track-active.svg',
+  navProgress: '/icons/nav-progress.svg',
+  navProgressActive: '/icons/nav-progress-active.svg',
+  navManage: '/icons/nav-manage.svg',
+  navManageActive: '/icons/nav-manage-active.svg',
+  navSettings: '/icons/nav-settings.svg',
+  navSettingsActive: '/icons/nav-settings-active.svg',
+  chevronDown: '/icons/chevron-down.svg',
+  habitNotebook: '/icons/habit-notebook.svg',
+  running: '/icons/running.svg',
+  hamburger: '/icons/hamburger.svg',
+  commandPointer: '/icons/command-pointer.svg',
+  commandView: '/icons/command-view.svg',
+  commandReset: '/icons/command-reset.svg',
+  commandSkip: '/icons/command-skip.svg',
+  commandDelete: '/icons/command-delete.svg',
+  popupClose: '/icons/popup-close.svg',
+  detailChevron: '/icons/detail-chevron.svg',
+  detailBack: '/icons/detail-back.svg',
+  detailEdit: '/icons/detail-edit.svg',
+  menuCalendar: '/icons/menu-calendar.svg',
+  menuPlus: '/icons/menu-plus.svg',
+  menuEdit: '/icons/menu-edit.svg',
+  menuSkip: '/icons/menu-skip.svg',
+  calendarChevronLeft: '/icons/calendar-chevron-left.svg',
+  calendarChevronRight: '/icons/calendar-chevron-right.svg',
+  arcSmallQuarter: '/icons/arc-small-quarter.svg',
+  arcSmallBg: '/icons/arc-small-bg.svg',
+  arcSmallProgress: '/icons/arc-small-progress.svg',
+  manageMore: '/icons/manage-more.svg',
+  managePlus: '/icons/manage-plus.svg',
+  createHabit: '/icons/create-habit.svg',
+  createReminder: '/icons/create-reminder.svg',
+  newHabitBack: '/icons/new-habit-back.svg',
+  newHabitExplore: '/icons/new-habit-explore.svg',
+  newHabitCustom: '/icons/new-habit-custom.svg',
+  newHabitRun: '/icons/new-habit-run.svg',
+  newHabitArrow: '/icons/new-habit-arrow.svg',
+  customHabitIcon: '/icons/custom-habit-icon.svg',
+  selectedColorRing: '/icons/selected-color-ring.svg',
+  colorWheel: '/icons/color-wheel.png',
+  sheetCheck: '/icons/sheet-check.svg',
+  templateRunIcon: '/icons/template-run-icon.svg',
+  settingsProfile: '/icons/settings-profile.svg',
+  settingsApp: '/icons/settings-app.svg',
+  settingsAppearance: '/icons/settings-appearance.svg',
+  settingsSun: '/icons/settings-sun.svg',
+  settingsMoon: '/icons/settings-moon.svg',
+  settingsPrivacy: '/icons/settings-privacy.svg',
+  settingsTerms: '/icons/settings-terms.svg',
+  settingsFeedback: '/icons/settings-feedback.svg',
+  settingsLogout: '/icons/settings-logout.svg',
+  settingsArrow: '/icons/settings-arrow.svg',
+  settingsExternal: '/icons/settings-external.svg',
 }
 
 const habitIcons = [
-  'https://www.figma.com/api/mcp/asset/57ebfdd1-3c73-4d51-80dc-4aae7ad6a513',
-  'https://www.figma.com/api/mcp/asset/c90082f6-a078-4943-ac35-4acd59be39ff',
-  'https://www.figma.com/api/mcp/asset/f53b4b00-ef7e-4211-85cd-abba3228825e',
-  'https://www.figma.com/api/mcp/asset/613a6f77-eec2-4bd7-954c-46e7e0a7329d',
-  'https://www.figma.com/api/mcp/asset/611ab309-71bb-4a4a-bbaa-59548246fd82',
-  'https://www.figma.com/api/mcp/asset/4f59a109-586c-4d92-9522-8d9b7ce50217',
-  'https://www.figma.com/api/mcp/asset/7323ab88-b37c-4a2b-9715-80b4ab14f5f3',
-  'https://www.figma.com/api/mcp/asset/50d4deb0-f33f-4d45-9372-539a35d64a0c',
-  'https://www.figma.com/api/mcp/asset/fa2beaf5-5dc6-40cb-bd99-759c41f8ce51',
-  'https://www.figma.com/api/mcp/asset/de3c34d1-8d41-4c2d-be18-b3df7c657858',
-  'https://www.figma.com/api/mcp/asset/50d4deb0-f33f-4d45-9372-539a35d64a0c',
-  'https://www.figma.com/api/mcp/asset/a1d1e268-64f6-48a8-8c70-efc0b81b0d1e',
-  'https://www.figma.com/api/mcp/asset/1c75c747-04da-438d-bc86-bca6dd2560a9',
-  'https://www.figma.com/api/mcp/asset/8127acd0-92ec-4e77-8699-897c15772d4f',
-  'https://www.figma.com/api/mcp/asset/3db99b69-19ef-4a59-b08c-e14ca20c3516',
-  'https://www.figma.com/api/mcp/asset/35c61558-242c-4f19-83b9-dafbc2b34522',
-  'https://www.figma.com/api/mcp/asset/f25c59e7-2687-41fa-9116-0314bdae8380',
-  'https://www.figma.com/api/mcp/asset/9153726e-fa65-46eb-be20-3cd9a58cabb1',
-  'https://www.figma.com/api/mcp/asset/cd4d5b80-7e38-4160-a88d-b208f27a2420',
-  'https://www.figma.com/api/mcp/asset/8c4afa0c-8ac4-4527-bccf-99a704e99c59',
-  'https://www.figma.com/api/mcp/asset/b5fa2ae2-e6cc-4905-b566-9f0d14018d37',
-  'https://www.figma.com/api/mcp/asset/1761a4ce-5321-4716-9733-7d4bff979ae5',
-  'https://www.figma.com/api/mcp/asset/b2f7cfb4-ff1d-45e8-9871-65c6a8ef884f',
-  'https://www.figma.com/api/mcp/asset/49445f19-d2cc-4dbe-add5-776c83ec277c',
-  'https://www.figma.com/api/mcp/asset/f52cb12a-9db3-4148-8502-017ca8e334a6',
-  'https://www.figma.com/api/mcp/asset/d9a7c431-4189-492d-b3c6-0ce67d9e2e89',
-  'https://www.figma.com/api/mcp/asset/69a830d5-211c-4cc8-b04d-ee4862e92cc8',
-  'https://www.figma.com/api/mcp/asset/a5758ade-8b0e-496a-bf15-4cf1ca854044',
+  '/icons/habit-01.svg',
+  '/icons/habit-02.svg',
+  '/icons/habit-03.svg',
+  '/icons/habit-04.svg',
+  '/icons/habit-05.svg',
+  '/icons/habit-06.svg',
+  '/icons/habit-07.svg',
+  '/icons/habit-08.svg',
+  '/icons/habit-09.svg',
+  '/icons/habit-10.svg',
+  '/icons/habit-11.svg',
+  '/icons/habit-12.svg',
+  '/icons/habit-13.svg',
+  '/icons/habit-14.svg',
+  '/icons/habit-15.svg',
+  '/icons/habit-16.svg',
+  '/icons/habit-17.svg',
+  '/icons/habit-18.svg',
+  '/icons/habit-19.svg',
+  '/icons/habit-20.svg',
+  '/icons/habit-21.svg',
+  '/icons/habit-22.svg',
+  '/icons/habit-23.svg',
+  '/icons/habit-24.svg',
+  '/icons/habit-25.svg',
+  '/icons/habit-26.svg',
+  '/icons/habit-27.svg',
+  '/icons/habit-28.svg',
 ]
 
 const pages: { id: Page; label: string; icon: string; activeIcon: string }[] = [
@@ -152,40 +154,38 @@ const pages: { id: Page; label: string; icon: string; activeIcon: string }[] = [
   { id: 'manage', label: 'Manage', icon: figma.navManage, activeIcon: figma.navManageActive },
   { id: 'settings', label: 'Settings', icon: figma.navSettings, activeIcon: figma.navSettingsActive },
 ]
-const imageUrl = (id: string, width = 600) => (
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=80`
-)
+const exploreImage = (fileName: string) => `/images/explore/${fileName}`
 const exploreContent: Record<Timeframe, ExploreContent> = {
   daily: {
     featured: {
       title: 'Social Media Fast',
       description: 'Go without any social media for 30 days',
       meta: 'Marked Daily',
-      image: imageUrl('photo-1512428559087-560fa5ceab42', 900),
+      image: exploreImage('figma-featured.png'),
     },
     sections: [
       {
         title: 'Lifestyle',
         cards: [
-          { title: 'Morning Yoga', meta: '30 minutes', image: imageUrl('photo-1686749143613-0eeacff36894') },
-          { title: 'Go Running', meta: '3 miles', image: imageUrl('photo-1606934369778-3fb8d461404b') },
-          { title: 'Hydrate', meta: '8 cups', image: imageUrl('photo-1618683133131-3c8907882c7c') },
+          { title: 'Morning Yoga', meta: '30 minutes', image: exploreImage('figma-yoga.png') },
+          { title: 'Go Running', meta: '3 miles', image: exploreImage('running.jpg') },
+          { title: 'Hydrate', meta: '8 cups', image: exploreImage('hydrate.jpg') },
         ],
       },
       {
         title: 'Abstinence',
         cards: [
-          { title: 'No Sweets', meta: 'All day', image: imageUrl('photo-1575549595260-623d27ba5e44') },
-          { title: 'No Coffee', meta: 'After 2 PM', image: imageUrl('photo-1495474472287-4d71bcdd2085') },
-          { title: 'Phone-Free Hour', meta: '1 hour', image: imageUrl('photo-1512428559087-560fa5ceab42') },
+          { title: 'No Sweets', meta: 'All day', image: exploreImage('sweets.jpg') },
+          { title: 'No Coffee', meta: 'After 2 PM', image: exploreImage('coffee.jpg') },
+          { title: 'Phone-Free Hour', meta: '1 hour', image: exploreImage('social-media.jpg') },
         ],
       },
       {
         title: 'Learn',
         cards: [
-          { title: 'Read Pages', meta: '20 pages', image: imageUrl('photo-1666712304790-65771bc6b84e') },
-          { title: 'New Words', meta: '5 words', image: imageUrl('photo-1635919369994-85cb78c9cc95') },
-          { title: 'Piano Practice', meta: '15 minutes', image: imageUrl('photo-1652181820522-cc76583c9950') },
+          { title: 'Read Pages', meta: '20 pages', image: exploreImage('reading.jpg') },
+          { title: 'New Words', meta: '5 words', image: exploreImage('planning.jpg') },
+          { title: 'Piano Practice', meta: '15 minutes', image: exploreImage('piano.jpg') },
         ],
       },
     ],
@@ -195,31 +195,31 @@ const exploreContent: Record<Timeframe, ExploreContent> = {
       title: 'Meal Prep',
       description: 'Plan meals and prep lunches for the week',
       meta: 'Marked Weekly',
-      image: imageUrl('photo-1666819691666-4be36926335e', 900),
+      image: exploreImage('meal-prep.jpg'),
     },
     sections: [
       {
         title: 'Wellness',
         cards: [
-          { title: 'Long Walk', meta: '3 miles', image: imageUrl('photo-1670438664569-36545ddc7a7f') },
-          { title: 'Strength', meta: '2 sessions', image: imageUrl('photo-1586066626871-9e697071bda6') },
-          { title: 'Sleep Reset', meta: '1 night', image: imageUrl('photo-1718717621302-a359be21a111') },
+          { title: 'Long Walk', meta: '3 miles', image: exploreImage('walk.jpg') },
+          { title: 'Strength', meta: '2 sessions', image: exploreImage('strength.jpg') },
+          { title: 'Sleep Reset', meta: '1 night', image: exploreImage('home-reset.jpg') },
         ],
       },
       {
         title: 'Home',
         cards: [
-          { title: 'Laundry', meta: '1 load', image: imageUrl('photo-1718717621302-a359be21a111') },
-          { title: 'Grocery Run', meta: 'Weekly list', image: imageUrl('photo-1666819691666-4be36926335e', 900) },
-          { title: 'Clean Room', meta: '45 minutes', image: imageUrl('photo-1718717621302-a359be21a111') },
+          { title: 'Laundry', meta: '1 load', image: exploreImage('home-reset.jpg') },
+          { title: 'Grocery Run', meta: 'Weekly list', image: exploreImage('meal-prep.jpg') },
+          { title: 'Clean Room', meta: '45 minutes', image: exploreImage('home-reset.jpg') },
         ],
       },
       {
         title: 'Connect',
         cards: [
-          { title: 'Call Family', meta: '1 call', image: imageUrl('photo-1663743629963-6301379e8824') },
-          { title: 'Friend Check', meta: '1 message', image: imageUrl('photo-1663743629963-6301379e8824') },
-          { title: 'Date Night', meta: 'Plan it', image: imageUrl('photo-1675077978387-3975ed3579b4') },
+          { title: 'Call Family', meta: '1 call', image: exploreImage('connect.jpg') },
+          { title: 'Friend Check', meta: '1 message', image: exploreImage('connect.jpg') },
+          { title: 'Date Night', meta: 'Plan it', image: exploreImage('date-night.jpg') },
         ],
       },
     ],
@@ -229,31 +229,31 @@ const exploreContent: Record<Timeframe, ExploreContent> = {
       title: 'Budget Review',
       description: 'Look back at spending and set the next plan',
       meta: 'Marked Monthly',
-      image: imageUrl('photo-1635919369994-85cb78c9cc95', 900),
+      image: exploreImage('planning.jpg'),
     },
     sections: [
       {
         title: 'Reflect',
         cards: [
-          { title: 'Month Review', meta: '30 minutes', image: imageUrl('photo-1635919369994-85cb78c9cc95') },
-          { title: 'Photo Sort', meta: '1 album', image: imageUrl('photo-1635919369994-85cb78c9cc95') },
-          { title: 'Wins List', meta: '10 wins', image: imageUrl('photo-1635919369994-85cb78c9cc95') },
+          { title: 'Month Review', meta: '30 minutes', image: exploreImage('planning.jpg') },
+          { title: 'Photo Sort', meta: '1 album', image: exploreImage('planning.jpg') },
+          { title: 'Wins List', meta: '10 wins', image: exploreImage('planning.jpg') },
         ],
       },
       {
         title: 'Reset',
         cards: [
-          { title: 'Deep Clean', meta: '1 room', image: imageUrl('photo-1718717621302-a359be21a111') },
-          { title: 'Inbox Zero', meta: 'Monthly', image: imageUrl('photo-1499750310107-5fef28a66643') },
-          { title: 'Donate Items', meta: '5 items', image: imageUrl('photo-1718717621302-a359be21a111') },
+          { title: 'Deep Clean', meta: '1 room', image: exploreImage('home-reset.jpg') },
+          { title: 'Inbox Zero', meta: 'Monthly', image: exploreImage('focused-work.jpg') },
+          { title: 'Donate Items', meta: '5 items', image: exploreImage('home-reset.jpg') },
         ],
       },
       {
         title: 'Growth',
         cards: [
-          { title: 'Skill Goal', meta: 'Pick one', image: imageUrl('photo-1499750310107-5fef28a66643') },
-          { title: 'Book Finish', meta: '1 book', image: imageUrl('photo-1579206630372-ea5c6176866e') },
-          { title: 'Plan Trip', meta: 'Next month', image: imageUrl('photo-1502920917128-1aa500764cbd') },
+          { title: 'Skill Goal', meta: 'Pick one', image: exploreImage('focused-work.jpg') },
+          { title: 'Book Finish', meta: '1 book', image: exploreImage('book.jpg') },
+          { title: 'Plan Trip', meta: 'Next month', image: exploreImage('trip.jpg') },
         ],
       },
     ],
@@ -342,6 +342,13 @@ function App() {
       },
       target: 4,
       unit: 'miles',
+      color: '#005d8f',
+      isGood: true,
+      occurrence: [false, true, true, true, true, true, true],
+      startDate: prototypeToday,
+      endDate: '',
+      requireMemo: false,
+      reminderName: '',
     },
   ])
   const [selectedHabitId, setSelectedHabitId] = useState('habit-1')
@@ -368,10 +375,20 @@ function App() {
     setCustomPopup(null)
   }
 
-  const updateHabitFrequency = (habitId: string, frequency: Timeframe) => {
-    setHabits((current) => (
-      current.map((habit) => (habit.id === habitId ? { ...habit, frequency } : habit))
-    ))
+  const updateHabit = (updatedHabit: Habit) => {
+    setHabits((current) => current.map((habit) => (
+      habit.id === updatedHabit.id
+        ? {
+            ...updatedHabit,
+            progress: Math.min(updatedHabit.target, updatedHabit.progress),
+            progressHistory: Object.fromEntries(
+              Object.entries(updatedHabit.progressHistory).map(([date, value]) => (
+                [date, Math.min(updatedHabit.target, value)]
+              )),
+            ),
+          }
+        : habit
+    )))
   }
 
   const updateHabitProgress = (habitId: string, progress: number) => {
@@ -445,6 +462,13 @@ function App() {
       },
       target: Number(draft.amount) || 1,
       unit: draft.unit || 'Mile',
+      color: draft.color,
+      isGood: true,
+      occurrence: [false, true, true, true, true, true, true],
+      startDate: prototypeToday,
+      endDate: '',
+      requireMemo: false,
+      reminderName: draft.reminderName,
     }
     setHabits((current) => [...current, nextHabit])
     setSelectedHabitId(habitId)
@@ -477,7 +501,11 @@ function App() {
           <IndividualHabitScreen
             habit={selectedHabit}
             onBack={() => setTrackDetailOpen(false)}
-            onFrequencyChange={(frequency) => updateHabitFrequency(selectedHabit.id, frequency)}
+            onSave={(updatedHabit) => {
+              updateHabit(updatedHabit)
+              setTimeframe(updatedHabit.frequency)
+              setTrackDetailOpen(false)
+            }}
           />
         )}
         {!trackDetailOpen && inManageFlow && (
@@ -552,6 +580,11 @@ function App() {
             menuOpen={createMenuOpen}
             toggleMenu={() => setCreateMenuOpen((open) => !open)}
             onCreateHabit={() => openManageFlow('newHabit')}
+            onOpenDetail={(habitId) => {
+              setSelectedHabitId(habitId)
+              setCreateMenuOpen(false)
+              setTrackDetailOpen(true)
+            }}
           />
         )}
         {page === 'settings' && <SettingsScreen />}
@@ -1061,107 +1094,314 @@ function LogProgressSheet({
   )
 }
 
+const habitColors = [
+  '#97d7fa', '#b0ffbd', '#fbb6ed', '#f3dbae', '#f9b1b1', '#e0aaf9',
+  '#4fb9f3', '#63e578', '#f17eda', '#efb74f', '#ec6a6a', '#c165eb',
+  '#319dd8', '#2fd24a', '#cf35b0', '#c5902d', '#d23232', '#9e2ed1',
+  '#156996', '#169f2c', '#901578', '#855d13', '#730e0e', '#681290',
+  '#005d8f', '#410505', '#1f4f05', '#4a0536', '#472405',
+]
+
 function IndividualHabitScreen({
   habit,
   onBack,
-  onFrequencyChange,
+  onSave,
 }: {
   habit: Habit
   onBack: () => void
-  onFrequencyChange: (frequency: Timeframe) => void
+  onSave: (habit: Habit) => void
 }) {
+  const [draft, setDraft] = useState<Habit>({ ...habit, occurrence: [...habit.occurrence] })
+
+  const updateDraft = <Key extends keyof Habit>(key: Key, value: Habit[Key]) => {
+    setDraft((current) => ({ ...current, [key]: value }))
+  }
+
+  const toggleOccurrence = (index: number) => {
+    setDraft((current) => ({
+      ...current,
+      occurrence: current.occurrence.map((selected, dayIndex) => (
+        dayIndex === index ? !selected : selected
+      )),
+    }))
+  }
+
+  const saveHabit = () => {
+    onSave({
+      ...draft,
+      name: draft.name.trim() || habit.name,
+      description: draft.description.trim(),
+      target: Math.max(1, draft.target),
+    })
+  }
+
   return (
     <section className="screen detail-screen">
       <div className="detail-header">
-        <button className="icon-button" type="button" aria-label="Back to Track" onClick={onBack}>
+        <button className="icon-button" type="button" aria-label="Back to previous screen" onClick={onBack}>
           <img src={figma.detailBack} alt="" />
         </button>
-        <h1>{habit.name}</h1>
-        <button className="icon-button" type="button" aria-label="Edit habit">
-          <img src={figma.detailEdit} alt="" />
-        </button>
+        <h1>{draft.name || habit.name}</h1>
+        <button className="detail-save" type="button" onClick={saveHabit}>Save</button>
       </div>
       <div className="detail-content">
         <section className="detail-section">
           <h2>General</h2>
           <div className="detail-general-row">
-            <div className="detail-color-swatch" />
-            <div className={`detail-icon-box ${habit.icon !== figma.running ? 'gradient-icon' : ''}`}>
-              <HabitIconMark icon={habit.icon} />
+            <div className={`detail-icon-box ${draft.icon !== figma.running ? 'gradient-icon' : ''}`}>
+              <HabitIconMark icon={draft.icon} />
             </div>
-            <div className="detail-field name-field">{habit.name}</div>
+            <input
+              className="detail-field name-field"
+              aria-label="Habit name"
+              maxLength={50}
+              value={draft.name}
+              onChange={(event) => updateDraft('name', event.target.value)}
+            />
           </div>
-          <div className="detail-textarea">
-            <p>{habit.description}</p>
-            <span>28/150</span>
-          </div>
+          <p className="detail-tip">Note: Be Specific. <span>Consider These Tips!</span></p>
+          <label className="detail-textarea">
+            <textarea
+              aria-label="Habit description"
+              maxLength={150}
+              value={draft.description}
+              onChange={(event) => updateDraft('description', event.target.value)}
+            />
+            <span>{draft.description.length}/150</span>
+          </label>
         </section>
-        <DetailSelect label="Category" value={habit.category} />
-        <DetailSelect label="Habit Type" value="Make" />
+
         <section className="detail-section">
-          <h2>How frequent is this habit?</h2>
-          <div className="frequency-buttons">
-            {(['daily', 'weekly', 'monthly'] as Timeframe[]).map((frequency) => (
+          <h2>What color is this habit?</h2>
+          <div className="detail-color-grid">
+            {habitColors.map((color) => (
               <button
-                className={habit.frequency === frequency ? 'selected' : ''}
-                key={frequency}
+                className={draft.color === color ? 'selected' : ''}
                 type="button"
-                onClick={() => onFrequencyChange(frequency)}
+                aria-label={`Set habit color ${color}`}
+                aria-pressed={draft.color === color}
+                key={color}
+                onClick={() => updateDraft('color', color)}
               >
-                {frequency[0].toUpperCase() + frequency.slice(1)}
+                <span style={{ backgroundColor: color }} />
               </button>
             ))}
+            <label className="detail-custom-color" aria-label="Choose a custom habit color">
+              <img src={figma.colorWheel} alt="" />
+              <input
+                type="color"
+                value={draft.color}
+                onChange={(event) => updateDraft('color', event.target.value)}
+              />
+            </label>
           </div>
         </section>
+
+        <DetailSelectField
+          label="What category is this habit?"
+          ariaLabel="Habit category"
+          value={draft.category}
+          options={['Exercise', 'Fitness', 'Health', 'Lifestyle']}
+          onChange={(value) => updateDraft('category', value)}
+        />
+
+        <DetailRadioGroup
+          label="Is this habit good for you?"
+          name="habit-good"
+          value={draft.isGood}
+          onChange={(value) => updateDraft('isGood', value)}
+        />
+
+        <DetailSelectField
+          label="How frequent is this habit?"
+          ariaLabel="Habit frequency"
+          value={draft.frequency}
+          options={['daily', 'weekly', 'monthly']}
+          formatOption={(value) => value[0].toUpperCase() + value.slice(1)}
+          onChange={(value) => updateDraft('frequency', value as Timeframe)}
+        />
+
         <section className="detail-section">
           <h2>Occurance</h2>
           <div className="occurrence-card">
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-              <span className={index === 0 ? '' : 'selected'} key={`${day}-${index}`}>
+              <button
+                className={draft.occurrence[index] ? 'selected' : ''}
+                type="button"
+                aria-label={`Toggle ${weekdayLabels[index]}`}
+                aria-pressed={draft.occurrence[index]}
+                key={`${day}-${index}`}
+                onClick={() => toggleOccurrence(index)}
+              >
                 {day}
-              </span>
+              </button>
             ))}
           </div>
         </section>
-        <DetailDouble label="Start & End Date" left="Start" right="End" />
-        <DetailDouble label="Require Memo on Completion?" left="Yes" right="No" />
-        <DetailDouble label="Custom Reminder?" left="Make" right="Break" />
-        <DetailSingle label="What time for the reminder?" value="Make" />
-        <DetailSingle label="What should it be called?" value="Make" />
-        <DetailDouble label="What should it sound like?" left="Start" right="End" />
+
+        <section className="detail-section">
+          <h2>How will you track it?</h2>
+          <div className="detail-double">
+            <input
+              className="detail-field"
+              aria-label="Goal amount"
+              min="1"
+              inputMode="numeric"
+              type="number"
+              value={draft.target}
+              onChange={(event) => updateDraft('target', Number(event.target.value))}
+            />
+            <select
+              className="detail-field"
+              aria-label="Goal unit"
+              value={draft.unit}
+              onChange={(event) => updateDraft('unit', event.target.value)}
+            >
+              {Array.from(new Set([draft.unit, 'mile', 'miles', 'minute', 'minutes', 'times'])).map((unit) => (
+                <option value={unit} key={unit}>{unit}</option>
+              ))}
+            </select>
+          </div>
+        </section>
+
+        <section className="detail-section">
+          <h2>Start &amp; End Date</h2>
+          <div className="detail-double">
+            <DetailDateField
+              ariaLabel="Habit start date"
+              emptyLabel="Today"
+              value={draft.startDate}
+              onChange={(value) => updateDraft('startDate', value)}
+            />
+            <DetailDateField
+              ariaLabel="Habit end date"
+              emptyLabel="End"
+              value={draft.endDate}
+              onChange={(value) => updateDraft('endDate', value)}
+            />
+          </div>
+        </section>
+
+        <DetailRadioGroup
+          label="Require Memo on Completion?"
+          name="habit-memo"
+          value={draft.requireMemo}
+          onChange={(value) => updateDraft('requireMemo', value)}
+        />
+
+        <section className="detail-section">
+          <h2>Custom Reminder?</h2>
+          {draft.reminderName ? (
+            <div className="detail-reminder-row">
+              <input
+                className="detail-field"
+                aria-label="Reminder name"
+                value={draft.reminderName}
+                onChange={(event) => updateDraft('reminderName', event.target.value)}
+              />
+              <button type="button" onClick={() => updateDraft('reminderName', '')}>Remove</button>
+            </div>
+          ) : (
+            <button
+              className="detail-create-reminder"
+              type="button"
+              onClick={() => updateDraft('reminderName', 'Reminder')}
+            >
+              <span>+</span> Create
+            </button>
+          )}
+        </section>
       </div>
     </section>
   )
 }
 
-function DetailSelect({ label, value }: { label: string; value: string }) {
+function DetailSelectField({
+  label,
+  ariaLabel,
+  value,
+  options,
+  formatOption = (option) => option,
+  onChange,
+}: {
+  label: string
+  ariaLabel: string
+  value: string
+  options: string[]
+  formatOption?: (option: string) => string
+  onChange: (value: string) => void
+}) {
   return (
     <section className="detail-section">
       <h2>{label}</h2>
-      <div className="detail-field select-field">
-        <span>{value}</span>
-        <img src={figma.detailChevron} alt="" />
-      </div>
+      <select
+        className="detail-field detail-select"
+        aria-label={ariaLabel}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        {options.map((option) => (
+          <option value={option} key={option}>{formatOption(option)}</option>
+        ))}
+      </select>
     </section>
   )
 }
 
-function DetailSingle({ label, value }: { label: string; value: string }) {
+function DetailDateField({
+  ariaLabel,
+  emptyLabel,
+  value,
+  onChange,
+}: {
+  ariaLabel: string
+  emptyLabel: string
+  value: string
+  onChange: (value: string) => void
+}) {
+  const displayValue = value === prototypeToday
+    ? 'Today'
+    : value
+      ? value.split('-').reverse().join('/').replace(/^(\d{2})\/(\d{2})\/(\d{4})$/, '$2/$1/$3')
+      : emptyLabel
+
   return (
-    <section className="detail-section">
-      <h2>{label}</h2>
-      <div className="detail-field muted-field">{value}</div>
-    </section>
+    <label className="detail-date-field">
+      <span>{displayValue}</span>
+      <img src={figma.detailChevron} alt="" />
+      <input
+        aria-label={ariaLabel}
+        type="date"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </label>
   )
 }
 
-function DetailDouble({ label, left, right }: { label: string; left: string; right: string }) {
+function DetailRadioGroup({
+  label,
+  name,
+  value,
+  onChange,
+}: {
+  label: string
+  name: string
+  value: boolean
+  onChange: (value: boolean) => void
+}) {
   return (
     <section className="detail-section">
       <h2>{label}</h2>
-      <div className="detail-double">
-        <div className="detail-field muted-field">{left}</div>
-        <div className="detail-field muted-field">{right}</div>
+      <div className="detail-radio-card">
+        <label>
+          <input type="radio" name={name} checked={value} onChange={() => onChange(true)} />
+          <span>Yes</span>
+        </label>
+        <label>
+          <input type="radio" name={name} checked={!value} onChange={() => onChange(false)} />
+          <span>No</span>
+        </label>
       </div>
     </section>
   )
@@ -1292,6 +1532,7 @@ function ManageScreen({
   menuOpen,
   toggleMenu,
   onCreateHabit,
+  onOpenDetail,
 }: {
   habits: Habit[]
   timeframe: Timeframe
@@ -1299,6 +1540,7 @@ function ManageScreen({
   menuOpen: boolean
   toggleMenu: () => void
   onCreateHabit: () => void
+  onOpenDetail: (habitId: string) => void
 }) {
   const visibleHabits = habits.filter((habit) => habit.exists && timeframe === habit.frequency)
   const [reminders, setReminders] = useState([
@@ -1335,7 +1577,13 @@ function ManageScreen({
               <h2>Goals</h2>
               <div className="manage-goals-list">
                 {visibleHabits.map((habit) => (
-                  <article className="manage-goal-card" key={habit.id}>
+                  <button
+                    className="manage-goal-card"
+                    type="button"
+                    aria-label={`View ${habit.name}`}
+                    key={habit.id}
+                    onClick={() => onOpenDetail(habit.id)}
+                  >
                     <div className={`manage-icon-box ${habit.icon !== figma.running ? 'gradient-icon' : ''}`}>
                       <HabitIconMark icon={habit.icon} />
                     </div>
@@ -1344,7 +1592,7 @@ function ManageScreen({
                       <p>{habit.target} {habit.unit}</p>
                     </div>
                     <img className="more-icon" src={figma.manageMore} alt="" />
-                  </article>
+                  </button>
                 ))}
               </div>
             </section>
