@@ -934,19 +934,25 @@ button {
 
 .laurel {
   position: absolute;
-  top: 0;
-  height: 71px;
-  object-fit: cover;
+  top: 4px;
+  height: 64px;
+  object-fit: fill;
 }
 
 .laurel-left {
-  left: 8px;
-  width: 41px;
+  left: 7px;
+  width: 81.951px;
+  clip-path: inset(0 50% 0 0);
+  transform: rotate(15deg);
+  transform-origin: 25% 50%;
 }
 
 .laurel-right {
-  right: 8px;
-  width: 40px;
+  right: 7px;
+  width: 81.1148px;
+  clip-path: inset(0 0 0 50%);
+  transform: rotate(-15deg);
+  transform-origin: 75% 50%;
 }
 
 .current-streak,
