@@ -6,6 +6,10 @@
   --light-panel: #f0f1f6;
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), 0 1px 4px rgba(0, 0, 0, 0.1);
   --floating-shadow: 0 1px 4px rgba(0, 1, 52, 0.05), 0 3px 12px rgba(0, 1, 52, 0.08);
+  --motion-fast: 120ms;
+  --motion-standard: 180ms;
+  --motion-slow: 240ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   font-family: Rubik, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -19,10 +23,33 @@ button {
   color: inherit;
   background: transparent;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    transform var(--motion-fast) var(--ease-out),
+    filter var(--motion-fast) ease,
+    opacity var(--motion-standard) ease,
+    color var(--motion-standard) ease,
+    border-color var(--motion-standard) ease,
+    background-color var(--motion-standard) ease,
+    box-shadow var(--motion-standard) ease;
 }
 
 button:focus {
   outline: none;
+}
+
+button:not(.popup-backdrop):not(.sheet-backdrop):not(.calendar-backdrop):not(.command-dismiss):active {
+  transform: scale(0.97);
+}
+
+input,
+select,
+textarea {
+  transition:
+    border-color var(--motion-standard) ease,
+    box-shadow var(--motion-standard) ease,
+    background-color var(--motion-standard) ease;
 }
 
 .prototype-stage {
@@ -47,6 +74,20 @@ button:focus {
   position: absolute;
   inset: 0;
   overflow: hidden;
+}
+
+.app-screen {
+  animation: app-screen-enter var(--motion-standard) var(--ease-out) both;
+}
+
+.detail-screen,
+.new-habit-screen,
+.habit-editor-screen {
+  animation: forward-screen-enter 220ms var(--ease-out) both;
+}
+
+.timeframe-content {
+  animation: timeframe-content-enter 160ms var(--ease-out) both;
 }
 
 .screen-header {
@@ -128,6 +169,10 @@ button:focus {
   font-size: 16px;
   font-weight: 400;
   opacity: 0.3;
+  transition:
+    transform var(--motion-fast) var(--ease-out),
+    opacity var(--motion-standard) ease,
+    color var(--motion-standard) ease;
 }
 
 .timeframe-selector button.active {
@@ -146,6 +191,7 @@ button:focus {
   border-radius: 50%;
   background: var(--blue);
   transform: translateX(-50%);
+  animation: selection-dot-enter var(--motion-standard) var(--ease-out) both;
 }
 
 .icon-button {
@@ -359,6 +405,7 @@ button:focus {
   inset: 0 auto 0 0;
   width: 90px;
   background: #238ec9;
+  transition: width var(--motion-slow) var(--ease-out);
 }
 
 .habit-inner {
@@ -453,6 +500,8 @@ button:focus {
   flex-direction: column;
   align-items: center;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+  transform-origin: top center;
+  animation: command-tray-enter var(--motion-standard) var(--ease-out) both;
 }
 
 .command-dismiss {
@@ -491,6 +540,8 @@ button:focus {
   border-radius: 24px;
   background: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08), 0 8px 12px rgba(0, 0, 0, 0.1);
+  transform-origin: top center;
+  animation: popover-enter var(--motion-standard) var(--ease-out) both;
 }
 
 .calendar-head {
@@ -548,6 +599,11 @@ button:focus {
 .calendar-day {
   cursor: pointer;
   border-radius: 16px;
+  transition:
+    transform var(--motion-fast) var(--ease-out),
+    color var(--motion-standard) ease,
+    border-color var(--motion-standard) ease,
+    background-color var(--motion-standard) ease;
 }
 
 .calendar-day.empty {
@@ -564,6 +620,7 @@ button:focus {
   background: #e4e6ee;
   color: #005d8f;
   font-weight: 600;
+  animation: selection-pop var(--motion-standard) var(--ease-out) both;
 }
 
 .calendar-confirm {
@@ -632,6 +689,7 @@ button:focus {
   border: 0;
   background: rgba(0, 0, 0, 0.2);
   cursor: pointer;
+  animation: backdrop-enter var(--motion-standard) ease both;
 }
 
 .log-progress-sheet {
@@ -645,6 +703,7 @@ button:focus {
   border-radius: 40px 40px 0 0;
   background: #f6f7fa;
   box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.1), 0 -4px 16px rgba(0, 0, 0, 0.15);
+  animation: sheet-enter var(--motion-slow) var(--ease-out) both;
 }
 
 .sheet-handle {
@@ -744,18 +803,21 @@ button:focus {
   border-radius: 24px;
   background: #fff;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.1);
+  animation: popover-enter var(--motion-standard) var(--ease-out) both;
 }
 
 .track-popup {
   top: 112px;
   left: 24px;
   width: 200px;
+  transform-origin: top left;
 }
 
 .create-popup {
   top: 112px;
   right: 24px;
   width: 200px;
+  transform-origin: top right;
 }
 
 .menu-item {
@@ -1106,6 +1168,10 @@ button:focus {
   border-radius: 25px;
   background: #b8bcc5;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.07), 0 2px 2px rgba(0, 0, 0, 0.06), 0 5px 3px rgba(0, 0, 0, 0.04), 0 8px 3px rgba(0, 0, 0, 0.01);
+  transition:
+    transform var(--motion-fast) var(--ease-out),
+    background-color var(--motion-standard) ease,
+    box-shadow var(--motion-standard) ease;
 }
 
 .reminder-toggle.on {
@@ -1121,7 +1187,7 @@ button:focus {
   height: 24px;
   border-radius: 29px;
   background: #fff;
-  transition: left 160ms ease;
+  transition: left 160ms var(--ease-out);
 }
 
 .reminder-toggle.on span {
@@ -1557,6 +1623,7 @@ button:focus {
   border-radius: 40px 40px 0 0;
   background: #f6f7fa;
   box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.1), 0 -4px 16px rgba(0, 0, 0, 0.15);
+  animation: sheet-enter var(--motion-slow) var(--ease-out) both;
 }
 
 .manage-bottom-sheet.tall {
@@ -1902,6 +1969,7 @@ button:focus {
 
 .detail-color-grid button.selected span {
   box-shadow: 0 0 0 2px #fff, 0 0 0 3px #005d8f;
+  animation: selection-pop var(--motion-standard) var(--ease-out) both;
 }
 
 .detail-custom-color img {
@@ -1950,11 +2018,16 @@ button:focus {
   cursor: pointer;
   font: inherit;
   font-size: 14px;
+  transition:
+    transform var(--motion-fast) var(--ease-out),
+    color var(--motion-standard) ease,
+    background-color var(--motion-standard) ease;
 }
 
 .occurrence-card button.selected {
   background: #005d8f;
   color: #fff;
+  animation: selection-pop var(--motion-standard) var(--ease-out) both;
 }
 
 .detail-double {
@@ -2011,6 +2084,22 @@ button:focus {
   width: auto;
   height: auto;
   cursor: pointer;
+}
+
+.detail-field:focus,
+.editor-input:focus,
+.sheet-text-input:focus,
+.progress-input-row input:focus {
+  outline: none;
+  border-color: rgba(0, 93, 143, 0.45);
+  box-shadow: 0 0 0 3px rgba(0, 93, 143, 0.08);
+}
+
+.detail-textarea:focus-within,
+.editor-textarea:focus-within,
+.detail-date-field:focus-within {
+  border-color: rgba(0, 93, 143, 0.45);
+  box-shadow: 0 0 0 3px rgba(0, 93, 143, 0.08);
 }
 
 .detail-radio-card {
@@ -2220,6 +2309,138 @@ button:focus {
 .bottom-nav img {
   width: 24px;
   height: 24px;
+  transition: transform var(--motion-standard) var(--ease-out);
+}
+
+.bottom-nav button.active img {
+  animation: nav-icon-enter var(--motion-standard) var(--ease-out) both;
+}
+
+.metric-bar span,
+.large-arc-progress {
+  transition: width var(--motion-slow) var(--ease-out), stroke-dasharray var(--motion-slow) var(--ease-out);
+}
+
+.choice-check,
+.color-choice.selected .selected-ring,
+.icon-picker-choice.selected {
+  animation: selection-pop var(--motion-standard) var(--ease-out) both;
+}
+
+@media (hover: hover) {
+  .icon-button:hover,
+  .card-plus:hover,
+  .manage-goal-card:hover,
+  .template-card:hover,
+  .command-button:hover,
+  .menu-item:hover {
+    filter: brightness(0.98);
+  }
+}
+
+@keyframes app-screen-enter {
+  from {
+    opacity: 0.72;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes forward-screen-enter {
+  from {
+    opacity: 0.82;
+    transform: translateX(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes timeframe-content-enter {
+  from {
+    opacity: 0.76;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popover-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes command-tray-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sheet-enter {
+  from {
+    opacity: 0.7;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes backdrop-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes selection-pop {
+  0% { transform: scale(0.9); }
+  70% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+@keyframes selection-dot-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes nav-icon-enter {
+  0% { transform: scale(0.86); }
+  75% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @media (max-width: 430px) {

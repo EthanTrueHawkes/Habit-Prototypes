@@ -686,9 +686,9 @@ function ExploreScreen({
   const content = exploreContent[timeframe]
 
   return (
-    <section className="screen">
+    <section className="screen app-screen">
       <Header title="Explore" timeframe={timeframe} setTimeframe={setTimeframe} />
-      <div className="explore-content">
+      <div className="explore-content timeframe-content" key={timeframe}>
         <section className="explore-section">
           <h2>Featured</h2>
           <FeaturedCard
@@ -793,7 +793,7 @@ function TrackScreen({
   const dateSubtitle = selectedDate === prototypeToday ? undefined : formatTrackDate(selectedDate)
 
   return (
-    <section className="screen">
+    <section className="screen app-screen">
       <Header
         title="Track"
         subtitle={dateSubtitle}
@@ -818,7 +818,7 @@ function TrackScreen({
         />
       )}
       {visibleHabits.length > 0 && (
-        <div className="track-content">
+        <div className="track-content timeframe-content" key={`${timeframe}-${selectedDate}`}>
           <div className="category-row">
             <span>Category 1</span>
             <img src={figma.chevronDown} alt="" />
@@ -1425,9 +1425,9 @@ function ProgressScreen({
   const arcLength = 345.58
 
   return (
-    <section className="screen">
+    <section className="screen app-screen">
       <Header title="Progress" timeframe={timeframe} setTimeframe={setTimeframe} />
-      <div className="progress-content">
+      <div className="progress-content timeframe-content" key={timeframe}>
         <section className="progress-summary">
           <div className="large-arc">
             <svg className="large-arc-svg" width="240" height="120" viewBox="0 0 240 120" aria-hidden="true">
@@ -1557,7 +1557,7 @@ function ManageScreen({
   }
 
   return (
-    <section className="screen">
+    <section className="screen app-screen">
       <Header
         title="Manage"
         timeframe={timeframe}
@@ -1571,7 +1571,7 @@ function ManageScreen({
         </PopupMenu>
       )}
       {(visibleHabits.length > 0 || reminders.length > 0) && (
-        <div className="manage-content">
+        <div className="manage-content timeframe-content" key={timeframe}>
           {visibleHabits.length > 0 && (
             <section className="manage-section">
               <h2>Goals</h2>
@@ -2230,7 +2230,7 @@ function formatTimeframe(value: Timeframe | '') {
 
 function SettingsScreen() {
   return (
-    <section className="screen">
+    <section className="screen app-screen">
       <Header title="Settings" showSelector={false} />
       <div className="settings-content">
         <SettingsGroup
