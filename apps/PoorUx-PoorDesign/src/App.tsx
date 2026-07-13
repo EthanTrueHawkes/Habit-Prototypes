@@ -12,7 +12,7 @@ import habitCheckIcon from './assets/figma/habit-check.svg'
 import habitDropdownIcon from './assets/figma/habit-dropdown.svg'
 import habitEditIcon from './assets/figma/habit-edit.svg'
 import habitPopupPointer from './assets/figma/habit-popup-pointer.svg'
-import habitRainbowImage from './assets/figma/habit-rainbow.png'
+import habitRainbowImage from './assets/figma/habit-rainbow.webp'
 import habitReminderPlusIcon from './assets/figma/habit-reminder-plus.svg'
 import habitSelectedColor from './assets/figma/habit-selected-color.svg'
 import habitSheetCloseIcon from './assets/figma/habit-sheet-close.svg'
@@ -42,8 +42,29 @@ import settingsPrivacyIcon from './assets/figma/settings-privacy.svg'
 import settingsTermsIcon from './assets/figma/settings-terms.svg'
 import trackChevronIcon from './assets/figma/track-chevron.svg'
 import trackEditIcon from './assets/figma/track-edit.svg'
-import socialFastImage from './assets/figma/explore-social-fast.png'
-import yogaImage from './assets/figma/explore-yoga.png'
+import budgetImage from './assets/explore/budget.webp'
+import cleanDeskImage from './assets/explore/clean-desk.webp'
+import cleaningImage from './assets/explore/cleaning.webp'
+import dailyRunImage from './assets/explore/daily-run.webp'
+import drinkWaterImage from './assets/explore/drink-water.webp'
+import socialFastImage from './assets/explore/explore-social-fast.webp'
+import yogaImage from './assets/explore/explore-yoga.webp'
+import fruitBowlImage from './assets/explore/fruit-bowl.webp'
+import groceryImage from './assets/explore/grocery.webp'
+import healthCheckImage from './assets/explore/health-check.webp'
+import journalImage from './assets/explore/journal.webp'
+import languageStudyImage from './assets/explore/language-study.webp'
+import longWalkImage from './assets/explore/long-walk.webp'
+import makeBedImage from './assets/explore/make-bed.webp'
+import mealPrepImage from './assets/explore/meal-prep.webp'
+import monthlyReviewImage from './assets/explore/monthly-review.webp'
+import photoBackupImage from './assets/explore/photo-backup.webp'
+import pushUpsImage from './assets/explore/push-ups.webp'
+import readingImage from './assets/explore/reading.webp'
+import sleepReviewImage from './assets/explore/sleep-review.webp'
+import stretchClassImage from './assets/explore/stretch-class.webp'
+import videoCallImage from './assets/explore/video-call.webp'
+import weeklyPlannerImage from './assets/explore/weekly-planner.webp'
 
 type Page = 'explore' | 'track' | 'progress' | 'manage' | 'settings'
 type Timeframe = 'daily' | 'weekly' | 'monthly'
@@ -60,6 +81,13 @@ type Habit = {
   unit: string
   timeframe: Timeframe
   description: string
+  category?: string
+  goodForYou?: 'yes' | 'no'
+  memoRequired?: 'yes' | 'no'
+  activeDays?: boolean[]
+  reminderName?: string
+  reminderTime?: string
+  reminderSound?: string
   created?: boolean
   createdOn?: string
 }
@@ -97,6 +125,13 @@ const initialHabits: Habit[] = [
     unit: 'miles',
     timeframe: 'daily',
     description: 'Go on a run each day for 3 miles. You got it!',
+    category: 'Fitness',
+    goodForYou: 'yes',
+    memoRequired: 'no',
+    activeDays: [false, true, true, true, true, true, true],
+    reminderName: '',
+    reminderTime: '12:00 PM',
+    reminderSound: 'Chirp',
   },
   {
     id: 'read-a-book',
@@ -107,6 +142,13 @@ const initialHabits: Habit[] = [
     unit: 'pages',
     timeframe: 'daily',
     description: 'Read a little more each day.',
+    category: 'Mind',
+    goodForYou: 'yes',
+    memoRequired: 'no',
+    activeDays: [true, true, true, true, true, true, true],
+    reminderName: '',
+    reminderTime: '12:00 PM',
+    reminderSound: 'Chirp',
     createdOn: '2026-06-10',
   },
 ]
@@ -165,27 +207,27 @@ const newHabitTemplates = [
 ]
 
 const exploreImages = {
-  dailyRun: 'https://images.unsplash.com/photo-1606934369778-3fb8d461404b?auto=format&fit=crop&w=800&q=80',
-  drinkWater: 'https://img.buzzfeed.com/buzzfeed-static/static/2026-04/01/22/subbuzz/FJ5v27B3k.jpg',
-  fruitBowl: 'https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/food_pics/fruit_bowl_no_sugar.jpg',
-  reading: 'https://images.unsplash.com/photo-1538036720156-a4ccde05446d?auto=format&fit=crop&w=800&q=80',
-  languageStudy: 'https://static.fluentcap.live/assets/blog/why-learn-foreign-language-benefits/language-learning-cognitive-brain.png',
-  journal: 'https://casolia.com/img/image12_lined-journal-ideas_memory-journal.jpg',
-  makeBed: 'https://dairynutrition.ca/sites/dairynutrition/files/styles/full_width_large/public/iStock-1388450631_v2_0.jpg?itok=vU41X_l2',
-  cleanDesk: 'https://images.unsplash.com/photo-1604504219246-6a4b59012b8f?auto=format&fit=crop&w=800&q=80',
-  pushUps: 'https://images.unsplash.com/photo-1683192943220-d191b72a4fac?auto=format&fit=crop&w=800&q=80',
-  weeklyPlanner: 'https://down-id.img.susercontent.com/file/sg-11134201-22120-ku2coel7dlkv81',
-  mealPrep: 'https://modernmamaguides.com/wp-content/uploads/2025/12/storage-and-meal-prep-ideas-for-aesthetic-clean-eating-683x1024.jpeg',
-  budget: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=800&q=80',
-  longWalk: 'https://images.unsplash.com/photo-1672742648155-e95dda467c60?auto=format&fit=crop&fm=jpg&q=80&w=800',
-  stretchClass: 'https://images.squarespace-cdn.com/content/v1/5d33937d5915f10001b19cfe/041fb53f-9983-4305-81d1-03344fa5b4c8/IMG_8693%2B2.JPG',
-  sleepReview: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=800&q=80',
-  cleaning: 'https://www.vapelle.store/cdn/shop/files/Screenshot_2026-06-03_at_11.50.57_AM.png?v=1780505463&width=800',
-  grocery: 'https://images.happycow.net/venues/1024/25/73/hcmp2573_3764665.jpeg',
-  monthlyReview: 'https://simplementco.com/cdn/shop/files/Simplement-1_2.jpg?v=1700005069&width=900',
-  photoBackup: 'https://assets.st-note.com/img/1762665154-WVGNYF85k2JpMSsPXdUzEoDr.png?width=900',
-  healthCheck: 'https://images.unsplash.com/photo-1739285388427-d6f85d12a8fc?auto=format&fit=crop&fm=jpg&q=80&w=900',
-  videoCall: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
+  dailyRun: dailyRunImage,
+  drinkWater: drinkWaterImage,
+  fruitBowl: fruitBowlImage,
+  reading: readingImage,
+  languageStudy: languageStudyImage,
+  journal: journalImage,
+  makeBed: makeBedImage,
+  cleanDesk: cleanDeskImage,
+  pushUps: pushUpsImage,
+  weeklyPlanner: weeklyPlannerImage,
+  mealPrep: mealPrepImage,
+  budget: budgetImage,
+  longWalk: longWalkImage,
+  stretchClass: stretchClassImage,
+  sleepReview: sleepReviewImage,
+  cleaning: cleaningImage,
+  grocery: groceryImage,
+  monthlyReview: monthlyReviewImage,
+  photoBackup: photoBackupImage,
+  healthCheck: healthCheckImage,
+  videoCall: videoCallImage,
 }
 
 const exploreContent: Record<
@@ -498,9 +540,16 @@ function App() {
     setTrackOverlay(null)
   }
 
-  const updateHabitTimeframe = (habitId: string, timeframe: Timeframe) => {
-    setHabits((current) => current.map((habit) => (habit.id === habitId ? { ...habit, timeframe } : habit)))
-    setTimeframes((current) => ({ ...current, track: timeframe, progress: timeframe, manage: timeframe }))
+  const saveHabitEdits = (habitId: string, updates: Partial<Habit>) => {
+    setHabits((current) => current.map((habit) => (habit.id === habitId ? { ...habit, ...updates } : habit)))
+    if (updates.timeframe) {
+      setTimeframes((current) => ({
+        ...current,
+        track: updates.timeframe as Timeframe,
+        progress: updates.timeframe as Timeframe,
+        manage: updates.timeframe as Timeframe,
+      }))
+    }
   }
 
   const openTrackCalendar = () => {
@@ -589,7 +638,17 @@ function App() {
         target,
         unit: unit.toLowerCase(),
         timeframe,
-        description: habitForm.description || `${title} each day.`,
+        description: createdHabitDescription(title, habitForm.description, target, unit),
+        category: habitForm.category || 'Fitness',
+        goodForYou: habitForm.goodForYou ?? 'yes',
+        memoRequired: habitForm.memoRequired ?? 'no',
+        activeDays:
+          manageFlow === 'templateHabit'
+            ? [true, true, true, true, true, true, true]
+            : [false, true, true, true, true, true, true],
+        reminderName: habitForm.reminderName,
+        reminderTime: habitForm.reminderTime,
+        reminderSound: habitForm.reminderSound,
         created: true,
         createdOn: TRACK_TODAY_KEY,
       },
@@ -639,7 +698,7 @@ function App() {
           <IndividualHabitPage
             habit={detailHabit}
             onBack={() => setDetailHabitId(null)}
-            onTimeframeChange={(timeframe) => updateHabitTimeframe(detailHabit.id, timeframe)}
+            onSave={(updates) => saveHabitEdits(detailHabit.id, updates)}
           />
         </div>
       </main>
@@ -1865,16 +1924,62 @@ function SettingsRow({
 function IndividualHabitPage({
   habit,
   onBack,
-  onTimeframeChange,
+  onSave,
 }: {
   habit: Habit
   onBack: () => void
-  onTimeframeChange: (timeframe: Timeframe) => void
+  onSave: (updates: Partial<Habit>) => void
 }) {
-  const nextFrequency = () => {
-    const order: Timeframe[] = ['daily', 'weekly', 'monthly']
-    const currentIndex = order.indexOf(habit.timeframe)
-    onTimeframeChange(order[(currentIndex + 1) % order.length])
+  const [isEditing, setIsEditing] = useState(false)
+  const [draft, setDraft] = useState<HabitFormState>(() => habitToForm(habit))
+  const [activeDays, setActiveDays] = useState(() => habitActiveDays(habit))
+  const [picker, setPicker] = useState<HabitPicker>(null)
+  const [newCategoryValue, setNewCategoryValue] = useState('')
+
+  const updateDraft = (updates: Partial<HabitFormState>) => {
+    setDraft((current) => ({ ...current, ...updates }))
+  }
+
+  const startEditing = () => {
+    setDraft(habitToForm(habit))
+    setActiveDays(habitActiveDays(habit))
+    setPicker(null)
+    setIsEditing(true)
+  }
+
+  const saveEdits = () => {
+    const target = Math.max(1, Number.parseInt(draft.target || '1', 10) || 1)
+    const title = draft.title.trim() || habit.title
+    const unit = draft.unit || capitalize(habit.unit)
+    const description = editedHabitDescription(habit, draft.description, title, target, unit)
+    const timeframe = draft.frequency || habit.timeframe
+
+    onSave({
+      title,
+      emoji: draft.emoji || habit.emoji,
+      description,
+      category: draft.category || habit.category || 'Fitness',
+      goodForYou: draft.goodForYou ?? habit.goodForYou ?? 'yes',
+      timeframe,
+      target,
+      unit: unit.toLowerCase(),
+      memoRequired: draft.memoRequired ?? habit.memoRequired ?? 'no',
+      activeDays,
+      reminderName: draft.reminderName,
+      reminderTime: draft.reminderTime,
+      reminderSound: draft.reminderSound,
+    })
+    setDraft((current) => ({ ...current, title, description, target: String(target), unit, frequency: timeframe }))
+    setPicker(null)
+    setIsEditing(false)
+  }
+
+  const saveCategory = () => {
+    const nextCategory = newCategoryValue.trim()
+    if (!nextCategory) return
+    updateDraft({ category: nextCategory })
+    setNewCategoryValue('')
+    setPicker('category')
   }
 
   return (
@@ -1884,26 +1989,65 @@ function IndividualHabitPage({
         <button type="button" onClick={onBack} aria-label="Back to Track">
           <img src={habitBackIcon} alt="" />
         </button>
-        <h1>{habit.title}</h1>
-        <button type="button" aria-label="Edit habit">
-          <img src={habitEditIcon} alt="" />
+        <h1>{isEditing ? draft.title || habit.title : habit.title}</h1>
+        <button
+          className={isEditing ? 'habit-detail-save-button' : ''}
+          type="button"
+          aria-label={isEditing ? 'Save habit' : 'Edit habit'}
+          onClick={isEditing ? saveEdits : startEditing}
+        >
+          {isEditing ? 'Save' : <img src={habitEditIcon} alt="" />}
         </button>
       </header>
-      <div className="habit-detail-content">
+      <div className="habit-detail-content individual-habit-detail-content">
         <section className="habit-edit-section">
           <h2>General</h2>
           <div className="habit-name-row">
-            <div className="habit-detail-emoji">{habit.emoji}</div>
-            <div className="habit-name-field">{habit.title} </div>
+            {isEditing ? (
+              <>
+                <label className="habit-detail-emoji form-emoji-field">
+                  {draft.emoji}
+                  <input
+                    aria-label="Habit emoji"
+                    value={draft.emoji}
+                    onChange={(event) => updateDraft({ emoji: event.target.value.slice(0, 4) })}
+                  />
+                </label>
+                <label className="habit-name-field form-text-field">
+                  <input
+                    aria-label="Habit name"
+                    value={draft.title}
+                    onChange={(event) => updateDraft({ title: event.target.value })}
+                  />
+                </label>
+              </>
+            ) : (
+              <>
+                <div className="habit-detail-emoji">{habit.emoji}</div>
+                <div className="habit-name-field">{habit.title}</div>
+              </>
+            )}
           </div>
           <p className="habit-note">
             <span>Note: Be Specific.</span>
             <a href="#tips">Consider These Tips!</a>
           </p>
-          <div className="habit-description-box">
-            <p>{habit.description}</p>
-            <span>0/150</span>
-          </div>
+          {isEditing ? (
+            <label className="habit-description-box form-description-field">
+              <textarea
+                aria-label="Habit description"
+                maxLength={150}
+                value={draft.description}
+                onChange={(event) => updateDraft({ description: event.target.value })}
+              />
+              <span>{draft.description.length}/150</span>
+            </label>
+          ) : (
+            <div className="habit-description-box">
+              <p>{habit.description}</p>
+              <span>{habit.description.length}/150</span>
+            </div>
+          )}
         </section>
 
         <section className="habit-edit-section">
@@ -1936,44 +2080,102 @@ function IndividualHabitPage({
           </div>
         </section>
 
-        <DetailSelectSection title="What category is this habit?" value="Fitness" />
+        {isEditing ? (
+          <FormSelectSection
+            title="What category is this habit?"
+            value={draft.category || 'Category'}
+            muted={!draft.category}
+            onClick={() => setPicker('category')}
+          />
+        ) : (
+          <DetailSelectSection title="What category is this habit?" value={habit.category || 'Fitness'} />
+        )}
 
         <section className="habit-edit-section">
           <h2>{`Is {Selected Habit} good for you?`}</h2>
           <div className="radio-block">
-            <RadioRow label="Yes" checked />
-            <RadioRow label="No" />
+            {isEditing ? (
+              <>
+                <button className="radio-row" type="button" onClick={() => updateDraft({ goodForYou: 'yes' })}>
+                  <RadioDot checked={draft.goodForYou === 'yes'} />
+                  <span>Yes</span>
+                </button>
+                <button className="radio-row" type="button" onClick={() => updateDraft({ goodForYou: 'no' })}>
+                  <RadioDot checked={draft.goodForYou === 'no'} />
+                  <span>No</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <RadioRow label="Yes" checked={(habit.goodForYou ?? 'yes') === 'yes'} />
+                <RadioRow label="No" checked={habit.goodForYou === 'no'} />
+              </>
+            )}
           </div>
         </section>
 
-        <section className="habit-edit-section">
-          <h2>How frequent is this habit?</h2>
-          <button className="detail-select-row" type="button" onClick={nextFrequency}>
-            <span>{capitalize(habit.timeframe)}</span>
-            <img src={habitDropdownIcon} alt="" />
-          </button>
-        </section>
+        {isEditing ? (
+          <FormSelectSection
+            title="How frequent is this habit?"
+            value={draft.frequency ? capitalize(draft.frequency) : 'Frequency'}
+            muted={!draft.frequency}
+            onClick={() => setPicker('frequency')}
+          />
+        ) : (
+          <DetailSelectSection title="How frequent is this habit?" value={capitalize(habit.timeframe)} />
+        )}
 
         <section className="habit-edit-section">
           <h2>Occurance</h2>
           <div className="occurrence-row">
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-              <span className={index === 0 ? 'muted' : ''} key={`${day}-${index}`}>
-                {day}
-              </span>
-            ))}
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) =>
+              isEditing ? (
+                <button
+                  className={activeDays[index] ? '' : 'muted'}
+                  type="button"
+                  aria-label={`${activeDays[index] ? 'Exclude' : 'Include'} ${weekdayNames[index]}`}
+                  key={`${day}-${index}`}
+                  onClick={() =>
+                    setActiveDays((current) => current.map((active, dayIndex) => (dayIndex === index ? !active : active)))
+                  }
+                >
+                  {day}
+                </button>
+              ) : (
+                <span className={habitActiveDays(habit)[index] ? '' : 'muted'} key={`${day}-${index}`}>
+                  {day}
+                </span>
+              ),
+            )}
           </div>
         </section>
 
         <section className="habit-edit-section">
           <h2>How will you track it?</h2>
-          <div className="split-row">
-            <div>4</div>
-            <div>
-              <span>Miles</span>
-              <img src={habitDropdownIcon} alt="" />
+          {isEditing ? (
+            <div className="split-row">
+              <label className="form-split-field">
+                <input
+                  aria-label="Tracking units"
+                  inputMode="numeric"
+                  value={draft.target}
+                  onChange={(event) => updateDraft({ target: event.target.value.replace(/\D/g, '') })}
+                />
+              </label>
+              <button className="form-split-field select" type="button" onClick={() => setPicker('unit')}>
+                <span>{draft.unit}</span>
+                <img src={habitDropdownIcon} alt="" />
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="split-row">
+              <div>{habit.target}</div>
+              <div>
+                <span>{capitalize(habit.unit)}</span>
+                <img src={habitDropdownIcon} alt="" />
+              </div>
+            </div>
+          )}
         </section>
 
         <section className="habit-edit-section">
@@ -1993,22 +2195,53 @@ function IndividualHabitPage({
         <section className="habit-edit-section">
           <h2>Require Memo on Completion?</h2>
           <div className="radio-block">
-            <RadioRow label="Yes" />
-            <RadioRow label="No" checked />
+            {isEditing ? (
+              <>
+                <button className="radio-row" type="button" onClick={() => updateDraft({ memoRequired: 'yes' })}>
+                  <RadioDot checked={draft.memoRequired === 'yes'} />
+                  <span>Yes</span>
+                </button>
+                <button className="radio-row" type="button" onClick={() => updateDraft({ memoRequired: 'no' })}>
+                  <RadioDot checked={draft.memoRequired === 'no'} />
+                  <span>No</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <RadioRow label="Yes" checked={habit.memoRequired === 'yes'} />
+                <RadioRow label="No" checked={(habit.memoRequired ?? 'no') === 'no'} />
+              </>
+            )}
           </div>
         </section>
 
         <section className="habit-edit-section">
           <h2>Custom Reminder?</h2>
-          <div className="custom-reminder-row">
-            <img src={habitReminderPlusIcon} alt="" />
-            <span>Create</span>
-          </div>
+          {isEditing ? (
+            <button className="custom-reminder-row" type="button" onClick={() => setPicker('reminder')}>
+              <img src={habitReminderPlusIcon} alt="" />
+              <span>{draft.reminderName || 'Create'}</span>
+            </button>
+          ) : (
+            <div className="custom-reminder-row">
+              <img src={habitReminderPlusIcon} alt="" />
+              <span>{habit.reminderName || 'Create'}</span>
+            </div>
+          )}
         </section>
       </div>
-      <button className="habit-continue-button" type="button">
-        Continue
-      </button>
+      {picker && (
+        <HabitPickerSheet
+          form={draft}
+          picker={picker}
+          newCategoryValue={newCategoryValue}
+          onChange={updateDraft}
+          onClose={() => setPicker(null)}
+          onPickerChange={setPicker}
+          onNewCategoryChange={setNewCategoryValue}
+          onSaveCategory={saveCategory}
+        />
+      )}
     </div>
   )
 }
@@ -2135,6 +2368,47 @@ function historicalHabitValue(habit: Habit, dateKey: string) {
 
   const seed = `${habit.id}-${dateKey}`.split('').reduce((total, char) => total + char.charCodeAt(0), 0)
   return Math.min(habit.target, seed % (habit.target + 1))
+}
+
+function habitToForm(habit: Habit): HabitFormState {
+  return {
+    emoji: habit.emoji,
+    title: habit.title,
+    description: habit.description,
+    category: habit.category || 'Fitness',
+    goodForYou: habit.goodForYou ?? 'yes',
+    frequency: habit.timeframe,
+    target: String(habit.target),
+    unit: capitalize(habit.unit),
+    memoRequired: habit.memoRequired ?? 'no',
+    reminderName: habit.reminderName ?? '',
+    reminderTime: habit.reminderTime ?? '12:00 PM',
+    reminderSound: habit.reminderSound ?? 'Chirp',
+  }
+}
+
+function habitActiveDays(habit: Habit) {
+  return [...(habit.activeDays ?? [true, true, true, true, true, true, true])]
+}
+
+function createdHabitDescription(title: string, description: string, target: number, unit: string) {
+  if (title.toLowerCase() === 'go running' && description === templateHabitForm.description) {
+    return runningDescription(target, unit)
+  }
+  return description || `${title} each day.`
+}
+
+function editedHabitDescription(habit: Habit, description: string, title: string, target: number, unit: string) {
+  if (title.toLowerCase() === 'go running' && target !== habit.target && description === habit.description) {
+    return runningDescription(target, unit)
+  }
+  return description || `${title} each day.`
+}
+
+function runningDescription(target: number, unit: string) {
+  const normalizedUnit = unit.toLowerCase()
+  const unitLabel = target === 1 && normalizedUnit.endsWith('s') ? normalizedUnit.slice(0, -1) : normalizedUnit
+  return `Go running each day for ${target} ${unitLabel}.`
 }
 
 export default App

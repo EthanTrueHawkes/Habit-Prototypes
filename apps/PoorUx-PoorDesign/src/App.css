@@ -125,6 +125,7 @@ button {
   height: 20px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
   gap: 4.333px;
 }
@@ -1166,6 +1167,14 @@ button {
   right: 0;
 }
 
+.habit-detail-header .habit-detail-save-button {
+  width: 56px;
+  padding: 0;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .habit-detail-header img {
   width: 20px;
   height: 20px;
@@ -1180,6 +1189,10 @@ button {
   align-items: center;
   gap: 24px;
   padding-top: 146px;
+}
+
+.individual-habit-detail-content {
+  padding-bottom: 48px;
 }
 
 .habit-edit-section {
@@ -1402,15 +1415,22 @@ button {
   background: #fff;
 }
 
-.occurrence-row span {
+.occurrence-row span,
+.occurrence-row button {
   width: 36px;
   height: 36px;
   display: grid;
   place-items: center;
+  padding: 0;
+  border: 0;
   border-radius: 360px;
   background: var(--accent);
   color: #fff;
   font-size: 14px;
+}
+
+.occurrence-row button {
+  cursor: pointer;
 }
 
 .occurrence-row .muted {
