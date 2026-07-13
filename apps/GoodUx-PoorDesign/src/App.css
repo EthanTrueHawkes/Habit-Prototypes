@@ -928,6 +928,10 @@ input:focus {
   text-align: center;
 }
 
+.edit-top > button {
+  z-index: 1;
+}
+
 .edit-top > button:first-child {
   position: absolute;
   top: 0;
@@ -945,6 +949,10 @@ input:focus {
   font-family: Calibri, Arial, sans-serif;
   font-size: 14px;
   font-weight: 300;
+}
+
+.edit-top > button:last-child:disabled {
+  opacity: 0.35;
 }
 
 .edit-form {
@@ -1010,6 +1018,10 @@ input:focus {
 
 .field.full {
   width: 100%;
+}
+
+.edit-screen .plain-input {
+  background: #fff;
 }
 
 .field.split {
@@ -1148,6 +1160,53 @@ input:focus {
 .time-row b {
   font-size: 12px;
   font-weight: 400;
+}
+
+.edit-goal-row {
+  gap: 16px;
+}
+
+.reminder-edit-row {
+  gap: 16px;
+}
+
+.edit-screen .date-row .plain-input {
+  width: 100%;
+}
+
+.editable-schedule .schedule-head {
+  width: 100%;
+}
+
+.editable-schedule .segment button {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  font-family: Calibri, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.editable-schedule .segment button.selected {
+  border-radius: 360px;
+  background: var(--accent);
+  color: #fff;
+}
+
+.editable-schedule .weekday-pills button {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 360px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.editable-schedule .weekday-pills button.off {
+  background: #eeeef3;
+  color: #000;
 }
 
 .muted {

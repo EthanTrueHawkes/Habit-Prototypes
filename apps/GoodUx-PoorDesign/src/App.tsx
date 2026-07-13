@@ -57,6 +57,10 @@ type Habit = {
   frequency: Frequency
   activeDays: string[]
   timeOfDay: HomeTab
+  reminderTime: string
+  reminderFrequency: string
+  startDate: string
+  endDate: string
 }
 
 type CreateDraft = Habit
@@ -94,6 +98,10 @@ const defaultRunningHabit: Habit = {
   frequency: 'Daily',
   activeDays: ['Sun', 'M', 'T', 'W', 'T2', 'F', 'Sat'],
   timeOfDay: 'All Day',
+  reminderTime: '4:00 AM',
+  reminderFrequency: 'Everyday',
+  startDate: 'Today',
+  endDate: 'Never',
 }
 
 const categoryItems = [
@@ -646,6 +654,14 @@ function HomeEmpty() {
   )
 }
 
+function HomeTimeEmpty() {
+  return (
+    <div className="empty-message">
+      <p>No Habits here yet</p>
+    </div>
+  )
+}
+
 function HabitMenu({
   onEdit,
   onArchive,
@@ -834,8 +850,8 @@ function HabitSheet({
       <section className="sheet-reminder">
         <h3>Reminders</h3>
         <div>
-          <b>4:00 AM</b>
-          <span>Everyday</span>
+          <b>{habit.reminderTime}</b>
+          <span>{habit.reminderFrequency}</span>
           <small>Don't forget today's goals.</small>
           <i />
         </div>
@@ -1238,94 +1254,227 @@ function ProgressHabitScreen({
 }
 
 function EditHabit({
+  habit,
   onBack,
   onSave,
 }: {
+  habit: Habit
   onBack: () => void
-  onSave: () => void
+  onSave: (habit: Habit) => void
 }) {
+  const [draft, setDraft] = useState<Habit>(habit)
+  const [overlay, setOverlay] = useState<'emoji' | 'color' | null>(null)
+  const [typeOpen, setTypeOpen] = useState(false)
+  const [unitOpen, setUnitOpen] = useState(false)
+  const [frequencyOpen, setFrequencyOpen] = useState(true)
+  const canSave = draft.name.trim().length > 0 && draft.goal > 0 && draft.unit.length > 0
+  const typeOptions: Array<{
+    type: Habit['type']
+    icon: string
+    copy: string
+  }> = [
+    { type: 'Make', icon: assets.createPin, copy: 'Build a routine you want to do more often.' },
+    { type: 'Limit', icon: assets.createHourglass, copy: 'Set a cap for something you want less of.' },
+    { type: 'Break', icon: assets.createBreak, copy: 'Stop a routine that keeps showing up.' },
+  ]
+  const selectedType = typeOptions.find((option) => option.type === draft.type) ?? typeOptions[0]
+
   return (
     <main className="phone edit-screen">
       <StatusBar />
       <div className="edit-top">
-        <button className="square" type="button" onClick={onBack}>
+        <button className="square" type="button" onClick={onBack} aria-label="Back">
           <Icon src={assets.back} size={20} />
         </button>
         <h1>Edit Habit</h1>
-        <button type="button" onClick={onSave}>Save</button>
+        <button
+          type="button"
+          disabled={!canSave}
+          onClick={() => onSave({ ...draft, name: draft.name.trim() })}
+        >
+          Save
+        </button>
       </div>
       <div className="edit-form">
         <FormSection title="Details">
-          <div className="field full">Go Running</div>
+          <input
+            className="field full plain-input"
+            value={draft.name}
+            aria-label="Habit name"
+            onChange={(event) => setDraft({ ...draft, name: event.target.value })}
+          />
           <div className="field-row">
-            <div className="field split"><span>Icon</span><b>🏃‍♀️</b></div>
-            <div className="field split"><span>Color</span><i /></div>
+            <button className="field split detail-click" type="button" onClick={() => setOverlay('emoji')}>
+              <span>Icon</span>
+              <b>{draft.icon}</b>
+            </button>
+            <button className="field split detail-click" type="button" onClick={() => setOverlay('color')}>
+              <span>Color</span>
+              <i style={{ background: draft.color }} />
+            </button>
           </div>
         </FormSection>
         <FormSection title="Type">
-          <div className="field type-field">
-            <Icon src={assets.check} size={20} />
-            <div>
-              <b>Make</b>
-              <span>Build a routine you want to do more often.</span>
-            </div>
-            <Icon src={assets.caret} size={16} />
+          <div className={`type-stack ${typeOpen ? 'open' : ''}`}>
+            <TypeChoice
+              icon={selectedType.icon}
+              title={selectedType.type}
+              copy={selectedType.copy}
+              active
+              onClick={() => setTypeOpen(!typeOpen)}
+            />
+            {typeOpen && typeOptions
+              .filter((option) => option.type !== draft.type)
+              .map((option) => (
+                <TypeChoice
+                  key={option.type}
+                  icon={option.icon}
+                  title={option.type}
+                  copy={option.copy}
+                  active={false}
+                  onClick={() => {
+                    setDraft({ ...draft, type: option.type })
+                    setTypeOpen(false)
+                  }}
+                />
+              ))}
           </div>
         </FormSection>
         <FormSection title="Goal">
-          <div className="field-row">
-            <div className="field">4</div>
-            <div className="field split"><span>Times</span><Icon src={assets.caret} size={16} /></div>
-          </div>
-          <div className="schedule-card">
-            <div className="schedule-head">
-              <span>Daily</span>
+          <div className="field-row goal-row edit-goal-row">
+            <input
+              className="field plain-input"
+              value={draft.goal || ''}
+              inputMode="numeric"
+              aria-label="Quantity"
+              onChange={(event) => setDraft({ ...draft, goal: Number(event.target.value) || 0 })}
+            />
+            <button className="field split detail-click" type="button" onClick={() => setUnitOpen(true)}>
+              <span>{draft.unit}</span>
               <Icon src={assets.caret} size={16} />
-            </div>
-            <div className="segment">
-              <b>Daily</b>
-              <b>Weekly</b>
-              <b>Monthly</b>
-            </div>
-            <div className="weekday-pills">
-              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-                <span key={`${day}-${index}`} className={index === 0 ? 'off' : ''}>
-                  {day}
-                </span>
-              ))}
-            </div>
+            </button>
+          </div>
+          <div className={`schedule-card editable-schedule ${frequencyOpen ? 'create-expanded' : ''}`}>
+            <button className="schedule-head" type="button" onClick={() => setFrequencyOpen(!frequencyOpen)}>
+              <span>{draft.frequency}</span>
+              <Icon src={assets.caret} size={16} />
+            </button>
+            {frequencyOpen && (
+              <>
+                <div className="segment">
+                  {(['Daily', 'Weekly', 'Monthly'] as Frequency[]).map((frequency) => (
+                    <button
+                      key={frequency}
+                      className={draft.frequency === frequency ? 'selected' : ''}
+                      type="button"
+                      onClick={() => setDraft({ ...draft, frequency })}
+                    >
+                      {frequency}
+                    </button>
+                  ))}
+                </div>
+                {draft.frequency === 'Daily' ? (
+                  <div className="weekday-pills">
+                    {createWeekdayPills.map(({ label, key }) => {
+                      const active = draft.activeDays.includes(key)
+                      return (
+                        <button
+                          key={key}
+                          className={active ? '' : 'off'}
+                          type="button"
+                          aria-label={key}
+                          onClick={() => setDraft({
+                            ...draft,
+                            activeDays: active
+                              ? draft.activeDays.filter((day) => day !== key)
+                              : [...draft.activeDays, key],
+                          })}
+                        >
+                          {label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="every-field">Every <input value="1" readOnly /> {draft.frequency === 'Weekly' ? 'week' : 'month'}</div>
+                )}
+              </>
+            )}
           </div>
         </FormSection>
         <FormSection title="Time of day">
-          <div className="time-row">
-            {[
-              ['🌈', 'All Day', true],
-              ['🌅', 'Morning', false],
-              ['☀️', 'Afternoon', false],
-              ['🌙', 'Evening', false],
-            ].map(([icon, label, active]) => (
-              <div key={String(label)} className={active ? 'active' : ''}>
-                <span>{icon}</span>
-                <b>{label}</b>
-              </div>
-            ))}
-          </div>
+          <TimeOptions
+            selected={draft.timeOfDay}
+            onSelect={(timeOfDay) => setDraft({ ...draft, timeOfDay })}
+          />
         </FormSection>
         <FormSection title="Reminders">
-          <div className="field split muted">
-            <span>Create custom reminder</span>
-            <Icon src={assets.bell} size={20} />
+          <div className="field-row reminder-edit-row">
+            <input
+              className="field plain-input"
+              value={draft.reminderTime}
+              aria-label="Reminder time"
+              onChange={(event) => setDraft({ ...draft, reminderTime: event.target.value })}
+            />
+            <input
+              className="field plain-input"
+              value={draft.reminderFrequency}
+              aria-label="Reminder frequency"
+              onChange={(event) => setDraft({ ...draft, reminderFrequency: event.target.value })}
+            />
           </div>
         </FormSection>
         <div className="date-row">
           <FormSection title="Start Date">
-            <div className="field split"><span>Today</span><Icon src={assets.date} size={20} /></div>
+            <input
+              className="field plain-input"
+              value={draft.startDate}
+              aria-label="Start date"
+              onChange={(event) => setDraft({ ...draft, startDate: event.target.value })}
+            />
           </FormSection>
           <FormSection title="End Date">
-            <div className="field split"><span>Never</span><Icon src={assets.date} size={20} /></div>
+            <input
+              className="field plain-input"
+              value={draft.endDate}
+              aria-label="End date"
+              onChange={(event) => setDraft({ ...draft, endDate: event.target.value })}
+            />
           </FormSection>
         </div>
       </div>
+      {unitOpen && (
+        <div className="popup-dismiss-layer" onClick={() => setUnitOpen(false)}>
+          <UnitDrawer
+            onPick={(unit) => {
+              setDraft({ ...draft, unit })
+              setUnitOpen(false)
+            }}
+            onClose={() => setUnitOpen(false)}
+          />
+        </div>
+      )}
+      {overlay === 'emoji' && (
+        <div className="popup-dismiss-layer" onClick={() => setOverlay(null)}>
+          <EmojiOverlay
+            onPick={(icon) => {
+              setDraft({ ...draft, icon })
+              setOverlay(null)
+            }}
+            onClose={() => setOverlay(null)}
+          />
+        </div>
+      )}
+      {overlay === 'color' && (
+        <ColorOverlay
+          selected={draft.color}
+          onPick={(color) => {
+            setDraft({ ...draft, color })
+            setOverlay(null)
+          }}
+          onClose={() => setOverlay(null)}
+        />
+      )}
     </main>
   )
 }
@@ -1988,16 +2137,16 @@ function ReviewStep({
         </FormSection>
         <FormSection title="Reminders">
           <div className="field split muted">
-            <span>Create custom reminder</span>
+            <span>{draft.reminderTime} {draft.reminderFrequency}</span>
             <Icon src={assets.bell} size={20} />
           </div>
         </FormSection>
         <div className="date-row">
           <FormSection title="Start Date">
-            <div className="field split"><span>Today</span><Icon src={assets.date} size={20} /></div>
+            <div className="field split"><span>{draft.startDate}</span><Icon src={assets.date} size={20} /></div>
           </FormSection>
           <FormSection title="End Date">
-            <div className="field split"><span>Never</span><Icon src={assets.date} size={20} /></div>
+            <div className="field split"><span>{draft.endDate}</span><Icon src={assets.date} size={20} /></div>
           </FormSection>
         </div>
       </div>
@@ -2186,6 +2335,8 @@ function App() {
             onOpen={() => setHabitOpen(true)}
             onIncrement={() => setJuneProgress(selectedJuneDate, homeHabitValue + 1)}
           />
+        ) : hasHabit ? (
+          <HomeTimeEmpty />
         ) : (
           <>
             <HabitRow
@@ -2252,6 +2403,7 @@ function App() {
       currentStreak,
       bestStreak,
       habit,
+      hasHabit,
       habitVisible,
       headerTitle,
       activeHomeTab,
@@ -2266,7 +2418,17 @@ function App() {
   )
 
   if (view === 'edit') {
-    return <EditHabit onBack={() => setView('home')} onSave={() => setView('home')} />
+    return (
+      <EditHabit
+        habit={habit}
+        onBack={() => setView('home')}
+        onSave={(updatedHabit) => {
+          setHabit(updatedHabit)
+          setActiveHomeTab(updatedHabit.timeOfDay)
+          setView('home')
+        }}
+      />
+    )
   }
 
   if (view === 'new') {
